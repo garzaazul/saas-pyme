@@ -5,8 +5,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Chrome, Mail, Loader2 } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -57,24 +56,6 @@ export default function LoginPage() {
         }
     };
 
-    const handleGoogleLogin = async () => {
-        if (!supabase) return;
-
-        setLoading(true);
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
-                },
-            });
-            if (error) throw error;
-        } catch (error: any) {
-            setMessage(error.message || "Error al iniciar sesión con Google");
-            setLoading(false);
-        }
-    };
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <Card className="w-full max-w-md">
@@ -88,35 +69,10 @@ export default function LoginPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {/* Google Login */}
-                    <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={handleGoogleLogin}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                            <Chrome className="w-4 h-4 mr-2" />
-                        )}
-                        Continuar con Google
-                    </Button>
-
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <Separator className="w-full" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-2 text-muted-foreground">
-                                O continúa con email
-                            </span>
-                        </div>
-                    </div>
-
                     {/* Email Login Form */}
                     <form onSubmit={handleEmailLogin} className="space-y-4">
                         <div className="space-y-2">
+                            <label className="text-sm font-medium">Email</label>
                             <Input
                                 type="email"
                                 placeholder="tu@email.com"
@@ -126,6 +82,7 @@ export default function LoginPage() {
                             />
                         </div>
                         <div className="space-y-2">
+                            <label className="text-sm font-medium">Contraseña</label>
                             <Input
                                 type="password"
                                 placeholder="Tu contraseña"
@@ -138,7 +95,9 @@ export default function LoginPage() {
 
                         {message && (
                             <p
-                                className={`text-sm text-center ${message.includes("Error") ? "text-red-600" : "text-green-600"
+                                className={`text-sm text-center ${message.includes("Error") || message.includes("Invalid")
+                                        ? "text-red-600"
+                                        : "text-green-600"
                                     }`}
                             >
                                 {message}
