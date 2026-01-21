@@ -17,6 +17,7 @@ interface HeaderProps {
     userEmail?: string;
     userName?: string;
     userAvatarUrl?: string;
+    onSignOut?: () => void;
 }
 
 export function Header({
@@ -24,6 +25,7 @@ export function Header({
     userEmail,
     userName,
     userAvatarUrl,
+    onSignOut,
 }: HeaderProps) {
     const initials = userName
         ? userName
@@ -90,7 +92,7 @@ export function Header({
                             <span>Configuración</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem className="text-red-600" onClick={onSignOut}>
                             <LogOut className="mr-2 h-4 w-4" />
                             <span>Cerrar Sesión</span>
                         </DropdownMenuItem>

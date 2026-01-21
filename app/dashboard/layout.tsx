@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { cn } from "@/lib/utils";
+import { signOut } from "@/app/actions/auth";
 
 export default function DashboardLayout({
     children,
@@ -36,6 +37,7 @@ export default function DashboardLayout({
                     userName={mockUser.name}
                     userEmail={mockUser.email}
                     userAvatarUrl={mockUser.avatarUrl}
+                    onSignOut={signOut}
                 />
 
                 {/* Page Content */}
