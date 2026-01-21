@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Search, Mail, Phone, Building2, MoreVertical, Sparkles, TrendingUp, Users, ExternalLink } from "lucide-react";
+import { Plus, Search, Mail, Phone, Building2, MoreVertical, TrendingUp, Users, ExternalLink, FileText } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -28,58 +28,51 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-
-interface Client {
-    id: string;
-    name: string;
-    rut: string;
-    email: string;
-    phone: string;
-    address: string;
-    initials: string;
-}
-
-const mockClients: Client[] = [
-    {
-        id: "1",
-        name: "Tech Solutions S.A.",
-        rut: "76.123.456-7",
-        email: "contacto@techsolutions.cl",
-        phone: "+56 9 1234 5678",
-        address: "Av. Providencia 1234, Santiago",
-        initials: "TS",
-    },
-    {
-        id: "2",
-        name: "Global Corp",
-        rut: "76.234.567-8",
-        email: "info@globalcorp.cl",
-        phone: "+56 9 2345 6789",
-        address: "Las Condes 5678, Santiago",
-        initials: "GC",
-    },
-    {
-        id: "3",
-        name: "Acme Inc.",
-        rut: "76.345.678-9",
-        email: "ventas@acme.cl",
-        phone: "+56 9 3456 7890",
-        address: "Vitacura 9012, Santiago",
-        initials: "AI",
-    },
-    {
-        id: "4",
-        name: "Nexus Logistics",
-        rut: "76.456.789-0",
-        email: "operaciones@nexus.cl",
-        phone: "+56 9 4567 8901",
-        address: "Quilicura 3456, Santiago",
-        initials: "NL",
-    },
-];
+import { getClients, getClientsCount, getNewClientsThisMonth, type Client } from "@/app/actions/clients";
 
 export default function ClientsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [clients, setClients] = useState<Client[]>([]);
+    const [totalClients, setTotalClients] = useState(0);
+    const [newClientsThisMonth, setNewClientsThisMonth] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    useEffect(() => {
+        async function loadData() {
+            setLoading(true);
+            try {
+                const [data, count, newCount] = await Promise.all([
+                    getClients(),
+                    getClientsCount(),
+                    getNewClientsThisMonth()
+                ]);
+                setClients(data);
+                setTotalClients(count);
+                setNewClientsThisMonth(newCount);
+            } catch (error) {
+                console.error("Error loading clients data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadData();
+    }, []);
+
+    const filteredClients = clients.filter(client =>
+        client.razon_social.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.rut.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const getInitials = (name: string) => {
+        return name
+            .split(" ")
+            .map((n) => n[0])
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
+    };
 
     return (
         <div className="space-y-8 pb-10">
@@ -142,7 +135,7 @@ export default function ClientsPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -152,41 +145,28 @@ export default function ClientsPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-black tracking-tight leading-none">
-                            {mockClients.length}
+                            {totalClients}
                         </div>
-                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full">Base de datos unificada</p>
+                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Cartera activa</p>
                     </CardContent>
                 </Card>
 
                 <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                            Fidelidad
+                            Nuevos este Mes
                         </CardTitle>
-                        <Sparkles className="h-4 w-4 text-yellow-500" />
+                        <TrendingUp className="h-4 w-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-black tracking-tight leading-none text-yellow-600">
-                            92%
+                        <div className="text-2xl font-black tracking-tight leading-none text-green-600">
+                            {newClientsThisMonth}
                         </div>
-                        <p className="text-xs font-bold text-yellow-600 mt-2 italic shadow-sm bg-yellow-50 dark:bg-yellow-900/20 inline-block px-2 py-0.5 rounded-full">Tasa de retención</p>
+                        <p className="text-xs font-bold text-green-600 mt-2 italic shadow-sm bg-green-50 dark:bg-green-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Crecimiento reciente</p>
                     </CardContent>
                 </Card>
 
-                <Card className="premium-shadow border-none bg-indigo-600 text-white overflow-hidden group">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-indigo-100">
-                            Nuevos (30d)
-                        </CardTitle>
-                        <TrendingUp className="h-4 w-4 text-white" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-black tracking-tight leading-none text-white">
-                            +12
-                        </div>
-                        <p className="text-xs font-bold text-indigo-100 mt-2 italic shadow-sm bg-white/10 inline-block px-2 py-0.5 rounded-full">+15% vs mes anterior</p>
-                    </CardContent>
-                </Card>
+                {/* Third card hidden for MVP as per requirements */}
             </div>
 
             {/* Main Content Table */}
@@ -194,94 +174,114 @@ export default function ClientsPage() {
                 <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input placeholder="Buscar por Nombre, RUT o Email..." className="pl-10 rounded-xl bg-gray-50 dark:bg-slate-800 border-none" />
+                        <Input
+                            placeholder="Buscar por Razón Social, RUT o Email..."
+                            className="pl-10 rounded-xl bg-gray-50 dark:bg-slate-800 border-none"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
                 </div>
 
-                <Table>
-                    <TableHeader>
-                        <TableRow className="hover:bg-transparent border-gray-50 dark:border-slate-800">
-                            <TableHead className="pl-6 text-[10px] font-black uppercase tracking-widest text-gray-400">CLIENTE</TableHead>
-                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">IDENTIFICACIÓN</TableHead>
-                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">CONTACTO</TableHead>
-                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">UBICACIÓN</TableHead>
-                            <TableHead className="pr-6"></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {mockClients.map((client) => (
-                            <TableRow key={client.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border-gray-50 dark:border-slate-800">
-                                <TableCell className="pl-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="relative">
-                                            <Avatar className="w-11 h-11 border-2 border-white dark:border-slate-900 shadow-sm transition-transform group-hover:scale-110">
-                                                <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-primary text-white font-black text-sm">
-                                                    {client.initials}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full" />
-                                        </div>
-                                        <div>
-                                            <p className="font-black text-gray-900 dark:text-gray-100 leading-tight">{client.name}</p>
-                                            <span className="text-[10px] font-bold text-primary uppercase tracking-tight">Cliente VIP</span>
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <code className="text-[11px] font-bold bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-gray-600 dark:text-gray-400">
-                                        {client.rut}
-                                    </code>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
-                                                <Mail className="w-3 h-3" />
-                                            </div>
-                                            {client.email}
-                                        </div>
-                                        <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
-                                                <Phone className="w-3 h-3" />
-                                            </div>
-                                            {client.phone}
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 max-w-[200px] truncate">
-                                        <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
-                                            <Building2 className="w-3 h-3" />
-                                        </div>
-                                        {client.address}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="pr-6 text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
-                                                <MoreVertical className="w-4 h-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="rounded-xl premium-shadow border-none overflow-hidden p-1 w-48">
-                                            <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 focus:bg-primary/5 focus:text-primary cursor-pointer gap-2">
-                                                <ExternalLink className="w-3.5 h-3.5" />
-                                                Ver Detalle
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 focus:bg-primary/5 focus:text-primary cursor-pointer gap-2">
-                                                Ver Cotizaciones
-                                            </DropdownMenuItem>
-                                            <div className="h-px bg-gray-100 dark:bg-slate-800 my-1" />
-                                            <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2">
-                                                Eliminar Cliente
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
+                <div className="relative overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="hover:bg-transparent border-gray-50 dark:border-slate-800">
+                                <TableHead className="pl-6 text-[10px] font-black uppercase tracking-widest text-gray-400">RAZÓN SOCIAL</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">RUT</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">CONTACTO</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">DIRECCIÓN</TableHead>
+                                <TableHead className="pr-6"></TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center py-10 text-gray-500 font-medium">
+                                        Cargando clientes...
+                                    </TableCell>
+                                </TableRow>
+                            ) : filteredClients.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center py-10 text-gray-500 font-medium">
+                                        No se encontraron clientes.
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                filteredClients.map((client) => (
+                                    <TableRow key={client.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border-gray-50 dark:border-slate-800">
+                                        <TableCell className="pl-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="relative">
+                                                    <Avatar className="w-11 h-11 border-2 border-white dark:border-slate-900 shadow-sm transition-transform group-hover:scale-110">
+                                                        <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-primary text-white font-black text-sm">
+                                                            {getInitials(client.razon_social)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-gray-900 dark:text-gray-100 leading-tight">{client.razon_social}</p>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <code className="text-[11px] font-bold bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-gray-600 dark:text-gray-400">
+                                                {client.rut}
+                                            </code>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="space-y-1">
+                                                <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                                    <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
+                                                        <Mail className="w-3 h-3" />
+                                                    </div>
+                                                    {client.email}
+                                                </div>
+                                                <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                                    <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
+                                                        <Phone className="w-3 h-3" />
+                                                    </div>
+                                                    {client.telefono}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 max-w-[200px] truncate">
+                                                <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
+                                                    <Building2 className="w-3 h-3" />
+                                                </div>
+                                                {client.direccion}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="pr-6 text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="rounded-xl premium-shadow border-none overflow-hidden p-1 w-56">
+                                                    <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 focus:bg-primary/5 focus:text-primary cursor-pointer gap-2">
+                                                        <FileText className="w-3.5 h-3.5" />
+                                                        Nueva Cotización
+                                                    </DropdownMenuItem>
+                                                    <div className="h-px bg-gray-100 dark:bg-slate-800 my-1" />
+                                                    <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 focus:bg-primary/5 focus:text-primary cursor-pointer gap-2">
+                                                        <ExternalLink className="w-3.5 h-3.5" />
+                                                        Ver Detalle / Editar
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2">
+                                                        Eliminar Cliente
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </Card>
         </div>
     );
