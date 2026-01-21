@@ -44,27 +44,27 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <TooltipProvider delayDuration={0}>
             <aside
                 className={cn(
-                    "flex flex-col h-screen bg-white dark:bg-[#020817] border-r border-gray-200 dark:border-gray-800 transition-all duration-300",
+                    "flex flex-col h-screen bg-white dark:bg-slate-950 border-r border-gray-200/60 dark:border-slate-800/60 transition-all duration-300 z-50",
                     collapsed ? "w-16" : "w-64"
                 )}
             >
-                {/* Logo */}
-                <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-800">
+                {/* Logo Section */}
+                <div className="flex items-center h-16 px-5 border-b border-gray-100 dark:border-slate-800/60">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">F</span>
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <span className="text-white font-bold text-lg">F</span>
                         </div>
                         {!collapsed && (
                             <div className="flex flex-col">
-                                <span className="font-semibold text-gray-900 dark:text-gray-100">Financier</span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">Cash Flow Manager</span>
+                                <span className="font-bold text-gray-900 dark:text-gray-100 tracking-tight leading-none text-lg">Financier</span>
+                                <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400 mt-1">SaaS Operativo</span>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Navigation */}
-                <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+                {/* Navigation Section */}
+                <nav className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto custom-scrollbar">
                     {navItems.map((item) => {
                         const isActive =
                             pathname === item.href ||
@@ -74,15 +74,21 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                             <Link
                                 href={item.href}
                                 className={cn(
-                                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
+                                    "group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 relative",
                                     isActive
-                                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-gray-100"
+                                        ? "bg-primary/10 text-primary shadow-sm"
+                                        : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-900"
                                 )}
                             >
-                                <item.icon className="w-5 h-5 flex-shrink-0" />
+                                <item.icon className={cn(
+                                    "w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110",
+                                    isActive ? "text-primary" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                                )} />
                                 {!collapsed && (
-                                    <span className="font-medium">{item.label}</span>
+                                    <span className="font-semibold text-[0.925rem]">{item.label}</span>
+                                )}
+                                {isActive && !collapsed && (
+                                    <div className="absolute left-0 w-1 h-6 bg-primary rounded-r-full" />
                                 )}
                             </Link>
                         );
@@ -91,8 +97,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                             return (
                                 <Tooltip key={item.href}>
                                     <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                                    <TooltipContent side="right">
-                                        <p>{item.label}</p>
+                                    <TooltipContent side="right" className="bg-slate-900 text-white border-none">
+                                        <p className="font-medium text-xs">{item.label}</p>
                                     </TooltipContent>
                                 </Tooltip>
                             );
@@ -102,18 +108,21 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     })}
                 </nav>
 
-                {/* Toggle Button */}
-                <div className="p-2 border-t border-gray-200 dark:border-gray-800">
+                {/* Toggle & Footer Section */}
+                <div className="p-4 border-t border-gray-100 dark:border-slate-800/60 bg-gray-50/50 dark:bg-slate-900/20">
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={onToggle}
-                        className="w-full justify-center"
+                        className="w-full justify-center hover:bg-white dark:hover:bg-slate-800 shadow-none hover:shadow-sm transition-all"
                     >
                         {collapsed ? (
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-4 h-4 text-gray-500" />
                         ) : (
-                            <ChevronLeft className="w-4 h-4" />
+                            <div className="flex items-center gap-2 text-gray-500">
+                                <ChevronLeft className="w-4 h-4" />
+                                <span className="text-xs font-medium">Contraer menú</span>
+                            </div>
                         )}
                     </Button>
                 </div>

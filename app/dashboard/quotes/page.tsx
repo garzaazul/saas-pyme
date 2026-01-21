@@ -27,6 +27,7 @@ import {
     CheckCircle,
     FileText,
     Send,
+    Sparkles,
 } from "lucide-react";
 
 // Tipos para cotizaciones
@@ -122,60 +123,63 @@ export default function QuotesPage() {
         .reduce((acc, q) => acc + q.total, 0);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 pb-10">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Cotizaciones</h1>
-                    <p className="text-gray-500">
-                        Gestiona tus cotizaciones y seguimiento comercial
+                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
+                        Cotizaciones
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">
+                        Gestiona tus propuestas comerciales y seguimiento de ventas.
                     </p>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nueva Cotización
+                <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-10 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2">
+                    <Plus className="w-4 h-4" />
+                    <span className="font-bold">Nueva Cotización</span>
                 </Button>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card>
+            <div className="grid gap-6 md:grid-cols-3">
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">
-                            COTIZACIONES PENDIENTES
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Pendientes
                         </CardTitle>
-                        <FileText className="h-4 w-4 text-gray-400" />
+                        <FileText className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{formatCLP(pendingTotal)}</div>
-                        <p className="text-xs text-green-600">+5.2% vs mes anterior</p>
+                        <div className="text-2xl font-black tracking-tight">{formatCLP(pendingTotal)}</div>
+                        <p className="text-xs font-bold text-green-600 mt-1 italic">+5.2% vs mes anterior</p>
                     </CardContent>
                 </Card>
 
-                <Card className="border-green-200 bg-green-50">
+                <Card className="premium-shadow border-none bg-green-600 text-white overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">
-                            TOTAL ACEPTADO
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-green-100">
+                            Total Aceptado
                         </CardTitle>
-                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-green-200" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{formatCLP(acceptedTotal)}</div>
-                        <p className="text-xs text-red-600">-2.1% vs mes anterior</p>
+                        <div className="text-2xl font-black tracking-tight">{formatCLP(acceptedTotal)}</div>
+                        <p className="text-xs font-bold text-green-200 mt-1 italic">Tasa de éxito creciente</p>
                     </CardContent>
                 </Card>
 
-                <Card className="border-blue-200 bg-blue-50">
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">
-                            TASA DE CONVERSIÓN
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Conversión
                         </CardTitle>
+                        <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-blue-600">68%</div>
-                        <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
+                        <div className="text-2xl font-black tracking-tight text-primary">68%</div>
+                        <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-2 mt-4 overflow-hidden">
                             <div
-                                className="bg-blue-600 h-2 rounded-full"
+                                className="bg-primary h-full rounded-full transition-all duration-1000 ease-out"
                                 style={{ width: "68%" }}
                             ></div>
                         </div>
