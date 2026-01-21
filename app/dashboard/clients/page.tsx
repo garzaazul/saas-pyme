@@ -29,6 +29,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { getClients, getClientsCount, getNewClientsThisMonth, type Client } from "@/app/actions/clients";
+import { formatRut, validateRut, normalizePhone, isValidChileanMobile } from "@/lib/chile-formatters";
 
 export default function ClientsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -37,6 +38,36 @@ export default function ClientsPage() {
     const [newClientsThisMonth, setNewClientsThisMonth] = useState(0);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+
+    // Form State
+    const [formData, setFormData] = useState({
+        razon_social: "",
+        rut: "",
+        email: "",
+        telefono: "",
+        direccion: ""
+    });
+    const [errors, setErrors] = useState({
+        rut: false,
+        telefono: false
+    });
+
+    useEffect(() => {
+        if (!dialogOpen) {
+            // Reset form on close
+            setFormData({
+                razon_social: "",
+                rut: "",
+                email: "",
+                telefono: "",
+                direccion: ""
+            });
+            setErrors({
+                rut: false,
+                telefono: false
+            });
+        }
+    }, [dialogOpen]);
 
     useEffect(() => {
         async function loadData() {
@@ -66,6 +97,7 @@ export default function ClientsPage() {
     );
 
     const getInitials = (name: string) => {
+        if (!name) return "CL";
         return name
             .split(" ")
             .map((n) => n[0])
@@ -73,6 +105,27 @@ export default function ClientsPage() {
             .join("")
             .toUpperCase();
     };
+
+    const handleRutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const rawValue = e.target.value;
+        const formatted = formatRut(rawValue);
+        setFormData(prev => ({ ...prev, rut: formatted }));
+
+        // Validate immediately for UI feedback if typed enough
+        if (formatted.length > 2) {
+            setErrors(prev => ({ ...prev, rut: !validateRut(formatted) }));
+        } else {
+            setErrors(prev => ({ ...prev, rut: false }));
+        }
+    };
+
+    const handlePhoneBlur = () => {
+        const normalized = normalizePhone(formData.telefono);
+        setFormData(prev => ({ ...prev, telefono: normalized }));
+        setErrors(prev => ({ ...prev, telefono: !isValidChileanMobile(normalized) && normalized !== "" }));
+    };
+
+    const isFormInvalid = errors.rut || !validateRut(formData.rut) || (formData.telefono !== "" && !isValidChileanMobile(formData.telefono)) || formData.razon_social === "";
 
     return (
         <div className="space-y-8 pb-10">
@@ -100,32 +153,74 @@ export default function ClientsPage() {
                         <div className="space-y-4 mt-6">
                             <div className="space-y-2">
                                 <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Razón Social</label>
-                                <Input placeholder="Ej: Tech Solutions S.A." className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11" />
+                                <Input
+                                    placeholder="Ej: Tech Solutions S.A."
+                                    className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
+                                    value={formData.razon_social}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, razon_social: e.target.value }))}
+                                />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">RUT Empresa</label>
-                                <Input placeholder="76.000.000-0" className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-mono" />
+                                <div className="flex justify-between items-center">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">RUT Empresa</label>
+                                    {errors.rut && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">RUT Inválido</span>}
+                                </div>
+                                <Input
+                                    placeholder="76.000.000-0 o 1-9"
+                                    className={cn(
+                                        "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-mono transition-all",
+                                        errors.rut && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10"
+                                    )}
+                                    value={formData.rut}
+                                    onChange={handleRutChange}
+                                />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Email</label>
-                                    <Input type="email" placeholder="contacto@empresa.cl" className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11" />
+                                    <Input
+                                        type="email"
+                                        placeholder="contacto@empresa.cl"
+                                        className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                    />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Teléfono</label>
-                                    <Input placeholder="+56 9 ..." className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11" />
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Teléfono</label>
+                                        {errors.telefono && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">Formato: +569...</span>}
+                                    </div>
+                                    <Input
+                                        placeholder="+56 9 ..."
+                                        className={cn(
+                                            "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 transition-all",
+                                            errors.telefono && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10"
+                                        )}
+                                        value={formData.telefono}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                                        onBlur={handlePhoneBlur}
+                                    />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Dirección</label>
-                                <Input placeholder="Calle, Número, Comuna" className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11" />
+                                <Input
+                                    placeholder="Calle, Número, Comuna"
+                                    className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
+                                    value={formData.direccion}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
+                                />
                             </div>
 
                             <div className="flex justify-end gap-3 mt-8">
                                 <Button variant="ghost" onClick={() => setDialogOpen(false)} className="rounded-xl font-bold">
                                     Cancelar
                                 </Button>
-                                <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-xl font-bold px-8">
+                                <Button
+                                    disabled={isFormInvalid}
+                                    className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-xl font-bold px-8 transition-all disabled:opacity-50 disabled:grayscale"
+                                >
                                     Guardar Cliente
                                 </Button>
                             </div>
