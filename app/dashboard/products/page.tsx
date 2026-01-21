@@ -28,13 +28,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Package, Wrench, MoreVertical } from "lucide-react";
+import { Plus, Search, Package, Wrench, MoreVertical, Sparkles, TrendingUp, AlertCircle } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 function formatCLP(amount: number): string {
     return new Intl.NumberFormat("es-CL", {
@@ -113,80 +114,99 @@ export default function ProductsPage() {
             : mockProducts.filter((p) => p.type === filter);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 pb-10">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Productos</h1>
-                    <p className="text-gray-500">
-                        Catálogo de productos y servicios
+                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
+                        Productos y Servicios
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">
+                        Gestiona tu inventario y catálogo de soluciones.
                     </p>
                 </div>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-blue-600 hover:bg-blue-700">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Nuevo Producto
+                        <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-10 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2">
+                            <Plus className="w-4 h-4" />
+                            <span className="font-bold">Nuevo Item</span>
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="sm:max-w-[500px] rounded-2xl border-none premium-shadow bg-white dark:bg-slate-900">
                         <DialogHeader>
-                            <DialogTitle>Agregar Producto o Servicio</DialogTitle>
+                            <DialogTitle className="text-2xl font-bold tracking-tight">Agregar Nuevo Item</DialogTitle>
                         </DialogHeader>
-                        <div className="space-y-4 mt-4">
+                        <div className="space-y-4 mt-6">
                             {/* Type Toggle */}
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 dark:bg-slate-800 rounded-xl">
                                 <Button
-                                    variant={productType === "product" ? "default" : "outline"}
+                                    variant="ghost"
                                     onClick={() => setProductType("product")}
-                                    className={productType === "product" ? "bg-blue-600" : ""}
+                                    className={cn(
+                                        "rounded-lg font-bold transition-all h-10",
+                                        productType === "product" ? "bg-white dark:bg-slate-900 shadow-sm text-primary" : "text-gray-500"
+                                    )}
                                 >
                                     <Package className="w-4 h-4 mr-2" />
                                     Producto
                                 </Button>
                                 <Button
-                                    variant={productType === "service" ? "default" : "outline"}
+                                    variant="ghost"
                                     onClick={() => setProductType("service")}
-                                    className={productType === "service" ? "bg-blue-600" : ""}
+                                    className={cn(
+                                        "rounded-lg font-bold transition-all h-10",
+                                        productType === "service" ? "bg-white dark:bg-slate-900 shadow-sm text-primary" : "text-gray-500"
+                                    )}
                                 >
                                     <Wrench className="w-4 h-4 mr-2" />
                                     Servicio
                                 </Button>
                             </div>
 
-                            <Input placeholder="Nombre del producto" />
-                            <Input placeholder="Descripción (opcional)" />
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Nombre</label>
+                                <Input placeholder="Ej: Laptop Dell XPS 15" className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11" />
+                            </div>
 
-                            <Select>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Categoría" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="equipment">Equipos</SelectItem>
-                                    <SelectItem value="software">Software</SelectItem>
-                                    <SelectItem value="services">Servicios Profesionales</SelectItem>
-                                    <SelectItem value="support">Soporte</SelectItem>
-                                    <SelectItem value="other">Otros</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Categoría</label>
+                                <Select>
+                                    <SelectTrigger className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11">
+                                        <SelectValue placeholder="Seleccionar categoría" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl">
+                                        <SelectItem value="equipment">Equipos</SelectItem>
+                                        <SelectItem value="software">Software</SelectItem>
+                                        <SelectItem value="services">Servicios Profesionales</SelectItem>
+                                        <SelectItem value="support">Soporte</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                            <Input type="number" placeholder="Precio (CLP)" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Precio CLP</label>
+                                    <Input type="number" placeholder="0" className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-black" />
+                                </div>
+                                {productType === "product" && (
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Stock Inicial</label>
+                                        <Input type="number" placeholder="0" className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-black" />
+                                    </div>
+                                )}
+                            </div>
 
-                            {productType === "product" && (
-                                <Input type="number" placeholder="Stock inicial" />
-                            )}
-
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <span className="text-sm font-medium">Activo</span>
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800">
+                                <span className="text-sm font-bold uppercase tracking-wide">Visibilidad en Catálogo</span>
                                 <Switch defaultChecked />
                             </div>
 
-                            <div className="flex justify-end gap-2">
-                                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                            <div className="flex justify-end gap-3 mt-8">
+                                <Button variant="ghost" onClick={() => setDialogOpen(false)} className="rounded-xl font-bold">
                                     Cancelar
                                 </Button>
-                                <Button className="bg-blue-600 hover:bg-blue-700">
-                                    Guardar
+                                <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-xl font-bold px-8">
+                                    Guardar Item
                                 </Button>
                             </div>
                         </div>
@@ -194,155 +214,165 @@ export default function ProductsPage() {
                 </Dialog>
             </div>
 
-            {/* Stats */}
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">
+            {/* Stats Cards */}
+            <div className="grid gap-6 md:grid-cols-3">
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                             Total Productos
                         </CardTitle>
+                        <Package className="h-4 w-4 text-blue-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
+                        <div className="text-2xl font-black tracking-tight leading-none">
                             {mockProducts.filter((p) => p.type === "product").length}
                         </div>
+                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full">Activos en inventario</p>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">
+
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                             Total Servicios
                         </CardTitle>
+                        <Wrench className="h-4 w-4 text-purple-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
+                        <div className="text-2xl font-black tracking-tight leading-none">
                             {mockProducts.filter((p) => p.type === "service").length}
                         </div>
+                        <p className="text-xs font-bold text-purple-600 mt-2 italic shadow-sm bg-purple-50 dark:bg-purple-900/20 inline-block px-2 py-0.5 rounded-full">Soluciones intangibles</p>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">
-                            Sin Stock
+
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Sin Stock (Critico)
                         </CardTitle>
+                        <AlertCircle className="h-4 w-4 text-red-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-red-600">
+                        <div className="text-2xl font-black tracking-tight text-red-600 leading-none">
                             {mockProducts.filter((p) => p.type === "product" && p.stock === 0).length}
                         </div>
+                        <p className="text-xs font-bold text-red-600 mt-2 italic shadow-sm bg-red-50 dark:bg-red-900/20 inline-block px-2 py-0.5 rounded-full">Requiere reposición</p>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Filters */}
-            <div className="flex items-center gap-4">
-                <div className="flex gap-2">
-                    <Button
-                        variant={filter === "all" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilter("all")}
-                        className={filter === "all" ? "bg-blue-600" : ""}
-                    >
-                        Todos
-                    </Button>
-                    <Button
-                        variant={filter === "product" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilter("product")}
-                        className={filter === "product" ? "bg-blue-600" : ""}
-                    >
-                        <Package className="w-4 h-4 mr-1" />
-                        Productos
-                    </Button>
-                    <Button
-                        variant={filter === "service" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilter("service")}
-                        className={filter === "service" ? "bg-blue-600" : ""}
-                    >
-                        <Wrench className="w-4 h-4 mr-1" />
-                        Servicios
-                    </Button>
+            {/* Main Content Table */}
+            <Card className="border-none premium-shadow bg-white dark:bg-slate-900 overflow-hidden">
+                <div className="p-6 pb-2 border-b border-gray-50 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex p-1 bg-gray-100 dark:bg-slate-800 rounded-xl w-fit">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFilter("all")}
+                            className={cn(
+                                "rounded-lg font-bold text-xs h-8 px-4",
+                                filter === "all" ? "bg-white dark:bg-slate-900 shadow-sm text-primary" : "text-gray-500"
+                            )}
+                        >
+                            Todos
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFilter("product")}
+                            className={cn(
+                                "rounded-lg font-bold text-xs h-8 px-4",
+                                filter === "product" ? "bg-white dark:bg-slate-900 shadow-sm text-primary" : "text-gray-500"
+                            )}
+                        >
+                            <Package className="w-3 h-3 mr-1" />
+                            Productos
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFilter("service")}
+                            className={cn(
+                                "rounded-lg font-bold text-xs h-8 px-4",
+                                filter === "service" ? "bg-white dark:bg-slate-900 shadow-sm text-primary" : "text-gray-500"
+                            )}
+                        >
+                            <Wrench className="w-3 h-3 mr-1" />
+                            Servicios
+                        </Button>
+                    </div>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input placeholder="Filtrar catálogo..." className="pl-10 rounded-xl bg-gray-50 dark:bg-slate-800 border-none w-full md:w-80" />
+                    </div>
                 </div>
-                <div className="flex-1" />
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input placeholder="Buscar productos..." className="pl-10 w-64" />
-                </div>
-            </div>
 
-            {/* Table */}
-            <Card>
                 <Table>
                     <TableHeader>
-                        <TableRow>
-                            <TableHead>NOMBRE</TableHead>
-                            <TableHead>TIPO</TableHead>
-                            <TableHead>CATEGORÍA</TableHead>
-                            <TableHead>PRECIO</TableHead>
-                            <TableHead>STOCK</TableHead>
-                            <TableHead>ESTADO</TableHead>
-                            <TableHead></TableHead>
+                        <TableRow className="hover:bg-transparent border-gray-50 dark:border-slate-800">
+                            <TableHead className="pl-6 text-[10px] font-black uppercase tracking-widest text-gray-400">NOMBRE</TableHead>
+                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">TIPO</TableHead>
+                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">CATEGORÍA</TableHead>
+                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">PRECIO</TableHead>
+                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">STOCK</TableHead>
+                            <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">ESTADO</TableHead>
+                            <TableHead className="pr-6"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredProducts.map((product) => (
-                            <TableRow key={product.id}>
-                                <TableCell className="font-medium">{product.name}</TableCell>
-                                <TableCell>
-                                    <Badge
-                                        variant="outline"
-                                        className={
-                                            product.type === "service"
-                                                ? "border-purple-200 text-purple-700"
-                                                : "border-blue-200 text-blue-700"
-                                        }
-                                    >
-                                        {product.type === "service" ? (
-                                            <>
-                                                <Wrench className="w-3 h-3 mr-1" />
-                                                Servicio
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Package className="w-3 h-3 mr-1" />
-                                                Producto
-                                            </>
-                                        )}
-                                    </Badge>
+                            <TableRow key={product.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border-gray-50 dark:border-slate-800">
+                                <TableCell className="pl-6 font-bold text-gray-900 dark:text-gray-100">
+                                    {product.name}
                                 </TableCell>
-                                <TableCell className="text-gray-500">{product.category}</TableCell>
-                                <TableCell>{formatCLP(product.price)}</TableCell>
+                                <TableCell>
+                                    <div className={cn(
+                                        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black tracking-tight",
+                                        product.type === "service"
+                                            ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                                            : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                                    )}>
+                                        {product.type === "service" ? <Wrench className="w-3 h-3" /> : <Package className="w-3 h-3" />}
+                                        {product.type.toUpperCase()}
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-gray-500 font-medium text-xs">{product.category}</TableCell>
+                                <TableCell className="font-black text-primary italic">{formatCLP(product.price)}</TableCell>
                                 <TableCell>
                                     {product.type === "product" ? (
                                         product.stock === 0 ? (
-                                            <Badge variant="destructive">Sin stock</Badge>
+                                            <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 border-none font-black text-[9px] px-2 py-0">SIN STOCK</Badge>
                                         ) : (
-                                            <span>{product.stock} unidades</span>
+                                            <span className="text-xs font-bold text-gray-700 dark:text-gray-300 italic">{product.stock} un.</span>
                                         )
                                     ) : (
-                                        <span className="text-gray-400">N/A</span>
+                                        <span className="text-xs text-gray-300 font-black tracking-widest">N/A</span>
                                     )}
                                 </TableCell>
                                 <TableCell>
                                     <Badge
-                                        variant={product.active ? "default" : "secondary"}
-                                        className={product.active ? "bg-green-100 text-green-700" : ""}
+                                        className={cn(
+                                            "rounded-full px-3 py-0.5 text-[9px] font-black tracking-widest border-none",
+                                            product.active
+                                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                                : "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-400"
+                                        )}
                                     >
-                                        {product.active ? "Activo" : "Inactivo"}
+                                        {product.active ? "✓ ACTIVO" : "○ INACTIVO"}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="pr-6 text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
                                                 <MoreVertical className="w-4 h-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>Editar</DropdownMenuItem>
-                                            <DropdownMenuItem>Duplicar</DropdownMenuItem>
-                                            <DropdownMenuItem className="text-red-600">
+                                        <DropdownMenuContent align="end" className="rounded-xl premium-shadow border-none overflow-hidden p-1">
+                                            <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 focus:bg-primary/5 focus:text-primary cursor-pointer">Editar</DropdownMenuItem>
+                                            <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 focus:bg-primary/5 focus:text-primary cursor-pointer">Duplicar</DropdownMenuItem>
+                                            <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
                                                 Eliminar
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
