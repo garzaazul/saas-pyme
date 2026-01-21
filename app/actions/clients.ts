@@ -14,6 +14,31 @@ export interface Client {
     is_active: boolean;
 }
 
+// Internal mapping helper
+const mapFromDb = (dbClient: any): Client => ({
+    id: dbClient.id,
+    razon_social: dbClient.name,
+    rut: dbClient.identification,
+    email: dbClient.email,
+    telefono: dbClient.phone,
+    direccion: dbClient.address,
+    created_at: dbClient.created_at,
+    organization_id: dbClient.organization_id,
+    is_active: dbClient.is_active ?? true // Fallback if is_active is missing
+});
+
+const mapToDb = (client: Partial<Client>) => {
+    const dbObj: any = {};
+    if (client.razon_social) dbObj.name = client.razon_social;
+    if (client.rut) dbObj.identification = client.rut;
+    if (client.email) dbObj.email = client.email;
+    if (client.telefono) dbObj.phone = client.telefono;
+    if (client.direccion) dbObj.address = client.direccion;
+    if (client.organization_id) dbObj.organization_id = client.organization_id;
+    if (client.is_active !== undefined) dbObj.is_active = client.is_active;
+    return dbObj;
+};
+
 export async function getClients() {
     const supabase = await createClient();
 
@@ -28,7 +53,7 @@ export async function getClients() {
         return [];
     }
 
-    return clients as Client[];
+    return (clients || []).map(mapFromDb);
 }
 
 export async function getClientsCount() {
@@ -85,13 +110,15 @@ export async function createClientAction(data: Omit<Client, "id" | "created_at" 
         .eq("id", user.id)
         .single();
 
+    const dbData = mapToDb({
+        ...data,
+        organization_id: profile?.organization_id,
+        is_active: true
+    });
+
     const { data: client, error } = await supabase
         .from("clients")
-        .insert([{
-            ...data,
-            organization_id: profile?.organization_id,
-            is_active: true
-        }])
+        .insert([dbData])
         .select()
         .single();
 
@@ -103,7 +130,7 @@ export async function createClientAction(data: Omit<Client, "id" | "created_at" 
         return { error: error.message };
     }
 
-    return { data: client };
+    return { data: mapFromDb(client) };
 }
 
 export async function softDeleteClient(id: string) {
