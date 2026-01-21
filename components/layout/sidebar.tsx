@@ -44,20 +44,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <TooltipProvider delayDuration={0}>
             <aside
                 className={cn(
-                    "flex flex-col h-screen bg-white border-r border-gray-200 transition-all duration-300",
+                    "flex flex-col h-screen bg-white dark:bg-[#020817] border-r border-gray-200 dark:border-gray-800 transition-all duration-300",
                     collapsed ? "w-16" : "w-64"
                 )}
             >
                 {/* Logo */}
-                <div className="flex items-center h-16 px-4 border-b border-gray-200">
+                <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-800">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                             <span className="text-white font-bold text-sm">F</span>
                         </div>
                         {!collapsed && (
                             <div className="flex flex-col">
-                                <span className="font-semibold text-gray-900">Financier</span>
-                                <span className="text-xs text-gray-500">Cash Flow Manager</span>
+                                <span className="font-semibold text-gray-900 dark:text-gray-100">Financier</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">Cash Flow Manager</span>
                             </div>
                         )}
                     </div>
@@ -76,8 +76,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                 className={cn(
                                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
                                     isActive
-                                        ? "bg-blue-50 text-blue-600"
-                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-gray-100"
                                 )}
                             >
                                 <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -103,7 +103,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 </nav>
 
                 {/* Toggle Button */}
-                <div className="p-2 border-t border-gray-200">
+                <div className="p-2 border-t border-gray-200 dark:border-gray-800">
                     <Button
                         variant="ghost"
                         size="sm"

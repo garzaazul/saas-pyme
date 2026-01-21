@@ -37,10 +37,10 @@ export function Header({
         : "U";
 
     return (
-        <header className="flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200">
+        <header className="flex items-center justify-between h-16 px-6 bg-white dark:bg-[#020817] border-b border-gray-200 dark:border-gray-800">
             {/* Organization Name */}
             <div className="flex items-center gap-4">
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {organizationName}
                 </h1>
             </div>
@@ -49,7 +49,7 @@ export function Header({
             <div className="flex items-center gap-4">
                 {/* Notifications */}
                 <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="w-5 h-5 text-gray-500" />
+                    <Bell className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
                 </Button>
 
@@ -67,7 +67,7 @@ export function Header({
                                 </AvatarFallback>
                             </Avatar>
                             {userName && (
-                                <span className="hidden md:block text-sm font-medium text-gray-700">
+                                <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     {userName}
                                 </span>
                             )}

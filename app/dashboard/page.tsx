@@ -76,7 +76,7 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Resumen Ejecutivo</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Resumen Ejecutivo</h1>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" size="sm" className="gap-2">
@@ -100,14 +100,14 @@ export default function DashboardPage() {
             {/* KPI Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {/* Total Income */}
-                <Card className="bg-white">
+                <Card className="bg-white dark:bg-[#020817] border-gray-200 dark:border-gray-800">
                     <CardContent className="pt-6">
                         <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-500">
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Ingresos Totales
                                 </p>
-                                <p className="text-2xl font-bold text-green-600 mt-1">
+                                <p className="text-2xl font-bold text-green-600 dark:text-green-500 mt-1">
                                     {formatCLP(kpis.totalIncome)}
                                 </p>
                                 <div className="flex items-center gap-1 mt-1">
@@ -116,7 +116,7 @@ export default function DashboardPage() {
                                     <span className="text-xs text-gray-400">vs mes anterior</span>
                                 </div>
                             </div>
-                            <div className="p-2 bg-green-50 rounded-lg">
+                            <div className="p-2 bg-green-50 dark:bg-green-950/20 rounded-lg">
                                 <TrendingUp className="w-5 h-5 text-green-500" />
                             </div>
                         </div>
@@ -124,11 +124,11 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* Total Expenses */}
-                <Card className="bg-white">
+                <Card className="bg-white dark:bg-[#020817] border-gray-200 dark:border-gray-800">
                     <CardContent className="pt-6">
                         <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-500">
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Gastos Totales
                                 </p>
                                 <p className="text-2xl font-bold text-red-500 mt-1">
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                                     <span className="text-xs text-gray-400">vs mes anterior</span>
                                 </div>
                             </div>
-                            <div className="p-2 bg-red-50 rounded-lg">
+                            <div className="p-2 bg-red-50 dark:bg-red-950/20 rounded-lg">
                                 <TrendingDown className="w-5 h-5 text-red-400" />
                             </div>
                         </div>
@@ -148,11 +148,11 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* Operating Result */}
-                <Card className="bg-white">
+                <Card className="bg-white dark:bg-[#020817] border-gray-200 dark:border-gray-800">
                     <CardContent className="pt-6">
                         <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-500">
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Resultado Operacional
                                 </p>
                                 <p className="text-2xl font-bold text-blue-600 mt-1">
@@ -164,7 +164,7 @@ export default function DashboardPage() {
                                     <span className="text-xs text-gray-400">optimización</span>
                                 </div>
                             </div>
-                            <div className="p-2 bg-blue-50 rounded-lg">
+                            <div className="p-2 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                                 <Sparkles className="w-5 h-5 text-blue-500" />
                             </div>
                         </div>
@@ -204,25 +204,25 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="text-lg">Salud Operacional</CardTitle>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                         % Formalización (Documentado vs Sin Documentar)
                                     </p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-3xl font-bold text-blue-600">78%</p>
-                                    <p className="text-xs text-green-600">+5% este ciclo</p>
+                                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">78%</p>
+                                    <p className="text-xs text-green-600 dark:text-green-500">+5% este ciclo</p>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-600">
+                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                         DOCUMENTADO (FACTURADO)
                                     </span>
                                     <span className="text-sm font-medium">78%</span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-3">
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3">
                                     <div
                                         className="bg-blue-600 h-3 rounded-full transition-all"
                                         style={{ width: "78%" }}
@@ -231,14 +231,14 @@ export default function DashboardPage() {
                             </div>
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-400">
+                                    <span className="text-sm font-medium text-gray-400 dark:text-gray-500">
                                         SIN DOCUMENTAR
                                     </span>
-                                    <span className="text-sm font-medium text-gray-400">22%</span>
+                                    <span className="text-sm font-medium text-gray-400 dark:text-gray-500">22%</span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-3">
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3">
                                     <div
-                                        className="bg-gray-300 h-3 rounded-full transition-all"
+                                        className="bg-gray-300 dark:bg-gray-700 h-3 rounded-full transition-all"
                                         style={{ width: "22%" }}
                                     />
                                 </div>

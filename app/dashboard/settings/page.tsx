@@ -1,5 +1,8 @@
 "use client";
 
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { updateTheme } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,12 +11,34 @@ import { Separator } from "@/components/ui/separator";
 import { Building2, Users, Bell, CreditCard, Shield, Palette } from "lucide-react";
 
 export default function SettingsPage() {
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    // Evitar errores de hidratación
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const toggleTheme = async (checked: boolean) => {
+        const newTheme = checked ? "dark" : "light";
+        setTheme(newTheme);
+        await updateTheme(newTheme);
+    };
+
+    if (!mounted) {
+        return (
+            <div className="space-y-6 max-w-4xl opacity-0">
+                <h1 className="text-2xl font-bold">Configuración</h1>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6 max-w-4xl">
             {/* Page Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
-                <p className="text-gray-500">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Configuración</h1>
+                <p className="text-gray-500 dark:text-gray-400">
                     Administra la configuración de tu organización
                 </p>
             </div>
@@ -72,8 +97,8 @@ export default function SettingsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-center py-8 text-gray-500">
-                        <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <Users className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-700" />
                         <p>La gestión de usuarios estará disponible próximamente</p>
                     </div>
                 </CardContent>
@@ -94,7 +119,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-medium">Cotización Aceptada</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Recibe un email cuando un cliente acepte una cotización
                             </p>
                         </div>
@@ -104,7 +129,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-medium">Cotización por Vencer</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Alerta 3 días antes de que venza una cotización
                             </p>
                         </div>
@@ -114,7 +139,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-medium">Stock Bajo</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Notificación cuando un producto tenga stock bajo
                             </p>
                         </div>
@@ -135,10 +160,10 @@ export default function SettingsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/30">
                         <div>
-                            <p className="font-medium text-blue-900">Plan Pro</p>
-                            <p className="text-sm text-blue-700">Próximo cobro: 15 Nov 2024</p>
+                            <p className="font-medium text-blue-900 dark:text-blue-100">Plan Pro</p>
+                            <p className="text-sm text-blue-700 dark:text-blue-300">Próximo cobro: 15 Nov 2024</p>
                         </div>
                         <Button variant="outline">Administrar Plan</Button>
                     </div>
@@ -160,11 +185,14 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-medium">Modo Oscuro</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Activa el tema oscuro para reducir fatiga visual
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={theme === "dark"}
+                            onCheckedChange={toggleTheme}
+                        />
                     </div>
                 </CardContent>
             </Card>
@@ -184,7 +212,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-medium">Autenticación de Dos Factores</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Añade una capa extra de seguridad a tu cuenta
                             </p>
                         </div>
@@ -194,7 +222,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-medium">Cambiar Contraseña</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Actualiza tu contraseña periódicamente
                             </p>
                         </div>
