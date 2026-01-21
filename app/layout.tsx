@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "sonner";
 import { getProfile } from "@/app/actions/auth";
 
 export const metadata: Metadata = {
@@ -21,11 +22,12 @@ export default async function RootLayout({
             <body>
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme={initialTheme}
+                    defaultTheme={profile?.theme || "light"}
                     enableSystem
                     disableTransitionOnChange
                 >
                     {children}
+                    <Toaster position="top-right" richColors closeButton />
                 </ThemeProvider>
             </body>
         </html>

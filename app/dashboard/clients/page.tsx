@@ -28,15 +28,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { getClients, getClientsCount, getNewClientsThisMonth, type Client } from "@/app/actions/clients";
+import { getClients, getClientsCount, getNewClientsThisMonth, type Client, createClientAction, softDeleteClient } from "@/app/actions/clients";
 import { formatRut, validateRut, normalizePhone, isValidChileanMobile } from "@/lib/chile-formatters";
+import { toast } from "sonner";
+import { Loader2, Trash2, AlertTriangle } from "lucide-react";
 
 export default function ClientsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [clientToDelete, setClientToDelete] = useState<string | null>(null);
     const [clients, setClients] = useState<Client[]>([]);
     const [totalClients, setTotalClients] = useState(0);
     const [newClientsThisMonth, setNewClientsThisMonth] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
     // Form State
@@ -51,6 +57,25 @@ export default function ClientsPage() {
         rut: false,
         telefono: false
     });
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const [data, count, newCount] = await Promise.all([
+                getClients(),
+                getClientsCount(),
+                getNewClientsThisMonth()
+            ]);
+            setClients(data);
+            setTotalClients(count);
+            setNewClientsThisMonth(newCount);
+        } catch (error) {
+            console.error("Error loading clients data:", error);
+            toast.error("Error al cargar los datos de clientes.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!dialogOpen) {
@@ -70,25 +95,54 @@ export default function ClientsPage() {
     }, [dialogOpen]);
 
     useEffect(() => {
-        async function loadData() {
-            setLoading(true);
-            try {
-                const [data, count, newCount] = await Promise.all([
-                    getClients(),
-                    getClientsCount(),
-                    getNewClientsThisMonth()
-                ]);
-                setClients(data);
-                setTotalClients(count);
-                setNewClientsThisMonth(newCount);
-            } catch (error) {
-                console.error("Error loading clients data:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
         loadData();
     }, []);
+
+    const handleSaveClient = async () => {
+        if (isFormInvalid) return;
+
+        setIsSaving(true);
+        try {
+            const result = await createClientAction(formData);
+            if (result.error) {
+                toast.error(`Error al guardar: ${result.error}`);
+            } else {
+                toast.success("Cliente guardado correctamente");
+                setDialogOpen(false);
+                loadData(); // Refresh list and stats
+            }
+        } catch (error) {
+            toast.error("Ocurrió un error inesperado al guardar el cliente.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDeleteConfirm = (id: string) => {
+        setClientToDelete(id);
+        setConfirmDialogOpen(true);
+    };
+
+    const handleSoftDelete = async () => {
+        if (!clientToDelete) return;
+
+        setIsDeleting(true);
+        try {
+            const result = await softDeleteClient(clientToDelete);
+            if (result.error) {
+                toast.error(`Error al desactivar: ${result.error}`);
+            } else {
+                toast.success("Cliente desactivado correctamente");
+                setConfirmDialogOpen(false);
+                setClientToDelete(null);
+                loadData(); // Refresh list
+            }
+        } catch (error) {
+            toast.error("Ocurrió un error inesperado al desactivar el cliente.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     const filteredClients = clients.filter(client =>
         client.razon_social.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -218,10 +272,18 @@ export default function ClientsPage() {
                                     Cancelar
                                 </Button>
                                 <Button
-                                    disabled={isFormInvalid}
-                                    className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-xl font-bold px-8 transition-all disabled:opacity-50 disabled:grayscale"
+                                    disabled={isFormInvalid || isSaving}
+                                    onClick={handleSaveClient}
+                                    className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-xl font-bold px-8 transition-all disabled:opacity-50 disabled:grayscale min-w-[140px]"
                                 >
-                                    Guardar Cliente
+                                    {isSaving ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                            Guardando...
+                                        </>
+                                    ) : (
+                                        "Guardar Cliente"
+                                    )}
                                 </Button>
                             </div>
                         </div>
@@ -365,8 +427,12 @@ export default function ClientsPage() {
                                                         <ExternalLink className="w-3.5 h-3.5" />
                                                         Ver Detalle / Editar
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2">
-                                                        Eliminar Cliente
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleDeleteConfirm(client.id)}
+                                                        className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                        Desactivar Cliente
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -378,6 +444,45 @@ export default function ClientsPage() {
                     </Table>
                 </div>
             </Card>
+
+            {/* Confirmation Dialog for Soft Delete */}
+            <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+                <DialogContent className="sm:max-w-[400px] rounded-2xl border-none premium-shadow bg-white dark:bg-slate-900">
+                    <DialogHeader>
+                        <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-4">
+                            <AlertTriangle className="w-6 h-6 text-red-600" />
+                        </div>
+                        <DialogTitle className="text-xl font-bold tracking-tight">¿Estás seguro?</DialogTitle>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            Estás a punto de desactivar este cliente. Su historial se mantendrá, pero no podrás emitir nuevas cotizaciones para él.
+                        </p>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-3 mt-6">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setConfirmDialogOpen(false)}
+                            className="rounded-xl font-bold"
+                            disabled={isDeleting}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleSoftDelete}
+                            disabled={isDeleting}
+                            className="bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200 dark:shadow-none rounded-xl font-bold px-6 min-w-[120px]"
+                        >
+                            {isDeleting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                    Desactivando...
+                                </>
+                            ) : (
+                                "Desactivar"
+                            )}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
