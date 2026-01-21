@@ -17,20 +17,20 @@ export interface Client {
 // Internal mapping helper
 const mapFromDb = (dbClient: any): Client => ({
     id: dbClient.id,
-    razon_social: dbClient.name,
-    rut: dbClient.identification,
+    razon_social: dbClient.business_name,
+    rut: dbClient.rut,
     email: dbClient.email,
     telefono: dbClient.phone,
     direccion: dbClient.address,
     created_at: dbClient.created_at,
     organization_id: dbClient.organization_id,
-    is_active: dbClient.is_active ?? true // Fallback if is_active is missing
+    is_active: dbClient.is_active ?? true
 });
 
 const mapToDb = (client: Partial<Client>) => {
     const dbObj: any = {};
-    if (client.razon_social) dbObj.name = client.razon_social;
-    if (client.rut) dbObj.identification = client.rut;
+    if (client.razon_social) dbObj.business_name = client.razon_social;
+    if (client.rut) dbObj.rut = client.rut;
     if (client.email) dbObj.email = client.email;
     if (client.telefono) dbObj.phone = client.telefono;
     if (client.direccion) dbObj.address = client.direccion;

@@ -1,0 +1,11 @@
+Tabla,Campos
+clients,"id (uuid), address (text), giro (text), payment_condition (text), created_at (timestamp with time zone), contact_name (text), email (text), phone (text), rut (text), business_name (text), is_active (boolean), organization_id (uuid)"
+economic_indicators,"date (date), updated_at (timestamp with time zone), uf_value (numeric), source (text)"
+expenses,"category (text), document_url (text), notes (text), type (text), supplier_name (text), id (uuid), organization_id (uuid), date (date), amount (numeric), created_at (timestamp with time zone)"
+organizations,"instagram_url (text), tiktok_url (text), email (text), id (uuid), created_at (timestamp with time zone), web_slug (text), description (text), logo_url (text), rut (text), name (text), whatsapp (text), facebook_url (text)"
+products,"description (text), is_stock_product (boolean), min_stock_alert (integer), current_stock (integer), organization_id (uuid), id (uuid), created_at (timestamp with time zone), base_price (numeric), unit (text), category (text), image_url (text), name (text)"
+profiles,"theme (text), id (uuid), organization_id (uuid), created_at (timestamp with time zone), role (text), full_name (text), email (text)"
+quote_items,"concept (text), unit_price (numeric), quantity (numeric), quote_id (uuid), product_id (uuid), id (uuid), total_line (numeric)"
+quotes,"folio (integer), id (uuid), total_amount (numeric), valid_until (date), version (integer), observations (text), related_quote_id (uuid), created_at (timestamp with time zone), status (text), organization_id (uuid), client_id (uuid)"
+recurring_expenses,"category (text), amount_value (numeric), organization_id (uuid), id (uuid), name (text), created_at (timestamp with time zone), currency (text), is_active (boolean)"
+sales,"organization_id (uuid), client_id (uuid), quote_id (uuid), date (date), document_url (text), document_number (text), sale_type (text), net_amount (numeric), tax_amount (numeric), total_amount (numeric), created_at (timestamp with time zone), notes (text), payment_status (text), id (uuid)"
