@@ -32,15 +32,8 @@ import { getClients, getClientsCount, getNewClientsThisMonth, type Client, creat
 import { formatRut, validateRut, normalizePhone, isValidChileanMobile } from "@/lib/chile-formatters";
 import { toast } from "sonner";
 import { Loader2, Trash2, AlertTriangle, RotateCcw } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { TableToolbar } from "@/components/dashboard/TableToolbar";
+import { exportToExcel, exportToPDF } from "@/lib/export-utils";
 
 export default function ClientsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -204,6 +197,34 @@ export default function ClientsPage() {
         }
     };
 
+    // Export Logic
+    const handleExportExcel = () => {
+        const mapping = {
+            razon_social: "Razón Social",
+            rut: "RUT",
+            email: "Email",
+            telefono: "Teléfono",
+            direccion: "Dirección"
+        };
+        exportToExcel(filteredBySearch, `Clientes_${activeTab === 'active' ? 'Activos' : 'Papelera'}`, mapping);
+        toast.success("Excel generado correctamente");
+    };
+
+    const handleExportPDF = () => {
+        const columns = [
+            { header: "Razón Social", dataKey: "razon_social" },
+            { header: "RUT", dataKey: "rut" },
+            { header: "Email", dataKey: "email" },
+            { header: "Teléfono", dataKey: "telefono" }
+        ];
+        exportToPDF(
+            `Reporte de Clientes - ${activeTab === 'active' ? 'Activos' : 'Papelera'}`,
+            filteredBySearch,
+            columns
+        );
+        toast.success("PDF generado correctamente");
+    };
+
     // Data Filtering & Logic
     const activeClientsCount = clients.filter(c => c.is_active).length;
     const trashClientsCount = clients.filter(c => !c.is_active).length;
@@ -267,105 +288,6 @@ export default function ClientsPage() {
                         Gestiona tu cartera de clientes y relaciones comerciales.
                     </p>
                 </div>
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-10 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2">
-                            <Plus className="w-4 h-4" />
-                            <span className="font-bold">Nuevo Cliente</span>
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px] rounded-2xl border-none premium-shadow bg-white dark:bg-slate-900">
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold tracking-tight">
-                                {editingClient ? "Editar Cliente" : "Agregar Nuevo Cliente"}
-                            </DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 mt-6">
-                            {/* ... (form inputs remain identical) */}
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Razón Social</label>
-                                <Input
-                                    placeholder="Ej: Tech Solutions S.A."
-                                    className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
-                                    value={formData.razon_social}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, razon_social: e.target.value }))}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">RUT Empresa</label>
-                                    {errors.rut && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">RUT Inválido</span>}
-                                </div>
-                                <Input
-                                    placeholder="76.000.000-0 o 1-9"
-                                    className={cn(
-                                        "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-mono transition-all",
-                                        errors.rut && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10"
-                                    )}
-                                    value={formData.rut}
-                                    onChange={handleRutChange}
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Email</label>
-                                    <Input
-                                        type="email"
-                                        placeholder="contacto@empresa.cl"
-                                        className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Teléfono</label>
-                                        {errors.telefono && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">Formato: +569...</span>}
-                                    </div>
-                                    <Input
-                                        placeholder="+56 9 ..."
-                                        className={cn(
-                                            "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 transition-all",
-                                            errors.telefono && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10"
-                                        )}
-                                        value={formData.telefono}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
-                                        onBlur={handlePhoneBlur}
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Dirección</label>
-                                <Input
-                                    placeholder="Calle, Número, Comuna"
-                                    className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
-                                    value={formData.direccion}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
-                                />
-                            </div>
-
-                            <div className="flex justify-end gap-3 mt-8">
-                                <Button variant="ghost" onClick={() => setDialogOpen(false)} className="rounded-xl font-bold">
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    disabled={isFormInvalid || isSaving}
-                                    onClick={handleSaveClient}
-                                    className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-xl font-bold px-8 transition-all disabled:opacity-50 disabled:grayscale min-w-[140px]"
-                                >
-                                    {isSaving ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                            Guardando...
-                                        </>
-                                    ) : (
-                                        "Guardar Cliente"
-                                    )}
-                                </Button>
-                            </div>
-                        </div>
-                    </DialogContent>
-                </Dialog>
             </div>
 
             {/* Stats Cards */}
@@ -403,60 +325,120 @@ export default function ClientsPage() {
 
             {/* Main Content Table */}
             <Card className="border-none premium-shadow bg-white dark:bg-slate-900 overflow-hidden">
-                <div className="p-6 border-b border-gray-50 dark:border-slate-800 space-y-6">
-                    {/* Tabs and Controls Row */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
-                            <TabsList className="bg-gray-100 dark:bg-slate-800 p-1 rounded-xl h-auto">
-                                <TabsTrigger
-                                    value="active"
-                                    className="rounded-lg py-2 px-4 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all gap-2"
-                                >
-                                    <span className="font-bold text-xs">Activos</span>
-                                    <Badge variant="secondary" className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-none font-bold text-[10px] py-0 px-1.5 h-4 min-w-[20px] justify-center">
-                                        {activeClientsCount}
-                                    </Badge>
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="trash"
-                                    className="rounded-lg py-2 px-4 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all gap-2"
-                                >
-                                    <span className="font-bold text-xs">Papelera</span>
-                                    <Badge variant="secondary" className="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 border-none font-bold text-[10px] py-0 px-1.5 h-4 min-w-[20px] justify-center">
-                                        {trashClientsCount}
-                                    </Badge>
-                                </TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                <TableToolbar
+                    searchQuery={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    tabOptions={[
+                        { key: "active", label: "Activos", count: activeClientsCount },
+                        { key: "trash", label: "Papelera", count: trashClientsCount }
+                    ]}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                    onExportExcel={handleExportExcel}
+                    onExportPDF={handleExportPDF}
+                    placeholder="Buscar por Razón Social, RUT o Email..."
+                >
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-10 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2">
+                                <Plus className="w-4 h-4" />
+                                <span className="font-bold">Nuevo Cliente</span>
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[500px] rounded-2xl border-none premium-shadow bg-white dark:bg-slate-900">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-bold tracking-tight">
+                                    {editingClient ? "Editar Cliente" : "Agregar Nuevo Cliente"}
+                                </DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4 mt-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Razón Social</label>
+                                    <Input
+                                        placeholder="Ej: Tech Solutions S.A."
+                                        className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
+                                        value={formData.razon_social}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, razon_social: e.target.value }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">RUT Empresa</label>
+                                        {errors.rut && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">RUT Inválido</span>}
+                                    </div>
+                                    <Input
+                                        placeholder="76.000.000-0 o 1-9"
+                                        className={cn(
+                                            "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-mono transition-all",
+                                            errors.rut && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10"
+                                        )}
+                                        value={formData.rut}
+                                        onChange={handleRutChange}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Email</label>
+                                        <Input
+                                            type="email"
+                                            placeholder="contacto@empresa.cl"
+                                            className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-center">
+                                            <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Teléfono</label>
+                                            {errors.telefono && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">Formato: +569...</span>}
+                                        </div>
+                                        <Input
+                                            placeholder="+56 9 ..."
+                                            className={cn(
+                                                "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 transition-all",
+                                                errors.telefono && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10"
+                                            )}
+                                            value={formData.telefono}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                                            onBlur={handlePhoneBlur}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Dirección</label>
+                                    <Input
+                                        placeholder="Calle, Número, Comuna"
+                                        className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11"
+                                        value={formData.direccion}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
+                                    />
+                                </div>
 
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Filas:</span>
-                                <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
-                                    <SelectTrigger className="w-[70px] h-9 rounded-xl border-none bg-gray-50 dark:bg-slate-800 font-bold text-xs">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-none premium-shadow">
-                                        <SelectItem value="10" className="font-bold text-xs">10</SelectItem>
-                                        <SelectItem value="25" className="font-bold text-xs">25</SelectItem>
-                                        <SelectItem value="50" className="font-bold text-xs">50</SelectItem>
-                                        <SelectItem value="100" className="font-bold text-xs">100</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <div className="flex justify-end gap-3 mt-8">
+                                    <Button variant="ghost" onClick={() => setDialogOpen(false)} className="rounded-xl font-bold">
+                                        Cancelar
+                                    </Button>
+                                    <Button
+                                        disabled={isFormInvalid || isSaving}
+                                        onClick={handleSaveClient}
+                                        className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-xl font-bold px-8 transition-all disabled:opacity-50 disabled:grayscale min-w-[140px]"
+                                    >
+                                        {isSaving ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                                Guardando...
+                                            </>
+                                        ) : (
+                                            "Guardar Cliente"
+                                        )}
+                                    </Button>
+                                </div>
                             </div>
-
-                            <div className="relative flex-1 md:w-64">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <Input
-                                    placeholder="Buscar..."
-                                    className="pl-10 rounded-xl bg-gray-50 dark:bg-slate-800 border-none h-9 text-xs"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        </DialogContent>
+                    </Dialog>
+                </TableToolbar>
 
                 <div className="relative overflow-x-auto">
                     <Table>
