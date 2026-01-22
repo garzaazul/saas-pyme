@@ -28,10 +28,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { getClients, getClientsCount, getNewClientsThisMonth, type Client, createClientAction, softDeleteClient, updateClientAction } from "@/app/actions/clients";
+import { getClients, getClientsCount, getNewClientsThisMonth, type Client, createClientAction, softDeleteClient, updateClientAction, reactivateClient } from "@/app/actions/clients";
 import { formatRut, validateRut, normalizePhone, isValidChileanMobile } from "@/lib/chile-formatters";
 import { toast } from "sonner";
-import { Loader2, Trash2, AlertTriangle } from "lucide-react";
+import { Loader2, Trash2, AlertTriangle, RotateCcw } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -187,6 +187,20 @@ export default function ClientsPage() {
             toast.error("Ocurrió un error inesperado al desactivar el cliente.");
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleReactivate = async (id: string) => {
+        try {
+            const result = await reactivateClient(id);
+            if (result.error) {
+                toast.error(`Error al reactivar: ${result.error}`);
+            } else {
+                toast.success("Cliente reactivado correctamente");
+                loadData(); // Refresh list
+            }
+        } catch (error) {
+            toast.error("Ocurrió un error inesperado al reactivar el cliente.");
         }
     };
 
@@ -538,13 +552,21 @@ export default function ClientsPage() {
                                                         <ExternalLink className="w-3.5 h-3.5" />
                                                         Ver Detalle / Editar
                                                     </DropdownMenuItem>
-                                                    {client.is_active && (
+                                                    {client.is_active ? (
                                                         <DropdownMenuItem
                                                             onSelect={() => handleDeleteConfirm(client.id)}
                                                             className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
                                                         >
                                                             <Trash2 className="w-3.5 h-3.5" />
                                                             Desactivar Cliente
+                                                        </DropdownMenuItem>
+                                                    ) : (
+                                                        <DropdownMenuItem
+                                                            onSelect={() => handleReactivate(client.id)}
+                                                            className="rounded-lg font-bold text-xs py-2 text-green-600 focus:bg-green-50 focus:text-green-700 cursor-pointer gap-2"
+                                                        >
+                                                            <RotateCcw className="w-3.5 h-3.5" />
+                                                            Reactivar Cliente
                                                         </DropdownMenuItem>
                                                     )}
                                                 </DropdownMenuContent>

@@ -170,3 +170,19 @@ export async function softDeleteClient(id: string) {
 
     return { success: true };
 }
+
+export async function reactivateClient(id: string) {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("clients")
+        .update({ is_active: true })
+        .eq("id", id);
+
+    if (error) {
+        console.error("Error reactivating client:", error);
+        return { error: error.message };
+    }
+
+    return { success: true };
+}
