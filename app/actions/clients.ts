@@ -133,6 +133,29 @@ export async function createClientAction(data: Omit<Client, "id" | "created_at" 
     return { data: mapFromDb(client) };
 }
 
+export async function updateClientAction(id: string, data: Partial<Omit<Client, "id" | "created_at" | "organization_id" | "is_active">>) {
+    const supabase = await createClient();
+
+    const dbData = mapToDb(data);
+
+    const { data: client, error } = await supabase
+        .from("clients")
+        .update(dbData)
+        .eq("id", id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error updating client:", error);
+        if (error.code === "23505") {
+            return { error: "Un cliente con este RUT ya existe." };
+        }
+        return { error: error.message };
+    }
+
+    return { data: mapFromDb(client) };
+}
+
 export async function softDeleteClient(id: string) {
     const supabase = await createClient();
 

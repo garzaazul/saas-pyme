@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { getClients, getClientsCount, getNewClientsThisMonth, type Client, createClientAction, softDeleteClient } from "@/app/actions/clients";
+import { getClients, getClientsCount, getNewClientsThisMonth, type Client, createClientAction, softDeleteClient, updateClientAction } from "@/app/actions/clients";
 import { formatRut, validateRut, normalizePhone, isValidChileanMobile } from "@/lib/chile-formatters";
 import { toast } from "sonner";
 import { Loader2, Trash2, AlertTriangle } from "lucide-react";
@@ -37,6 +37,7 @@ export default function ClientsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+    const [editingClient, setEditingClient] = useState<string | null>(null);
     const [clients, setClients] = useState<Client[]>([]);
     const [totalClients, setTotalClients] = useState(0);
     const [newClientsThisMonth, setNewClientsThisMonth] = useState(0);
@@ -91,6 +92,7 @@ export default function ClientsPage() {
                 rut: false,
                 telefono: false
             });
+            setEditingClient(null);
         }
     }, [dialogOpen]);
 
@@ -103,19 +105,44 @@ export default function ClientsPage() {
 
         setIsSaving(true);
         try {
-            const result = await createClientAction(formData);
-            if (result.error) {
-                toast.error(`Error al guardar: ${result.error}`);
+            if (editingClient) {
+                // Update mode
+                const result = await updateClientAction(editingClient, formData);
+                if (result.error) {
+                    toast.error(`Error al actualizar: ${result.error}`);
+                } else {
+                    toast.success("Cliente actualizado correctamente");
+                    setDialogOpen(false);
+                    loadData();
+                }
             } else {
-                toast.success("Cliente guardado correctamente");
-                setDialogOpen(false);
-                loadData(); // Refresh list and stats
+                // Create mode
+                const result = await createClientAction(formData);
+                if (result.error) {
+                    toast.error(`Error al guardar: ${result.error}`);
+                } else {
+                    toast.success("Cliente guardado correctamente");
+                    setDialogOpen(false);
+                    loadData(); // Refresh list and stats
+                }
             }
         } catch (error) {
-            toast.error("Ocurrió un error inesperado al guardar el cliente.");
+            toast.error("Ocurrió un error inesperado al procesar la solicitud.");
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleEditClick = (client: Client) => {
+        setFormData({
+            razon_social: client.razon_social,
+            rut: client.rut,
+            email: client.email || "",
+            telefono: client.telefono || "",
+            direccion: client.direccion || ""
+        });
+        setEditingClient(client.id);
+        setDialogOpen(true);
     };
 
     const handleDeleteConfirm = (id: string) => {
@@ -202,7 +229,9 @@ export default function ClientsPage() {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px] rounded-2xl border-none premium-shadow bg-white dark:bg-slate-900">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold tracking-tight">Agregar Nuevo Cliente</DialogTitle>
+                            <DialogTitle className="text-2xl font-bold tracking-tight">
+                                {editingClient ? "Editar Cliente" : "Agregar Nuevo Cliente"}
+                            </DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 mt-6">
                             <div className="space-y-2">
@@ -423,7 +452,10 @@ export default function ClientsPage() {
                                                         Nueva Cotización
                                                     </DropdownMenuItem>
                                                     <div className="h-px bg-gray-100 dark:bg-slate-800 my-1" />
-                                                    <DropdownMenuItem className="rounded-lg font-bold text-xs py-2 focus:bg-primary/5 focus:text-primary cursor-pointer gap-2">
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleEditClick(client)}
+                                                        className="rounded-lg font-bold text-xs py-2 text-gray-600 dark:text-gray-300 focus:bg-gray-50 dark:focus:bg-slate-800 cursor-pointer gap-2"
+                                                    >
                                                         <ExternalLink className="w-3.5 h-3.5" />
                                                         Ver Detalle / Editar
                                                     </DropdownMenuItem>
