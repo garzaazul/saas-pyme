@@ -19,7 +19,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Search, Mail, Phone, Building2, MoreVertical, TrendingUp, Users, ExternalLink, FileText } from "lucide-react";
+import { Plus, Search, Mail, Phone, Building2, MoreVertical, TrendingUp, Users, ExternalLink, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -32,6 +32,15 @@ import { getClients, getClientsCount, getNewClientsThisMonth, type Client, creat
 import { formatRut, validateRut, normalizePhone, isValidChileanMobile } from "@/lib/chile-formatters";
 import { toast } from "sonner";
 import { Loader2, Trash2, AlertTriangle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 export default function ClientsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -45,6 +54,11 @@ export default function ClientsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+
+    // Navigation & Table Controls
+    const [activeTab, setActiveTab] = useState("active");
+    const [itemsPerPage, setItemsPerPage] = useState("10");
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -99,6 +113,11 @@ export default function ClientsPage() {
     useEffect(() => {
         loadData();
     }, []);
+
+    // Reset page when filtering or changing tabs
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, activeTab, itemsPerPage]);
 
     const handleSaveClient = async () => {
         if (isFormInvalid) return;
@@ -171,10 +190,24 @@ export default function ClientsPage() {
         }
     };
 
-    const filteredClients = clients.filter(client =>
+    // Data Filtering & Logic
+    const activeClientsCount = clients.filter(c => c.is_active).length;
+    const trashClientsCount = clients.filter(c => !c.is_active).length;
+
+    const filteredByTab = clients.filter(client =>
+        activeTab === "active" ? client.is_active : !client.is_active
+    );
+
+    const filteredBySearch = filteredByTab.filter(client =>
         client.razon_social.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.rut.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filteredBySearch.length / Number(itemsPerPage));
+    const pagedClients = filteredBySearch.slice(
+        (currentPage - 1) * Number(itemsPerPage),
+        currentPage * Number(itemsPerPage)
     );
 
     const getInitials = (name: string) => {
@@ -234,6 +267,7 @@ export default function ClientsPage() {
                             </DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 mt-6">
+                            {/* ... (form inputs remain identical) */}
                             <div className="space-y-2">
                                 <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">Razón Social</label>
                                 <Input
@@ -351,21 +385,62 @@ export default function ClientsPage() {
                         <p className="text-xs font-bold text-green-600 mt-2 italic shadow-sm bg-green-50 dark:bg-green-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Crecimiento reciente</p>
                     </CardContent>
                 </Card>
-
-                {/* Third card hidden for MVP as per requirements */}
             </div>
 
             {/* Main Content Table */}
             <Card className="border-none premium-shadow bg-white dark:bg-slate-900 overflow-hidden">
-                <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                            placeholder="Buscar por Razón Social, RUT o Email..."
-                            className="pl-10 rounded-xl bg-gray-50 dark:bg-slate-800 border-none"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                <div className="p-6 border-b border-gray-50 dark:border-slate-800 space-y-6">
+                    {/* Tabs and Controls Row */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
+                            <TabsList className="bg-gray-100 dark:bg-slate-800 p-1 rounded-xl h-auto">
+                                <TabsTrigger
+                                    value="active"
+                                    className="rounded-lg py-2 px-4 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all gap-2"
+                                >
+                                    <span className="font-bold text-xs">Activos</span>
+                                    <Badge variant="secondary" className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-none font-bold text-[10px] py-0 px-1.5 h-4 min-w-[20px] justify-center">
+                                        {activeClientsCount}
+                                    </Badge>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="trash"
+                                    className="rounded-lg py-2 px-4 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all gap-2"
+                                >
+                                    <span className="font-bold text-xs">Papelera</span>
+                                    <Badge variant="secondary" className="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 border-none font-bold text-[10px] py-0 px-1.5 h-4 min-w-[20px] justify-center">
+                                        {trashClientsCount}
+                                    </Badge>
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Filas:</span>
+                                <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
+                                    <SelectTrigger className="w-[70px] h-9 rounded-xl border-none bg-gray-50 dark:bg-slate-800 font-bold text-xs">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-none premium-shadow">
+                                        <SelectItem value="10" className="font-bold text-xs">10</SelectItem>
+                                        <SelectItem value="25" className="font-bold text-xs">25</SelectItem>
+                                        <SelectItem value="50" className="font-bold text-xs">50</SelectItem>
+                                        <SelectItem value="100" className="font-bold text-xs">100</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="relative flex-1 md:w-64">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Input
+                                    placeholder="Buscar..."
+                                    className="pl-10 rounded-xl bg-gray-50 dark:bg-slate-800 border-none h-9 text-xs"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -384,17 +459,21 @@ export default function ClientsPage() {
                             {loading ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center py-10 text-gray-500 font-medium">
+                                        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 opacity-20" />
                                         Cargando clientes...
                                     </TableCell>
                                 </TableRow>
-                            ) : filteredClients.length === 0 ? (
+                            ) : pagedClients.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center py-10 text-gray-500 font-medium">
-                                        No se encontraron clientes.
+                                    <TableCell colSpan={5} className="text-center py-20 text-gray-500 font-medium">
+                                        <div className="bg-gray-50 dark:bg-slate-800/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <Search className="w-8 h-8 opacity-20" />
+                                        </div>
+                                        {activeTab === "active" ? "No se encontraron clientes activos." : "Papelera vacía."}
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                filteredClients.map((client) => (
+                                pagedClients.map((client) => (
                                     <TableRow key={client.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border-gray-50 dark:border-slate-800">
                                         <TableCell className="pl-6 py-4">
                                             <div className="flex items-center gap-3">
@@ -421,13 +500,13 @@ export default function ClientsPage() {
                                                     <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
                                                         <Mail className="w-3 h-3" />
                                                     </div>
-                                                    {client.email}
+                                                    {client.email || "—"}
                                                 </div>
                                                 <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
                                                     <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
                                                         <Phone className="w-3 h-3" />
                                                     </div>
-                                                    {client.telefono}
+                                                    {client.telefono || "—"}
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -436,7 +515,7 @@ export default function ClientsPage() {
                                                 <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-50 dark:bg-slate-800">
                                                     <Building2 className="w-3 h-3" />
                                                 </div>
-                                                {client.direccion}
+                                                {client.direccion || "—"}
                                             </div>
                                         </TableCell>
                                         <TableCell className="pr-6 text-right">
@@ -459,13 +538,15 @@ export default function ClientsPage() {
                                                         <ExternalLink className="w-3.5 h-3.5" />
                                                         Ver Detalle / Editar
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onSelect={() => handleDeleteConfirm(client.id)}
-                                                        className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                        Desactivar Cliente
-                                                    </DropdownMenuItem>
+                                                    {client.is_active && (
+                                                        <DropdownMenuItem
+                                                            onSelect={() => handleDeleteConfirm(client.id)}
+                                                            className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            Desactivar Cliente
+                                                        </DropdownMenuItem>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -474,6 +555,38 @@ export default function ClientsPage() {
                             )}
                         </TableBody>
                     </Table>
+                </div>
+
+                {/* Pagination Footer */}
+                <div className="p-4 border-t border-gray-50 dark:border-slate-800 flex items-center justify-between">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        Mostrando {pagedClients.length} de {filteredBySearch.length} clientes
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <span className="text-xs font-bold text-gray-500">
+                            Página {currentPage} de {totalPages || 1}
+                        </span>
+                        <div className="flex items-center gap-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage >= totalPages}
+                                className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </Card>
 

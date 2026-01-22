@@ -45,7 +45,6 @@ export async function getClients() {
     const { data: clients, error } = await supabase
         .from("clients")
         .select("*")
-        .eq("is_active", true)
         .order("created_at", { ascending: false });
 
     if (error) {
