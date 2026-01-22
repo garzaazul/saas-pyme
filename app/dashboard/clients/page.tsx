@@ -453,14 +453,14 @@ export default function ClientsPage() {
                                                     </DropdownMenuItem>
                                                     <div className="h-px bg-gray-100 dark:bg-slate-800 my-1" />
                                                     <DropdownMenuItem
-                                                        onClick={() => handleEditClick(client)}
+                                                        onSelect={() => handleEditClick(client)}
                                                         className="rounded-lg font-bold text-xs py-2 text-gray-600 dark:text-gray-300 focus:bg-gray-50 dark:focus:bg-slate-800 cursor-pointer gap-2"
                                                     >
                                                         <ExternalLink className="w-3.5 h-3.5" />
                                                         Ver Detalle / Editar
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
-                                                        onClick={() => handleDeleteConfirm(client.id)}
+                                                        onSelect={() => handleDeleteConfirm(client.id)}
                                                         className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
                                                     >
                                                         <Trash2 className="w-3.5 h-3.5" />
