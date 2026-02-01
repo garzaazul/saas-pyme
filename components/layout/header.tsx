@@ -97,7 +97,7 @@ export function Header({
                             </DropdownMenuItem>
                         </div>
                         <DropdownMenuSeparator className="bg-gray-100 dark:bg-slate-800" />
-                        <DropdownMenuItem className="text-red-500 focus:text-red-500 rounded-lg py-2 mt-1 cursor-pointer" onClick={onSignOut}>
+                        <DropdownMenuItem className="text-red-500 focus:text-red-500 rounded-lg py-2 mt-1 cursor-pointer" onClick={() => onSignOut?.()}>
                             <LogOut className="mr-3 h-4 w-4" />
                             <span className="font-bold">Cerrar Sesión</span>
                         </DropdownMenuItem>
