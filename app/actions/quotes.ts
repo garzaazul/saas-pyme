@@ -1,0 +1,205 @@
+"use server";
+
+import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
+import {
+    Quote,
+    CreateQuoteInput,
+    UpdateQuoteInput,
+    QuoteStatus
+} from "@/types/quotes";
+
+/**
+ * Fetch all quotes for the authenticated user's organization
+ */
+export async function getQuotes() {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+    if (!profile) throw new Error("Perfil no encontrado");
+
+    const { data, error } = await supabase
+        .from("quotes")
+        .select(`
+            *,
+            clients (name)
+        `)
+        .eq("organization_id", profile.organization_id)
+        .order("folio", { ascending: false });
+
+    if (error) throw error;
+    return data;
+}
+
+/**
+ * Get a single quote with items
+ */
+export async function getQuote(id: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("quotes")
+        .select(`
+            *,
+            items:quote_items (*),
+            client:clients (*)
+        `)
+        .eq("id", id)
+        .single();
+
+    if (error) throw error;
+    return data as Quote;
+}
+
+/**
+ * Create a new quote with items
+ */
+export async function createQuote(input: CreateQuoteInput) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "No autenticado" };
+
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+    if (!profile) return { error: "Perfil no encontrado" };
+
+    // 1. Get next folio
+    const { data: folio, error: folioError } = await supabase.rpc('get_next_quote_folio', {
+        org_id: profile.organization_id
+    });
+
+    if (folioError) return { error: "Error generando folio" };
+
+    // 2. Calculate total amount
+    const total_amount = input.items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+
+    // 3. Insert header
+    const { data: quote, error: quoteError } = await supabase
+        .from("quotes")
+        .insert({
+            organization_id: profile.organization_id,
+            client_id: input.client_id,
+            folio,
+            status: input.status || 'borrador',
+            total_amount,
+            valid_until: input.valid_until,
+            observations: input.observations,
+            priority: input.priority || 'media',
+            probability: input.probability || 0,
+            estimated_close_date: input.estimated_close_date,
+            version: 1
+        })
+        .select()
+        .single();
+
+    if (quoteError) return { error: quoteError.message };
+
+    // 4. Insert items
+    const itemsToInsert = input.items.map(item => ({
+        quote_id: quote.id,
+        product_id: item.product_id || null,
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_line: item.quantity * item.unit_price
+    }));
+
+    const { error: itemsError } = await supabase
+        .from("quote_items")
+        .insert(itemsToInsert);
+
+    if (itemsError) {
+        // Rollback header (basic approach)
+        await supabase.from("quotes").delete().eq("id", quote.id);
+        return { error: itemsError.message };
+    }
+
+    revalidatePath("/dashboard/quotes");
+    return { data: quote };
+}
+
+/**
+ * Duplicate a quote (Versioning logic)
+ */
+export async function duplicateQuote(id: string) {
+    const supabase = await createClient();
+    const original = await getQuote(id);
+    if (!original) return { error: "Cotización no encontrada" };
+
+    // Create a new input based on original data
+    const input: CreateQuoteInput = {
+        client_id: original.client_id,
+        status: 'borrador', // New copy starts as draft
+        valid_until: original.valid_until,
+        observations: original.observations,
+        priority: original.priority,
+        probability: original.probability,
+        estimated_close_date: original.estimated_close_date,
+        items: original.items?.map(item => ({
+            product_id: item.product_id,
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price
+        })) || []
+    };
+
+    // Create the quote (createQuote already handles folio and organization)
+    const result = await createQuote(input);
+
+    if (result.data) {
+        // Update version of the new quote
+        await supabase
+            .from("quotes")
+            .update({ version: original.version + 1 })
+            .eq("id", result.data.id);
+    }
+
+    return result;
+}
+
+/**
+ * Update quote status
+ */
+export async function updateQuoteStatus(id: string, status: QuoteStatus) {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("quotes")
+        .update({ status })
+        .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/dashboard/quotes");
+    return { success: true };
+}
+
+/**
+ * Delete a quote
+ */
+export async function deleteQuote(id: string) {
+    const supabase = await createClient();
+
+    // Security check is handled by RLS, but we can add an extra org check here if needed
+    const { error } = await supabase
+        .from("quotes")
+        .delete()
+        .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/dashboard/quotes");
+    return { success: true };
+}
