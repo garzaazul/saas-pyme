@@ -68,6 +68,9 @@ export async function updateMyOrganization(input: UpdateOrganizationInput) {
         if (error.code === '23505') {
             return { error: "Ya existe una empresa con este web slug." };
         }
+        if (error.code === 'PGRST116') {
+            return { error: "Error de permisos o registro no encontrado. Asegúrate de tener permisos para editar esta empresa." };
+        }
         return { error: error.message };
     }
 
