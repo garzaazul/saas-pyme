@@ -42,7 +42,8 @@ import {
     FileText,
     Trophy,
     TrendingUp,
-    AlertCircle
+    AlertCircle,
+    Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
