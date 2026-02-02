@@ -14,6 +14,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Tag,
+    Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +37,7 @@ const navItems = [
     { href: "/dashboard/products", label: "Productos", icon: Package },
     { href: "/dashboard/categories", label: "Categorías", icon: Tag },
     { href: "/dashboard/clients", label: "Clientes", icon: Users },
+    { href: "/dashboard/mi-empresa", label: "Mi Empresa", icon: Building2 },
     { href: "/dashboard/settings", label: "Configuración", icon: Settings },
 ];
 
