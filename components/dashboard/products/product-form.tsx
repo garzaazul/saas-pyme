@@ -50,8 +50,11 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
         defaultValues: {
             name: product?.name || "",
             description: product?.description || "",
-            price: product?.price || 0,
-            stock_quantity: product?.stock_quantity || 0,
+            base_price: product?.base_price || 0,
+            current_stock: product?.current_stock || 0,
+            min_stock_alert: product?.min_stock_alert || 5,
+            unit: product?.unit || "un",
+            is_stock_product: product?.is_stock_product ?? true,
             type: product?.type || "product",
             category_id: product?.category_id || "",
             is_active: product?.is_active ?? true,
@@ -224,9 +227,9 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1">Precio CLP</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1">Precio Base CLP</label>
                                 <Input
-                                    {...register("price", { valueAsNumber: true, required: "Precio es requerido" })}
+                                    {...register("base_price", { valueAsNumber: true, required: "Precio es requerido" })}
                                     type="number"
                                     placeholder="0"
                                     className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-black"
@@ -234,9 +237,9 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
                             </div>
                             {productType === "product" && (
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1">Stock Inicial</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1">Stock Actual</label>
                                     <Input
-                                        {...register("stock_quantity", { valueAsNumber: true })}
+                                        {...register("current_stock", { valueAsNumber: true })}
                                         type="number"
                                         placeholder="0"
                                         className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-black"

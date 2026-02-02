@@ -107,7 +107,7 @@ export function ProductTable({ products, onEdit, onRefresh }: ProductTableProps)
                                     </span>
                                 </TableCell>
                                 <TableCell className="font-black text-primary italic">
-                                    {formatCLP(product.price)}
+                                    {formatCLP(product.base_price)}
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex flex-col gap-1">
@@ -123,9 +123,9 @@ export function ProductTable({ products, onEdit, onRefresh }: ProductTableProps)
                                         {product.type === "product" && (
                                             <span className={cn(
                                                 "text-[10px] font-bold italic pl-1",
-                                                product.stock_quantity <= 0 ? "text-red-500" : "text-gray-400"
+                                                product.current_stock <= 0 ? "text-red-500" : "text-gray-400"
                                             )}>
-                                                Stock: {product.stock_quantity}
+                                                Stock: {product.current_stock}
                                             </span>
                                         )}
                                     </div>

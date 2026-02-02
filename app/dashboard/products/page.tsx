@@ -61,7 +61,7 @@ export default function ProductsPage() {
     const kpis = {
         totalProducts: products.filter(p => p.type === 'product').length,
         totalServices: products.filter(p => p.type === 'service').length,
-        noStock: products.filter(p => p.type === 'product' && p.stock_quantity <= 0).length
+        noStock: products.filter(p => p.type === 'product' && p.current_stock <= 0).length
     };
 
     return (
