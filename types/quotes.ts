@@ -11,9 +11,6 @@ export interface Quote extends BaseEntity {
     valid_until: string | null;
     observations: string | null;
     version: number;
-    priority: string;
-    probability: number;
-    estimated_close_date: string | null;
     items?: QuoteItem[];
 }
 
@@ -33,9 +30,6 @@ export interface CreateQuoteInput {
     status?: QuoteStatus;
     valid_until?: string | null;
     observations?: string | null;
-    priority?: string;
-    probability?: number;
-    estimated_close_date?: string | null;
     items: CreateQuoteItemInput[];
 }
 

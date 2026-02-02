@@ -96,9 +96,6 @@ export async function createQuote(input: CreateQuoteInput) {
             total_amount,
             valid_until: input.valid_until,
             observations: input.observations,
-            priority: input.priority || 'media',
-            probability: input.probability || 0,
-            estimated_close_date: input.estimated_close_date,
             version: 1
         })
         .select()
@@ -144,9 +141,6 @@ export async function duplicateQuote(id: string) {
         status: 'borrador', // New copy starts as draft
         valid_until: original.valid_until,
         observations: original.observations,
-        priority: original.priority,
-        probability: original.probability,
-        estimated_close_date: original.estimated_close_date,
         items: original.items?.map(item => ({
             product_id: item.product_id,
             description: item.description,
