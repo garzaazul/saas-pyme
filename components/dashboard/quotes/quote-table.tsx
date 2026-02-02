@@ -62,7 +62,7 @@ function formatCLP(amount: number): string {
     }).format(amount);
 }
 
-export function QuoteTable({ quotes, onEdit, onDuplicate, onDelete, onStatusChange }: QuoteTableProps) {
+export function QuoteTable({ quotes, onEdit, onDuplicate, onDelete, onStatusChange, onDownloadPDF, onWhatsApp }: QuoteTableProps) {
     return (
         <div className="border-none premium-shadow bg-white dark:bg-slate-900 overflow-hidden rounded-2xl">
             <Table>
