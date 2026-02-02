@@ -73,88 +73,87 @@ export function QuoteTable({ quotes, onEdit, onDuplicate, onDelete, onStatusChan
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {quotes.map((quote) => {
-                        const StatusIcon = statusConfig[quote.status as QuoteStatus].icon;
-                        return (
-                            <TableRow key={quote.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border-gray-50 dark:border-slate-800 transition-colors">
-                                <TableCell className="pl-6 py-4">
-                                    <span className="font-black text-gray-900 dark:text-white tracking-tight">#{quote.folio}</span>
-                                    {quote.version > 1 && (
-                                        <Badge variant="outline" className="ml-2 text-[9px] font-bold border-blue-200 text-blue-600 px-1 py-0 h-4">
-                                            v{quote.version}
-                                        </Badge>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-sm text-gray-700 dark:text-slate-300">{quote.clients?.business_name}</span>
-                                        <span className="text-[10px] text-gray-400 font-medium lowercase tracking-tight">
-                                            Vence: {quote.valid_until ? format(new Date(quote.valid_until), "dd MMM", { locale: es }) : 'N/A'}
-                                        </span>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className={cn(
-                                        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-tight",
-                                        statusConfig[quote.status as QuoteStatus].color
-                                    )}>
-                                        <StatusIcon className="w-3 h-3" />
-                                        {statusConfig[quote.status as QuoteStatus].label.toUpperCase()}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="font-black text-primary">
-                                    {formatCLP(quote.total_amount)}
-                                </TableCell>
-                                <TableCell className="text-xs text-gray-500 font-medium">
-                                    {format(new Date(quote.created_at), "dd/MM/yyyy")}
-                                </TableCell>
-                                <TableCell className="pr-6 text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-white dark:hover:bg-slate-800 rounded-full">
-                                                <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-52 rounded-xl border-none premium-shadow bg-white dark:bg-slate-900 p-2">
-                                            <DropdownMenuItem onClick={() => onEdit(quote)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                <Edit className="w-3.5 h-3.5 mr-2 text-blue-500" />
-                                                Editar Cotización
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => onDuplicate(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                <Copy className="w-3.5 h-3.5 mr-2 text-purple-500" />
-                                                Duplicar (Versión)
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
-                                            <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'enviada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                <Send className="w-3.5 h-3.5 mr-2 text-blue-400" />
-                                                Marcar como Enviada
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aceptada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                <CheckCircle2 className="w-3.5 h-3.5 mr-2 text-green-500" />
-                                                Marcar como Aceptada
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
-                                            <DropdownMenuItem onClick={() => onDelete(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-900/10">
-                                                <Trash className="w-3.5 h-3.5 mr-2" />
-                                                Eliminar
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
-                        );
-                    })}
+                    {quotes.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={6} className="h-32 text-center text-gray-400 font-medium italic py-10">
+                                No se encontraron cotizaciones o propuestas
+                            </TableCell>
+                        </TableRow>
+                    ) : (
+                        quotes.map((quote) => {
+                            const StatusIcon = statusConfig[quote.status as QuoteStatus].icon;
+                            return (
+                                <TableRow key={quote.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border-gray-50 dark:border-slate-800 transition-colors">
+                                    <TableCell className="pl-6 py-4">
+                                        <span className="font-bold text-gray-900 dark:text-white tracking-tight">#{quote.folio}</span>
+                                        {quote.version > 1 && (
+                                            <Badge variant="outline" className="ml-2 text-[9px] font-black border-blue-200 text-blue-600 px-1 py-0 h-4">
+                                                V{quote.version}
+                                            </Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-sm text-gray-700 dark:text-slate-300">{quote.clients?.business_name}</span>
+                                            <span className="text-[10px] text-gray-400 font-bold italic tracking-tight">
+                                                Vence: {quote.valid_until ? format(new Date(quote.valid_until), "dd MMM", { locale: es }) : 'N/A'}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className={cn(
+                                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-tight",
+                                            statusConfig[quote.status as QuoteStatus].color
+                                        )}>
+                                            <StatusIcon className="w-3 h-3" />
+                                            {statusConfig[quote.status as QuoteStatus].label.toUpperCase()}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="font-black text-primary italic">
+                                        {formatCLP(quote.total_amount)}
+                                    </TableCell>
+                                    <TableCell className="text-xs text-gray-500 font-medium">
+                                        {format(new Date(quote.created_at), "dd/MM/yyyy")}
+                                    </TableCell>
+                                    <TableCell className="pr-6 text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-white dark:hover:bg-slate-800 rounded-full">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-52 rounded-xl border-none premium-shadow bg-white dark:bg-slate-900 p-2">
+                                                <DropdownMenuItem onClick={() => onEdit(quote)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                    <Edit className="w-3.5 h-3.5 mr-2 text-blue-500" />
+                                                    Editar Cotización
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onDuplicate(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                    <Copy className="w-3.5 h-3.5 mr-2 text-purple-500" />
+                                                    Duplicar (Versión)
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
+                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'enviada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                    <Send className="w-3.5 h-3.5 mr-2 text-blue-400" />
+                                                    Marcar como Enviada
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aceptada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 mr-2 text-green-500" />
+                                                    Marcar como Aceptada
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
+                                                <DropdownMenuItem onClick={() => onDelete(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-900/10">
+                                                    <Trash className="w-3.5 h-3.5 mr-2" />
+                                                    Eliminar
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })
+                    )}
                 </TableBody>
             </Table>
-            {quotes.length === 0 && (
-                <div className="py-20 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4">
-                        <FileText className="w-8 h-8 text-gray-300" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">No hay cotizaciones</h3>
-                    <p className="text-sm text-gray-500 max-w-[250px] mt-1 italic">Comienza creando tu primera propuesta comercial.</p>
-                </div>
-            )}
         </div>
     );
 }

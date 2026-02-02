@@ -87,15 +87,15 @@ export default function QuotesPage() {
     };
 
     return (
-        <div className="p-6 md:p-10 space-y-10 max-w-[1600px] mx-auto animate-in fade-in duration-700">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-2">
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-gray-900 dark:text-white italic">
-                        COTIZACIONES
+        <div className="space-y-8 pb-10">
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
+                        Gestión de Cotizaciones
                     </h1>
-                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em] pl-1">
-                        Pipeline de Ventas • Gestión Comercial
+                    <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">
+                        Controla tu pipeline comercial y propuestas de venta.
                     </p>
                 </div>
                 <Button
@@ -103,71 +103,73 @@ export default function QuotesPage() {
                         setSelectedQuote(undefined);
                         setIsFormOpen(true);
                     }}
-                    className="bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 rounded-2xl font-black px-8 h-12 transition-all hover:scale-[1.02] active:scale-95 italic"
+                    className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-11 px-8 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2"
                 >
-                    <Plus className="w-5 h-5 mr-2 stroke-[3px]" />
-                    NUEVA PROPUESTA
+                    <Plus className="w-5 h-5 mr-1" />
+                    <span className="font-bold">Nueva Propuesta</span>
                 </Button>
             </div>
 
-            {/* KPI Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="border-none premium-shadow bg-blue-600 text-white overflow-hidden rounded-[2rem]">
-                    <CardContent className="p-8 relative">
-                        <TrendingUp className="absolute right-6 top-6 w-12 h-12 text-white/10" />
-                        <div className="space-y-2">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-white/60">Pipeline Pendiente</p>
-                            <h3 className="text-3xl font-black italic tracking-tight">
-                                ${kpis.pendingValue.toLocaleString("es-CL")}
-                            </h3>
-                            <p className="text-[9px] font-bold opacity-60">MONTO TOTAL POR CERRAR</p>
+            {/* KPI Cards Grid */}
+            <div className="grid gap-6 md:grid-cols-3">
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Pipeline Pendiente
+                        </CardTitle>
+                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-black tracking-tight leading-none text-gray-900 dark:text-white">
+                            ${kpis.pendingValue.toLocaleString("es-CL")}
                         </div>
+                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full">Monto por cerrar</p>
                     </CardContent>
                 </Card>
 
-                <Card className="border-none premium-shadow bg-white dark:bg-slate-900 overflow-hidden rounded-[2rem]">
-                    <CardContent className="p-8 relative">
-                        <CheckCircle2 className="absolute right-6 top-6 w-12 h-12 text-green-500/10" />
-                        <div className="space-y-2">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Tasa de Aceptación</p>
-                            <h3 className="text-3xl font-black italic tracking-tight text-gray-900 dark:text-white">
-                                {kpis.total > 0 ? Math.round((kpis.accepted / kpis.total) * 100) : 0}%
-                            </h3>
-                            <p className="text-[9px] font-bold text-green-500 uppercase">{kpis.accepted} COTIZACIONES GANADAS</p>
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Tasa de Aceptación
+                        </CardTitle>
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-black tracking-tight leading-none text-gray-900 dark:text-white">
+                            {kpis.total > 0 ? Math.round((kpis.accepted / kpis.total) * 100) : 0}%
                         </div>
+                        <p className="text-xs font-bold text-green-600 mt-2 italic shadow-sm bg-green-50 dark:bg-green-900/20 inline-block px-2 py-0.5 rounded-full">{kpis.accepted} Ganadas</p>
                     </CardContent>
                 </Card>
 
-                <Card className="border-none premium-shadow bg-white dark:bg-slate-900 overflow-hidden rounded-[2rem]">
-                    <CardContent className="p-8 relative">
-                        <Clock className="absolute right-6 top-6 w-12 h-12 text-orange-500/10" />
-                        <div className="space-y-2">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Actividad Total</p>
-                            <h3 className="text-3xl font-black italic tracking-tight text-gray-900 dark:text-white">
-                                {kpis.total}
-                            </h3>
-                            <p className="text-[9px] font-bold text-gray-400 uppercase">DOCUMENTOS GENERADOS</p>
+                <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Actividad Total
+                        </CardTitle>
+                        <Clock className="h-4 w-4 text-orange-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-black tracking-tight leading-none text-gray-900 dark:text-white">
+                            {kpis.total}
                         </div>
+                        <p className="text-xs font-bold text-orange-600 mt-2 italic shadow-sm bg-orange-50 dark:bg-orange-900/20 inline-block px-2 py-0.5 rounded-full">Items generados</p>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Main Content */}
-            <div className="space-y-6">
+            {/* Main Content Area */}
+            <div className="space-y-4">
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div className="relative w-full md:w-96 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 transition-colors group-focus-within:text-primary" />
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                             placeholder="Buscar por folio o cliente..."
-                            className="pl-11 h-12 rounded-2xl border-none premium-shadow bg-white dark:bg-slate-900 font-bold focus-visible:ring-primary/20"
+                            className="pl-10 rounded-xl bg-white dark:bg-slate-900 border-none premium-shadow h-11"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button variant="ghost" className="rounded-xl font-bold text-gray-400 gap-2">
-                        <Filter className="w-4 h-4" />
-                        Filtros Avanzados
-                    </Button>
                 </div>
 
                 {loading ? (
