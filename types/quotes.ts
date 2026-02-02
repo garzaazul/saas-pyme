@@ -1,4 +1,4 @@
-import { BaseEntity } from "./common";
+import { BaseEntity } from "./categories";
 
 export type QuoteStatus = 'borrador' | 'enviada' | 'aceptada' | 'facturada' | 'rechazada';
 
