@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { Loader2, Trash2, AlertTriangle, RotateCcw } from "lucide-react";
 import { TableToolbar } from "@/components/dashboard/TableToolbar";
 import { exportToExcel, exportToPDF } from "@/lib/export-utils";
+import { ClientForm } from "@/components/dashboard/clients/client-form";
 
 export default function ClientsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -47,11 +48,6 @@ export default function ClientsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-
-    // Navigation & Table Controls
-    const [activeTab, setActiveTab] = useState("active");
-    const [itemsPerPage, setItemsPerPage] = useState("10");
-    const [currentPage, setCurrentPage] = useState(1);
 
     // Navigation & Table Controls
     const [activeTab, setActiveTab] = useState("active");
