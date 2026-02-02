@@ -83,6 +83,9 @@ export function normalizePhone(phone: string): string {
     // Si tiene 8 dígitos (asumimos que falta el +569)
     if (cleaned.length === 8) return "+569" + cleaned;
 
+    // Ensure it has a '+'
+    if (cleaned.length > 0 && !cleaned.startsWith("+")) return "+" + cleaned;
+
     return cleaned;
 }
 

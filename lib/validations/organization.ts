@@ -14,9 +14,9 @@ export const organizationSchema = z.object({
     logo_url: z.string().url("URL de logo inválida").nullable().optional(),
     whatsapp: z.string().regex(whatsappRegex, "Formato de WhatsApp inválido (ej: +56912345678)").nullable(),
     email: z.string().email("Email inválido").nullable(),
-    instagram_url: z.string().url("URL de Instagram inválida").nullable().optional(),
-    facebook_url: z.string().url("URL de Facebook inválida").nullable().optional(),
-    tiktok_url: z.string().url("URL de TikTok inválida").nullable().optional(),
+    instagram_url: z.string().url("URL de Instagram inválida").nullable().or(z.literal("")).optional(),
+    facebook_url: z.string().url("URL de Facebook inválida").nullable().or(z.literal("")).optional(),
+    tiktok_url: z.string().url("URL de TikTok inválida").nullable().or(z.literal("")).optional(),
     transfer_details: z.string().max(1000, "Los datos de transferencia son muy largos").nullable(),
 });
 
