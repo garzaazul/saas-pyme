@@ -10,6 +10,7 @@ export interface Quote extends BaseEntity {
     total_amount: number;
     valid_until: string | null;
     observations: string | null;
+    payment_condition: string | null;
     version: number;
     items?: QuoteItem[];
 }
@@ -30,6 +31,7 @@ export interface CreateQuoteInput {
     status?: QuoteStatus;
     valid_until?: string | null;
     observations?: string | null;
+    payment_condition?: string | null;
     items: CreateQuoteItemInput[];
 }
 

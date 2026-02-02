@@ -18,6 +18,11 @@ export const organizationSchema = z.object({
     facebook_url: z.string().url("URL de Facebook inválida").nullable().or(z.literal("")).optional(),
     tiktok_url: z.string().url("URL de TikTok inválida").nullable().or(z.literal("")).optional(),
     transfer_details: z.string().max(1000, "Los datos de transferencia son muy largos").nullable(),
+    payment_terms: z.array(z.object({
+        id: z.string(),
+        label: z.string().min(1, "La etiqueta no puede estar vacía"),
+        is_default: z.boolean()
+    })).nullable().optional(),
 });
 
 export type OrganizationFormValues = z.infer<typeof organizationSchema>;

@@ -82,7 +82,8 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                 description: i.description,
                 quantity: i.quantity,
                 unit_price: i.unit_price
-            })) || []
+            })) || [],
+            payment_condition: quote?.payment_condition || ""
         }
     });
 
@@ -116,12 +117,23 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                     client_id: "",
                     status: "borrador",
                     observations: "",
+                    payment_condition: "",
                     valid_until: format(addDays(new Date(), 15), "yyyy-MM-dd"),
                     items: []
                 });
             }
         }
     }, [open, quote, reset, fetchInitialData]);
+
+    // Handle initial default payment term
+    useEffect(() => {
+        if (!quote && organization?.payment_terms) {
+            const defaultTerm = organization.payment_terms.find(t => t.is_default);
+            if (defaultTerm) {
+                setValue("payment_condition", defaultTerm.label);
+            }
+        }
+    }, [quote, organization, setValue]);
 
     const calculateTotal = () => {
         return (watchedItems || []).reduce((acc, item) => {
@@ -418,8 +430,33 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                                 <Textarea
                                     {...register("observations")}
                                     placeholder="Indique términos de pago, tiempo de entrega o validez especial de esta propuesta..."
-                                    className="rounded-[2rem] border-none bg-gray-50/50 dark:bg-slate-800/50 min-h-[160px] text-sm italic p-6 focus:bg-white dark:focus:bg-slate-900 shadow-inner"
+                                    className="rounded-[2rem] border-none bg-gray-50/50 dark:bg-slate-800/50 min-h-[120px] text-sm italic p-6 focus:bg-white dark:focus:bg-slate-900 shadow-inner"
                                 />
+
+                                <div className="space-y-3 pt-4">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1 flex items-center justify-between">
+                                        Condición de Pago
+                                        {organization?.payment_terms && organization.payment_terms.length > 0 && (
+                                            <Select
+                                                onValueChange={(val) => setValue("payment_condition", val, { shouldDirty: true })}
+                                            >
+                                                <SelectTrigger className="h-6 w-auto border-none bg-primary/10 text-primary text-[9px] font-black uppercase rounded-full px-3 gap-1 shadow-none">
+                                                    <SelectValue placeholder="Usar Plantilla..." />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-xl border-none premium-shadow">
+                                                    {organization.payment_terms.map(term => (
+                                                        <SelectItem key={term.id} value={term.label}>{term.label}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    </label>
+                                    <Input
+                                        {...register("payment_condition")}
+                                        placeholder="Ej: 50% abono / 50% contra entrega"
+                                        className="rounded-xl border-none bg-gray-50/50 dark:bg-slate-800/50 h-11 px-6 text-sm font-medium focus:bg-white dark:focus:bg-slate-900 shadow-inner"
+                                    />
+                                </div>
                             </div>
 
                             <div className="w-full md:w-[350px] space-y-6">

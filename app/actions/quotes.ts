@@ -97,6 +97,7 @@ export async function createQuote(input: CreateQuoteInput) {
             total_amount,
             valid_until: input.valid_until,
             observations: input.observations,
+            payment_condition: input.payment_condition,
             version: 1
         })
         .select()

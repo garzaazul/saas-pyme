@@ -98,30 +98,40 @@ export const generateQuotePDF = (quote: any) => {
     const validUntil = quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('es-CL') : 'N/A';
     const org = quote.organization || {};
     const companyName = org.name || 'FINANCIER';
+    const whatsapp = org.whatsapp || '';
 
     // 1. Header with branding
-    // Logo (if exists)
-    let headerY = 30;
+    let headerY = 25;
     if (org.logo_url) {
         try {
-            // Basic check if it's a data URL or accessible URL
-            doc.addImage(org.logo_url, 'PNG', 20, 15, 30, 30);
-            headerY = 55; // Move text down if logo is present
+            // Logo scaling: 40mm width, proportional height (0)
+            doc.addImage(org.logo_url, 'PNG', 20, 15, 40, 0);
+            headerY = Math.max(50, 15 + 15); // Adjust based on expected height or fixed offset
+            // User requested: If logo exists, DON'T show company name text.
+            headerY = 55;
         } catch (e) {
             console.error("Error loading logo in PDF:", e);
+            // Fallback to text name if logo fails
+            doc.setFontSize(24);
+            doc.setTextColor(30, 41, 59);
+            doc.setFont('helvetica', 'bold');
+            doc.text(companyName, 20, 30);
+            headerY = 40;
         }
+    } else {
+        // No logo: Show company name as text
+        doc.setFontSize(24);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'bold');
+        doc.text(companyName, 20, 30);
+        headerY = 40;
     }
 
-    // Main Title / Company Name
-    doc.setFontSize(28);
-    doc.setTextColor(30, 41, 59); // slate-800
-    doc.setFont('helvetica', 'bold');
-    doc.text(companyName, 20, headerY);
-
     // Document Type Label
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text('DOCUMENTO DE VENTA / PROPUESTA COMERCIAL', 20, headerY + 8);
+    doc.setFontSize(14);
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.setFont('helvetica', 'bold');
+    doc.text('COTIZACIÓN', 20, headerY);
 
     // Folio & Dates on the right
     doc.setFillColor(248, 250, 252); // slate-50
@@ -154,9 +164,9 @@ export const generateQuotePDF = (quote: any) => {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100);
-    doc.text(`RUT: ${quote.client?.rut || 'N/A'}`, 20, clientY + 13);
-    doc.text(`Dirección: ${quote.client?.direccion || 'N/A'}`, 20, clientY + 19);
-    doc.text(`Email: ${quote.client?.email || 'N/A'}`, 20, clientY + 25);
+    doc.text(`RUT: ${quote.client?.rut || quote.clients?.rut || 'N/A'}`, 20, clientY + 13);
+    doc.text(`Dirección: ${quote.client?.address || quote.clients?.address || quote.client?.direccion || 'N/A'}`, 20, clientY + 19);
+    doc.text(`Email: ${quote.client?.email || quote.clients?.email || 'N/A'}`, 20, clientY + 25);
 
     // 3. Items Table
     const tableData = quote.items.map((item: any) => [
@@ -238,6 +248,18 @@ export const generateQuotePDF = (quote: any) => {
         finalY += (splitObs.length * 5) + 10;
     }
 
+    // Payment Condition
+    if (quote.payment_condition) {
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text('CONDICIÓN DE PAGO:', 20, finalY);
+        doc.setFontSize(9);
+        doc.setTextColor(15, 23, 42);
+        doc.setFont('helvetica', 'bold');
+        doc.text(quote.payment_condition, 20, finalY + 7);
+        finalY += 15;
+    }
+
     // Transfer Details
     if (org.transfer_details) {
         doc.setFontSize(8);
@@ -256,7 +278,9 @@ export const generateQuotePDF = (quote: any) => {
     doc.setFontSize(7);
     doc.setTextColor(150);
     doc.setFont('helvetica', 'italic');
-    doc.text(`Gracias por su preferencia. Propuesta generada automáticamente por ${companyName} via Financier SaaS.`, pageSize.width / 2, pageHeight - 15, { align: 'center' });
+
+    const footerText = `Gracias por su preferencia. Propuesta generada automáticamente por ${companyName}${whatsapp ? ` • WhatsApp: ${whatsapp}` : ''} via Financier SaaS.`;
+    doc.text(footerText, pageSize.width / 2, pageHeight - 15, { align: 'center' });
 
     doc.save(`Cotizacion_Ref_${quote.folio}_${quote.client?.business_name || 'CLIENTE'}.pdf`);
 };

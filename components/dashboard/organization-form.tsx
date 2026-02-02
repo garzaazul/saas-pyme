@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Globe, Instagram, Facebook, MessageCircle, Mail, Music2, Upload, X } from "lucide-react";
+import { Loader2, Globe, Instagram, Facebook, MessageCircle, Mail, Music2, Upload, X, Plus, CheckCircle2 } from "lucide-react";
 import { normalizePhone } from "@/lib/chile-formatters";
 
 interface OrganizationFormProps {
@@ -36,8 +36,11 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
             facebook_url: organization.facebook_url || "",
             tiktok_url: organization.tiktok_url || "",
             transfer_details: organization.transfer_details || "",
+            payment_terms: organization.payment_terms || [],
         },
     });
+
+    const [newTermLabel, setNewTermLabel] = useState("");
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = form;
     const nameValue = watch("name");
@@ -284,6 +287,104 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
                             {errors.transfer_details && <p className="text-xs font-bold text-red-500 mt-1">{errors.transfer_details.message}</p>}
                         </div>
                     </CardContent>
+                </Card>
+
+                {/* Plantillas de Condiciones de Pago */}
+                <Card className="rounded-xl overflow-hidden premium-shadow border-none md:col-span-2">
+                    <CardHeader className="bg-slate-50 dark:bg-slate-800/50">
+                        <CardTitle className="text-xl font-black tracking-tight flex items-center gap-2">
+                            Plantillas de Condiciones de Pago
+                        </CardTitle>
+                        <CardDescription className="font-medium">Define las opciones que aparecerán por defecto en tus cotizaciones.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-6">
+                        <div className="flex gap-2">
+                            <Input
+                                placeholder="Ej: 50% abono / 50% contra entrega"
+                                value={newTermLabel}
+                                onChange={(e) => setNewTermLabel(e.target.value)}
+                                className="rounded-xl h-11 border-gray-100 dark:border-slate-800"
+                            />
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    if (!newTermLabel.trim()) return;
+                                    const currentTerms = watch("payment_terms") || [];
+                                    const newTerm = {
+                                        id: crypto.randomUUID(),
+                                        label: newTermLabel.trim(),
+                                        is_default: currentTerms.length === 0 // First one is default
+                                    };
+                                    setValue("payment_terms", [...currentTerms, newTerm], { shouldDirty: true });
+                                    setNewTermLabel("");
+                                }}
+                                className="rounded-xl h-11 px-6 font-bold"
+                            >
+                                <Plus className="w-4 h-4 mr-2" /> Añadir
+                            </Button>
+                        </div>
+
+                        <div className="space-y-3">
+                            {(watch("payment_terms") || []).map((term, index) => (
+                                <div
+                                    key={term.id}
+                                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${term.is_default
+                                        ? "border-primary/30 bg-primary/5 shadow-sm"
+                                        : "border-gray-50 bg-gray-50/50 dark:bg-slate-800/50 dark:border-slate-800"
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-4 flex-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const currentTerms = watch("payment_terms") || [];
+                                                const updated = currentTerms.map(t => ({
+                                                    ...t,
+                                                    is_default: t.id === term.id
+                                                }));
+                                                setValue("payment_terms", updated, { shouldDirty: true });
+                                            }}
+                                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${term.is_default
+                                                ? "border-primary bg-primary text-white"
+                                                : "border-gray-300 dark:border-slate-600"
+                                                }`}
+                                        >
+                                            {term.is_default && <span className="w-2 h-2 bg-white rounded-full" />}
+                                        </button>
+                                        <span className={`font-bold text-sm ${term.is_default ? "text-primary" : "text-gray-600 dark:text-gray-300"}`}>
+                                            {term.label}
+                                            {term.is_default && <span className="ml-2 text-[10px] uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full font-black">Default</span>}
+                                        </span>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => {
+                                            const currentTerms = watch("payment_terms") || [];
+                                            const updated = currentTerms.filter(t => t.id !== term.id);
+                                            // If we deleted the default, set another as default if exists
+                                            if (term.is_default && updated.length > 0) {
+                                                updated[0].is_default = true;
+                                            }
+                                            setValue("payment_terms", updated, { shouldDirty: true });
+                                        }}
+                                        className="h-8 w-8 text-gray-400 hover:text-red-500 rounded-full"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                            {(watch("payment_terms") || []).length === 0 && (
+                                <div className="text-center py-8 opacity-40">
+                                    <p className="text-sm font-medium">No hay plantillas de condiciones de pago registradas.</p>
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="rounded-xl overflow-hidden premium-shadow border-none md:col-span-2">
                     <CardFooter className="justify-end border-t border-gray-50 dark:border-slate-800 bg-gray-50/30 dark:bg-slate-800/20 p-6">
                         <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto rounded-xl h-11 px-8 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 font-bold">
                             {isSubmitting ? (
