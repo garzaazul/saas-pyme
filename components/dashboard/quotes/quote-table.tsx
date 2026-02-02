@@ -87,7 +87,7 @@ export function QuoteTable({ quotes, onEdit, onDuplicate, onDelete, onStatusChan
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-sm text-gray-700 dark:text-slate-300">{quote.clients?.name}</span>
+                                        <span className="font-bold text-sm text-gray-700 dark:text-slate-300">{quote.clients?.business_name}</span>
                                         <span className="text-[10px] text-gray-400 font-medium lowercase tracking-tight">
                                             Vence: {quote.valid_until ? format(new Date(quote.valid_until), "dd MMM", { locale: es }) : 'N/A'}
                                         </span>
