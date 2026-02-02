@@ -127,7 +127,10 @@ export async function updateProduct(input: UpdateProductInput) {
     return { data };
 }
 
-export async function deleteProduct(id: string) {
+/**
+ * Desactiva un producto (soft-delete).
+ */
+export async function softDeleteProduct(id: string) {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -143,13 +146,45 @@ export async function deleteProduct(id: string) {
 
     const { error } = await supabase
         .from("products")
-        .delete()
+        .update({ is_active: false })
         .eq("id", id)
         .eq("organization_id", profile.organization_id);
 
     if (error) {
-        console.error("Error deleting product:", error);
-        return { error: "Error al eliminar el producto" };
+        console.error("Error deactivating product:", error);
+        return { error: "Error al desactivar el producto" };
+    }
+
+    revalidatePath("/dashboard/products");
+    return { success: true };
+}
+
+/**
+ * Reactiva un producto.
+ */
+export async function reactivateProduct(id: string) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "No autenticado" };
+
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+    if (!profile) return { error: "Perfil no encontrado" };
+
+    const { error } = await supabase
+        .from("products")
+        .update({ is_active: true })
+        .eq("id", id)
+        .eq("organization_id", profile.organization_id);
+
+    if (error) {
+        console.error("Error reactivating product:", error);
+        return { error: "Error al reactivar el producto" };
     }
 
     revalidatePath("/dashboard/products");

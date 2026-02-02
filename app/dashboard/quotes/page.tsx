@@ -1,23 +1,31 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
     Plus,
-    Search,
     FileText,
     TrendingUp,
     CheckCircle2,
     Clock,
-    Filter
+    ChevronLeft,
+    ChevronRight,
+    Loader2
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QuoteTable } from "@/components/dashboard/quotes/quote-table";
 import { QuoteForm } from "@/components/dashboard/quotes/quote-form";
-import { getQuotes, duplicateQuote, deleteQuote, updateQuoteStatus, getQuote } from "@/app/actions/quotes";
+import {
+    getQuotes,
+    duplicateQuote,
+    softDeleteQuote,
+    reactivateQuote,
+    updateQuoteStatus,
+    getQuote
+} from "@/app/actions/quotes";
 import { Quote, QuoteStatus } from "@/types/quotes";
-import { generateQuotePDF } from "@/lib/export-utils";
+import { TableToolbar } from "@/components/dashboard/TableToolbar";
+import { generateQuotePDF, exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -26,7 +34,12 @@ export default function QuotesPage() {
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedQuote, setSelectedQuote] = useState<Quote | undefined>();
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Navigation & Table Controls
+    const [activeTab, setActiveTab] = useState("active");
+    const [itemsPerPage, setItemsPerPage] = useState("10");
+    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -44,6 +57,11 @@ export default function QuotesPage() {
         fetchData();
     }, [fetchData]);
 
+    // Reset page when filtering or changing tabs
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, activeTab, itemsPerPage]);
+
     const handleDuplicate = async (id: string) => {
         const res = await duplicateQuote(id);
         if (res.error) {
@@ -55,12 +73,22 @@ export default function QuotesPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("¿Estás seguro de eliminar esta cotización?")) return;
-        const res = await deleteQuote(id);
+        if (!confirm("¿Está seguro de mover esta cotización a la papelera?")) return;
+        const res = await softDeleteQuote(id);
         if (res.error) {
             toast.error(res.error);
         } else {
-            toast.success("Eliminada correctamente");
+            toast.success("Movida a la papelera correctamente");
+            fetchData();
+        }
+    };
+
+    const handleReactivate = async (id: string) => {
+        const res = await reactivateQuote(id);
+        if (res.error) {
+            toast.error(res.error);
+        } else {
+            toast.success("Cotización reactivada");
             fetchData();
         }
     };
@@ -89,7 +117,6 @@ export default function QuotesPage() {
     };
 
     const handleWhatsApp = (quote: any) => {
-        // Find phone number in original quote data or client object
         const phone = quote.client?.telefono || quote.clients?.telefono || "";
         if (!phone) {
             toast.error("El cliente no tiene un teléfono registrado");
@@ -100,20 +127,78 @@ export default function QuotesPage() {
         const message = `Hola ${businessName}, adjunto la cotización #${quote.folio} solicitada. Quedo atento a sus comentarios.`;
         const encodedMessage = encodeURIComponent(message);
 
-        // WhatsApp URL (wa.me)
         const whatsappUrl = `https://wa.me/${phone.replace(/\+/g, '')}?text=${encodedMessage}`;
         window.open(whatsappUrl, "_blank");
     };
 
-    const filteredQuotes = quotes.filter(q =>
-        q.folio.toString().includes(searchQuery) ||
-        q.clients?.name.toLowerCase().includes(searchQuery.toLowerCase())
+    // Export Logic
+    const handleExportExcel = () => {
+        const columnMapping = {
+            folio: 'Folio',
+            client_name: 'Cliente',
+            total_amount: 'Total',
+            status: 'Estado',
+            created_at: 'Fecha'
+        };
+
+        const dataToExport = filteredBySearch.map(q => ({
+            ...q,
+            client_name: q.clients?.business_name || 'Particular',
+            total_amount: q.total_amount,
+            status: q.status.toUpperCase(),
+            created_at: new Date(q.created_at).toLocaleDateString()
+        }));
+
+        exportToExcel(dataToExport, `Cotizaciones_${activeTab === 'active' ? 'Activas' : 'Papelera'}`, columnMapping);
+        toast.success("Excel generado correctamente");
+    };
+
+    const handleExportPDF = () => {
+        const columns = [
+            { header: 'Folio', dataKey: 'folio' },
+            { header: 'Cliente', dataKey: 'client' },
+            { header: 'Total', dataKey: 'total' },
+            { header: 'Estado', dataKey: 'status' }
+        ];
+
+        const dataToExport = filteredBySearch.map(q => ({
+            folio: `#${q.folio}`,
+            client: q.clients?.business_name || 'Particular',
+            total: new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(q.total_amount),
+            status: q.status.toUpperCase()
+        }));
+
+        exportToPDF(
+            `Reporte de Cotizaciones - ${activeTab === 'active' ? 'Activas' : 'Papelera'}`,
+            dataToExport,
+            columns
+        );
+        toast.success("PDF generado correctamente");
+    };
+
+    // Filtering Logic
+    const activeQuotes = useMemo(() => quotes.filter(q => q.is_active), [quotes]);
+    const trashQuotes = useMemo(() => quotes.filter(q => !q.is_active), [quotes]);
+
+    const filteredByTab = activeTab === "active" ? activeQuotes : trashQuotes;
+
+    const filteredBySearch = useMemo(() => {
+        return filteredByTab.filter(q =>
+            q.folio.toString().includes(searchTerm) ||
+            q.clients?.business_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [filteredByTab, searchTerm]);
+
+    const totalPages = Math.ceil(filteredBySearch.length / Number(itemsPerPage));
+    const pagedQuotes = filteredBySearch.slice(
+        (currentPage - 1) * Number(itemsPerPage),
+        currentPage * Number(itemsPerPage)
     );
 
     const kpis = {
-        total: quotes.length,
-        accepted: quotes.filter(q => q.status === 'aceptada').length,
-        pendingValue: quotes.filter(q => q.status === 'enviada' || q.status === 'borrador')
+        total: activeQuotes.length,
+        accepted: activeQuotes.filter(q => q.status === 'aceptada').length,
+        pendingValue: activeQuotes.filter(q => q.status === 'enviada' || q.status === 'borrador')
             .reduce((acc, q) => acc + Number(q.total_amount), 0)
     };
 
@@ -129,20 +214,10 @@ export default function QuotesPage() {
                         Controla tu pipeline comercial y propuestas de venta.
                     </p>
                 </div>
-                <Button
-                    onClick={() => {
-                        setSelectedQuote(undefined);
-                        setIsFormOpen(true);
-                    }}
-                    className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-11 px-8 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2"
-                >
-                    <Plus className="w-5 h-5 mr-1" />
-                    <span className="font-bold">Nueva Propuesta</span>
-                </Button>
             </div>
 
             {/* KPI Cards Grid */}
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -152,9 +227,9 @@ export default function QuotesPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-black tracking-tight leading-none text-gray-900 dark:text-white">
-                            ${kpis.pendingValue.toLocaleString("es-CL")}
+                            {loading ? <Skeleton className="h-7 w-32" /> : `$${kpis.pendingValue.toLocaleString("es-CL")}`}
                         </div>
-                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full">Monto por cerrar</p>
+                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Monto por cerrar</p>
                     </CardContent>
                 </Card>
 
@@ -167,9 +242,9 @@ export default function QuotesPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-black tracking-tight leading-none text-gray-900 dark:text-white">
-                            {kpis.total > 0 ? Math.round((kpis.accepted / kpis.total) * 100) : 0}%
+                            {loading ? <Skeleton className="h-7 w-12" /> : `${kpis.total > 0 ? Math.round((kpis.accepted / kpis.total) * 100) : 0}%`}
                         </div>
-                        <p className="text-xs font-bold text-green-600 mt-2 italic shadow-sm bg-green-50 dark:bg-green-900/20 inline-block px-2 py-0.5 rounded-full">{kpis.accepted} Ganadas</p>
+                        <p className="text-xs font-bold text-green-600 mt-2 italic shadow-sm bg-green-50 dark:bg-green-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">{kpis.accepted} Ganadas</p>
                     </CardContent>
                 </Card>
 
@@ -182,48 +257,100 @@ export default function QuotesPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-black tracking-tight leading-none text-gray-900 dark:text-white">
-                            {kpis.total}
+                            {loading ? <Skeleton className="h-7 w-12" /> : kpis.total}
                         </div>
-                        <p className="text-xs font-bold text-orange-600 mt-2 italic shadow-sm bg-orange-50 dark:bg-orange-900/20 inline-block px-2 py-0.5 rounded-full">Items generados</p>
+                        <p className="text-xs font-bold text-orange-600 mt-2 italic shadow-sm bg-orange-50 dark:bg-orange-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Propuestas generadas</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Main Content Area */}
-            <div className="space-y-4">
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                            placeholder="Buscar por folio o cliente..."
-                            className="pl-10 rounded-xl bg-white dark:bg-slate-900 border-none premium-shadow h-11"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div className="space-y-4">
-                        <Skeleton className="h-20 w-full rounded-2xl" />
-                        <Skeleton className="h-20 w-full rounded-2xl" />
-                        <Skeleton className="h-20 w-full rounded-2xl" />
-                    </div>
-                ) : (
-                    <QuoteTable
-                        quotes={filteredQuotes}
-                        onEdit={(q) => {
-                            setSelectedQuote(q);
+            <Card className="border-none premium-shadow bg-white dark:bg-slate-900 overflow-hidden">
+                <TableToolbar
+                    searchQuery={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    tabOptions={[
+                        { key: "active", label: "Activas", count: activeQuotes.length },
+                        { key: "trash", label: "Papelera", count: trashQuotes.length }
+                    ]}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                    onExportExcel={handleExportExcel}
+                    onExportPDF={handleExportPDF}
+                    placeholder="Buscar por folio o cliente..."
+                >
+                    <Button
+                        onClick={() => {
+                            setSelectedQuote(undefined);
                             setIsFormOpen(true);
                         }}
-                        onDuplicate={handleDuplicate}
-                        onDelete={handleDelete}
-                        onStatusChange={handleStatusChange}
-                        onDownloadPDF={handleDownloadPDF}
-                        onWhatsApp={handleWhatsApp}
-                    />
+                        className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-10 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2"
+                    >
+                        <Plus className="w-4 h-4 mr-1" />
+                        <span className="font-bold text-xs">Nueva Propuesta</span>
+                    </Button>
+                </TableToolbar>
+
+                <div className="relative overflow-x-auto">
+                    {loading ? (
+                        <div className="text-center py-20 text-gray-500 font-medium">
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 opacity-20" />
+                            Sincronizando pipeline...
+                        </div>
+                    ) : (
+                        <QuoteTable
+                            quotes={pagedQuotes}
+                            activeTab={activeTab}
+                            onEdit={(q) => {
+                                setSelectedQuote(q);
+                                setIsFormOpen(true);
+                            }}
+                            onDuplicate={handleDuplicate}
+                            onDelete={handleDelete}
+                            onReactivate={handleReactivate}
+                            onStatusChange={handleStatusChange}
+                            onDownloadPDF={handleDownloadPDF}
+                            onWhatsApp={handleWhatsApp}
+                        />
+                    )}
+                </div>
+
+                {/* Pagination Footer */}
+                {!loading && filteredBySearch.length > 0 && (
+                    <div className="p-4 border-t border-gray-50 dark:border-slate-800 flex items-center justify-between">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Mostrando {pagedQuotes.length} de {filteredBySearch.length} cotizaciones
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <span className="text-xs font-bold text-gray-500">
+                                Página {currentPage} de {totalPages || 1}
+                            </span>
+                            <div className="flex items-center gap-1">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage >= totalPages}
+                                    className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 )}
-            </div>
+            </Card>
 
             <QuoteForm
                 open={isFormOpen}

@@ -249,15 +249,31 @@ export async function updateQuoteStatus(id: string, status: QuoteStatus) {
 }
 
 /**
- * Delete a quote
+ * Desactiva una cotización (soft-delete).
  */
-export async function deleteQuote(id: string) {
+export async function softDeleteQuote(id: string) {
     const supabase = await createClient();
 
-    // Security check is handled by RLS, but we can add an extra org check here if needed
     const { error } = await supabase
         .from("quotes")
-        .delete()
+        .update({ is_active: false })
+        .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/dashboard/quotes");
+    return { success: true };
+}
+
+/**
+ * Reactiva una cotización.
+ */
+export async function reactivateQuote(id: string) {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("quotes")
+        .update({ is_active: true })
         .eq("id", id);
 
     if (error) return { error: error.message };

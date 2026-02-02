@@ -108,10 +108,9 @@ export async function updateCategory(input: UpdateCategoryInput) {
 }
 
 /**
- * Elimina una categoría (soft-delete vía is_active = false o hard delete).
- * Por ahora haremos hard delete ya que tenemos ON DELETE CASCADE configurado.
+ * Desactiva una categoría (soft-delete).
  */
-export async function deleteCategory(id: string) {
+export async function softDeleteCategory(id: string) {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -119,7 +118,27 @@ export async function deleteCategory(id: string) {
 
     const { error } = await supabase
         .from("categories")
-        .delete()
+        .update({ is_active: false })
+        .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/dashboard/categories");
+    return { success: true };
+}
+
+/**
+ * Reactiva una categoría.
+ */
+export async function reactivateCategory(id: string) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "No autenticado" };
+
+    const { error } = await supabase
+        .from("categories")
+        .update({ is_active: true })
         .eq("id", id);
 
     if (error) return { error: error.message };

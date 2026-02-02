@@ -13,6 +13,7 @@ export interface Product extends BaseEntity {
     is_stock_product: boolean;
     type: ProductType;
     image_urls: string[];
+    is_active: boolean;
 }
 
 export interface CreateProductInput {

@@ -12,6 +12,7 @@ export interface Quote extends BaseEntity {
     observations: string | null;
     payment_condition: string | null;
     version: number;
+    is_active: boolean;
     items?: QuoteItem[];
 }
 

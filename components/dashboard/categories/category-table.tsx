@@ -17,170 +17,159 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash, FileSpreadsheet, FileText } from "lucide-react";
+import { MoreVertical, ExternalLink, Trash2, RotateCcw, Search, Loader2 } from "lucide-react";
 import { Category } from "@/types/categories";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { deleteCategory } from "@/app/actions/categories";
-import { exportToExcel, exportToPDF } from "@/lib/export-utils";
+import { softDeleteCategory, reactivateCategory } from "@/app/actions/categories";
 
 interface CategoryTableProps {
     categories: Category[];
+    totalCount: number;
+    activeTab: string;
     onEdit: (category: Category) => void;
     onRefresh: () => void;
 }
 
-export function CategoryTable({ categories, onEdit, onRefresh }: CategoryTableProps) {
-    const [deleting, setDeleting] = useState<string | null>(null);
+export function CategoryTable({ categories, totalCount, activeTab, onEdit, onRefresh }: CategoryTableProps) {
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("¿Está seguro de eliminar esta categoría?")) return;
+    const handleSoftDelete = async (id: string) => {
+        if (!confirm("¿Está seguro de desactivar esta categoría?")) return;
 
-        setDeleting(id);
+        setActionLoading(id);
         try {
-            const res = await deleteCategory(id);
+            const res = await softDeleteCategory(id);
             if (res.error) {
                 toast.error(res.error);
             } else {
-                toast.success("Categoría eliminada");
+                toast.success("Categoría desactivada");
                 onRefresh();
             }
         } catch (error) {
-            toast.error("Error al eliminar");
+            toast.error("Error al desactivar");
         } finally {
-            setDeleting(null);
+            setActionLoading(null);
         }
     };
 
-    const handleExportExcel = () => {
-        const columnMapping = {
-            name: 'Nombre',
-            description: 'Descripción',
-            target_type: 'Tipo',
-            is_active: 'Estado',
-            created_at: 'Fecha Creación'
-        };
-
-        const dataToExport = categories.map(cat => ({
-            ...cat,
-            is_active: cat.is_active ? 'Activo' : 'Inactivo',
-            created_at: format(new Date(cat.created_at), 'dd/MM/yyyy HH:mm'),
-            target_type: cat.target_type === 'ambos' ? 'Ambos' : (cat.target_type === 'producto' ? 'Producto' : 'Servicio')
-        }));
-
-        exportToExcel(dataToExport, 'categorías-sistema', columnMapping);
+    const handleReactivate = async (id: string) => {
+        setActionLoading(id);
+        try {
+            const res = await reactivateCategory(id);
+            if (res.error) {
+                toast.error(res.error);
+            } else {
+                toast.success("Categoría reactivada");
+                onRefresh();
+            }
+        } catch (error) {
+            toast.error("Error al reactivar");
+        } finally {
+            setActionLoading(null);
+        }
     };
 
-    const handleExportPDF = () => {
-        const columns = [
-            { header: 'Nombre', dataKey: 'name' },
-            { header: 'Tipo', dataKey: 'target_type' },
-            { header: 'Estado', dataKey: 'status' },
-            { header: 'Creado', dataKey: 'date' }
-        ];
-
-        const dataToExport = categories.map(cat => ({
-            name: cat.name,
-            target_type: cat.target_type,
-            status: cat.is_active ? 'Activo' : 'Inactivo',
-            date: format(new Date(cat.created_at), 'dd/MM/yyyy')
-        }));
-
-        exportToPDF('Listado de Categorías', dataToExport, columns, 'SaaS Pyme Operativo');
-    };
+    if (categories.length === 0) {
+        return (
+            <div className="text-center py-20 text-gray-500 font-medium">
+                <div className="bg-gray-50 dark:bg-slate-800/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 opacity-20" />
+                </div>
+                {activeTab === "active" ? "No se encontraron categorías activas." : "Papelera vacía."}
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-4">
-            <div className="flex justify-end gap-2">
-                <Button variant="outline" size="sm" onClick={handleExportExcel} className="h-9 gap-2">
-                    <FileSpreadsheet className="w-4 h-4 text-green-600" />
-                    Excel
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleExportPDF} className="h-9 gap-2">
-                    <FileText className="w-4 h-4 text-red-600" />
-                    PDF
-                </Button>
-            </div>
-
-            <div className="border rounded-xl bg-white overflow-hidden">
-                <Table>
-                    <TableHeader className="bg-muted/50">
-                        <TableRow>
-                            <TableHead className="font-bold">Nombre</TableHead>
-                            <TableHead className="font-bold">Aplica a</TableHead>
-                            <TableHead className="font-bold">Estado</TableHead>
-                            <TableHead className="font-bold">Creado el</TableHead>
-                            <TableHead className="w-[100px] text-right">Acciones</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {categories.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                                    No se encontraron categorías
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            categories.map((category) => (
-                                <TableRow key={category.id} className="hover:bg-muted/30 transition-colors">
-                                    <TableCell className="font-medium">
-                                        <div>
-                                            {category.name}
-                                            {category.description && (
-                                                <p className="text-xs text-muted-foreground font-normal mt-0.5">
-                                                    {category.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="capitalize text-xs">
-                                            {category.target_type === 'ambos' ? 'Productos y Servicios' : category.target_type + 's'}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge
-                                            className={category.is_active
-                                                ? "bg-green-100 text-green-700 hover:bg-green-100 border-green-200"
-                                                : "bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200"
-                                            }
+        <Table>
+            <TableHeader>
+                <TableRow className="hover:bg-transparent border-gray-50 dark:border-slate-800">
+                    <TableHead className="pl-6 text-[10px] font-black uppercase tracking-widest text-gray-400">NOMBRE</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">APLICA A</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">ESTADO</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400">CREADO EL</TableHead>
+                    <TableHead className="pr-6"></TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {categories.map((category) => (
+                    <TableRow key={category.id} className="group hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border-gray-50 dark:border-slate-800">
+                        <TableCell className="pl-6 py-4">
+                            <div>
+                                <p className="font-black text-gray-900 dark:text-gray-100 leading-tight">
+                                    {category.name}
+                                </p>
+                                {category.description && (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1 truncate max-w-[300px]">
+                                        {category.description}
+                                    </p>
+                                )}
+                            </div>
+                        </TableCell>
+                        <TableCell>
+                            <div className="capitalize text-xs font-bold bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-gray-600 dark:text-gray-400 inline-block">
+                                {category.target_type === 'ambos' ? 'Productos y Servicios' : category.target_type + 's'}
+                            </div>
+                        </TableCell>
+                        <TableCell>
+                            <Badge
+                                variant="secondary"
+                                className={category.is_active
+                                    ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-none font-bold text-[10px] py-0.5 rounded-full uppercase italic"
+                                    : "bg-gray-50 dark:bg-slate-800 text-gray-500 border-none font-bold text-[10px] py-0.5 rounded-full uppercase italic"
+                                }
+                            >
+                                {category.is_active ? "Activo" : "Inactivo"}
+                            </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                            {format(new Date(category.created_at), "d 'de' MMM, yyyy", { locale: es })}
+                        </TableCell>
+                        <TableCell className="pr-6 text-right">
+                            {actionLoading === category.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin text-gray-400 ml-auto" />
+                            ) : (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
+                                            <MoreVertical className="w-4 h-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="rounded-xl premium-shadow border-none overflow-hidden p-1 w-48">
+                                        <DropdownMenuItem
+                                            onSelect={() => onEdit(category)}
+                                            className="rounded-lg font-bold text-xs py-2 text-gray-600 dark:text-gray-300 focus:bg-gray-50 dark:focus:bg-slate-800 cursor-pointer gap-2"
                                         >
-                                            {category.is_active ? "Activo" : "Inactivo"}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-sm text-muted-foreground">
-                                        {format(new Date(category.created_at), "d 'de' MMMM, yyyy", { locale: es })}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-[160px] rounded-lg">
-                                                <DropdownMenuItem onClick={() => onEdit(category)} className="gap-2 cursor-pointer">
-                                                    <Pencil className="w-4 h-4" />
-                                                    Editar
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => handleDelete(category.id)}
-                                                    className="gap-2 text-destructive focus:text-destructive cursor-pointer"
-                                                    disabled={deleting === category.id}
-                                                >
-                                                    <Trash className="w-4 h-4" />
-                                                    Eliminar
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-        </div>
+                                            <ExternalLink className="w-3.5 h-3.5" />
+                                            Editar Categoría
+                                        </DropdownMenuItem>
+                                        <div className="h-px bg-gray-100 dark:bg-slate-800 my-1" />
+                                        {category.is_active ? (
+                                            <DropdownMenuItem
+                                                onSelect={() => handleSoftDelete(category.id)}
+                                                className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                                Desactivar
+                                            </DropdownMenuItem>
+                                        ) : (
+                                            <DropdownMenuItem
+                                                onSelect={() => handleReactivate(category.id)}
+                                                className="rounded-lg font-bold text-xs py-2 text-green-600 focus:bg-green-50 focus:text-green-700 cursor-pointer gap-2"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                Reactivar
+                                            </DropdownMenuItem>
+                                        )}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
     );
 }
