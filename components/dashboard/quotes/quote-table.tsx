@@ -27,7 +27,9 @@ import {
     CheckCircle2,
     Clock,
     XCircle,
-    Send
+    Send,
+    MessageCircle,
+    Download
 } from "lucide-react";
 import { Quote, QuoteStatus } from "@/types/quotes";
 import { cn } from "@/lib/utils";
@@ -40,6 +42,8 @@ interface QuoteTableProps {
     onDuplicate: (id: string) => void;
     onDelete: (id: string) => void;
     onStatusChange: (id: string, status: QuoteStatus) => void;
+    onDownloadPDF: (id: string) => void;
+    onWhatsApp: (quote: any) => void;
 }
 
 const statusConfig = {
@@ -116,37 +120,54 @@ export function QuoteTable({ quotes, onEdit, onDuplicate, onDelete, onStatusChan
                                         {format(new Date(quote.created_at), "dd/MM/yyyy")}
                                     </TableCell>
                                     <TableCell className="pr-6 text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-white dark:hover:bg-slate-800 rounded-full">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-52 rounded-xl border-none premium-shadow bg-white dark:bg-slate-900 p-2">
-                                                <DropdownMenuItem onClick={() => onEdit(quote)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                    <Edit className="w-3.5 h-3.5 mr-2 text-blue-500" />
-                                                    Editar Cotización
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => onDuplicate(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                    <Copy className="w-3.5 h-3.5 mr-2 text-purple-500" />
-                                                    Duplicar (Versión)
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
-                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'enviada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                    <Send className="w-3.5 h-3.5 mr-2 text-blue-400" />
-                                                    Marcar como Enviada
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aceptada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
-                                                    <CheckCircle2 className="w-3.5 h-3.5 mr-2 text-green-500" />
-                                                    Marcar como Aceptada
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
-                                                <DropdownMenuItem onClick={() => onDelete(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-900/10">
-                                                    <Trash className="w-3.5 h-3.5 mr-2" />
-                                                    Eliminar
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 w-8 p-0 hover:bg-green-50 dark:hover:bg-green-900/10 text-green-600 rounded-full"
+                                                onClick={() => onWhatsApp(quote)}
+                                                title="Enviar por WhatsApp"
+                                            >
+                                                <MessageCircle className="h-4 w-4" />
+                                            </Button>
+
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-white dark:hover:bg-slate-800 rounded-full">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-52 rounded-xl border-none premium-shadow bg-white dark:bg-slate-900 p-2">
+                                                    <DropdownMenuItem onClick={() => onDownloadPDF(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer text-primary bg-primary/5 mb-1">
+                                                        <Download className="w-3.5 h-3.5 mr-2" />
+                                                        Descargar PDF
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
+                                                    <DropdownMenuItem onClick={() => onEdit(quote)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                        <Edit className="w-3.5 h-3.5 mr-2 text-blue-500" />
+                                                        Editar Cotización
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => onDuplicate(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                        <Copy className="w-3.5 h-3.5 mr-2 text-purple-500" />
+                                                        Duplicar (Versión)
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
+                                                    <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'enviada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                        <Send className="w-3.5 h-3.5 mr-2 text-blue-400" />
+                                                        Marcar como Enviada
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aceptada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer">
+                                                        <CheckCircle2 className="w-3.5 h-3.5 mr-2 text-green-500" />
+                                                        Marcar como Aceptada
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
+                                                    <DropdownMenuItem onClick={() => onDelete(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-900/10">
+                                                        <Trash className="w-3.5 h-3.5 mr-2" />
+                                                        Eliminar
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             );

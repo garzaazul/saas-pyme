@@ -15,8 +15,9 @@ import {
 } from "lucide-react";
 import { QuoteTable } from "@/components/dashboard/quotes/quote-table";
 import { QuoteForm } from "@/components/dashboard/quotes/quote-form";
-import { getQuotes, duplicateQuote, deleteQuote, updateQuoteStatus } from "@/app/actions/quotes";
+import { getQuotes, duplicateQuote, deleteQuote, updateQuoteStatus, getQuote } from "@/app/actions/quotes";
 import { Quote, QuoteStatus } from "@/types/quotes";
+import { generateQuotePDF } from "@/lib/export-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -72,6 +73,36 @@ export default function QuotesPage() {
             toast.success(`Estado actualizado a ${status}`);
             fetchData();
         }
+    };
+
+    const handleDownloadPDF = async (id: string) => {
+        toast.info("Generando PDF...");
+        try {
+            const quoteData = await getQuote(id);
+            if (quoteData) {
+                generateQuotePDF(quoteData);
+                toast.success("PDF descargado");
+            }
+        } catch (error) {
+            toast.error("Error al generar PDF");
+        }
+    };
+
+    const handleWhatsApp = (quote: any) => {
+        // Find phone number in original quote data or client object
+        const phone = quote.client?.telefono || quote.clients?.telefono || "";
+        if (!phone) {
+            toast.error("El cliente no tiene un teléfono registrado");
+            return;
+        }
+
+        const businessName = quote.clients?.business_name || quote.client?.business_name || "cliente";
+        const message = `Hola ${businessName}, adjunto la cotización #${quote.folio} solicitada. Quedo atento a sus comentarios.`;
+        const encodedMessage = encodeURIComponent(message);
+
+        // WhatsApp URL (wa.me)
+        const whatsappUrl = `https://wa.me/${phone.replace(/\+/g, '')}?text=${encodedMessage}`;
+        window.open(whatsappUrl, "_blank");
     };
 
     const filteredQuotes = quotes.filter(q =>
@@ -188,6 +219,8 @@ export default function QuotesPage() {
                         onDuplicate={handleDuplicate}
                         onDelete={handleDelete}
                         onStatusChange={handleStatusChange}
+                        onDownloadPDF={handleDownloadPDF}
+                        onWhatsApp={handleWhatsApp}
                     />
                 )}
             </div>
