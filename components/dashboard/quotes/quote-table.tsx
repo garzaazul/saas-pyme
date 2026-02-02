@@ -52,11 +52,11 @@ interface QuoteTableProps {
 }
 
 const statusConfig = {
-    borrador: { label: 'Borrador', color: 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-400', icon: Clock },
-    enviada: { label: 'Enviada', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: Send },
-    aceptada: { label: 'Aceptada', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle2 },
-    facturada: { label: 'Facturada', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: FileText },
+    pendiente: { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock },
+    aprobada: { label: 'Aprobada', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle2 },
+    facturada: { label: 'Facturada', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: FileText },
     rechazada: { label: 'Rechazada', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
+    vencida: { label: 'Vencida', color: 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-400', icon: Clock },
 };
 
 function formatCLP(amount: number): string {
@@ -154,6 +154,19 @@ export function QuoteTable({
                                             <MessageCircle className="h-4 w-4" />
                                         </Button>
 
+                                        {quote.status === 'pendiente' && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 px-2 text-[10px] font-black uppercase tracking-tight text-green-600 hover:bg-green-50 dark:hover:bg-green-900/10 rounded-lg gap-1.5"
+                                                onClick={() => onStatusChange(quote.id, 'aprobada')}
+                                                title="Aprobar Cotización"
+                                            >
+                                                <CheckCircle2 className="h-3 w-3" />
+                                                APROBAR
+                                            </Button>
+                                        )}
+
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-white dark:hover:bg-slate-800 rounded-full">
@@ -175,13 +188,13 @@ export function QuoteTable({
                                                     Duplicar (Versión)
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
-                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'enviada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
-                                                    <Send className="w-3.5 h-3.5 text-blue-400" />
-                                                    Marcar como Enviada
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aceptada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
+                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aprobada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                                                    Marcar como Aceptada
+                                                    Marcar como Aprobada
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'rechazada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
+                                                    <XCircle className="w-3.5 h-3.5 text-red-400" />
+                                                    Marcar como Rechazada
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
                                                 {quote.is_active ? (

@@ -1,6 +1,6 @@
 import { BaseEntity } from "./categories";
 
-export type QuoteStatus = 'borrador' | 'enviada' | 'aceptada' | 'facturada' | 'rechazada';
+export type QuoteStatus = 'pendiente' | 'aprobada' | 'facturada' | 'rechazada' | 'vencida';
 
 export interface Quote extends BaseEntity {
     organization_id: string;
@@ -33,6 +33,7 @@ export interface CreateQuoteInput {
     valid_until?: string | null;
     observations?: string | null;
     payment_condition?: string | null;
+    is_active?: boolean;
     items: CreateQuoteItemInput[];
 }
 

@@ -93,7 +93,8 @@ export async function createQuote(input: CreateQuoteInput) {
             organization_id: profile.organization_id,
             client_id: input.client_id,
             folio,
-            status: input.status || 'borrador',
+            status: input.status || 'pendiente',
+            is_active: true,
             total_amount,
             valid_until: input.valid_until,
             observations: input.observations,
@@ -206,9 +207,10 @@ export async function duplicateQuote(id: string) {
     // Create a new input based on original data
     const input: CreateQuoteInput = {
         client_id: original.client_id,
-        status: 'borrador', // New copy starts as draft
+        status: 'pendiente', // New copy starts as pending
         valid_until: original.valid_until,
         observations: original.observations,
+        is_active: true,
         items: original.items?.map((item: any) => ({
             product_id: item.product_id,
             description: item.description,
@@ -229,6 +231,26 @@ export async function duplicateQuote(id: string) {
     }
 
     return result;
+}
+
+/**
+ * Fast action to approve a quote
+ */
+export async function approveQuote(id: string) {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("quotes")
+        .update({
+            status: 'aprobada' as QuoteStatus,
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/dashboard/quotes");
+    return { success: true };
 }
 
 /**

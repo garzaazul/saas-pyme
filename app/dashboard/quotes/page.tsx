@@ -197,9 +197,10 @@ export default function QuotesPage() {
 
     const kpis = {
         total: activeQuotes.length,
-        accepted: activeQuotes.filter(q => q.status === 'aceptada').length,
-        pendingValue: activeQuotes.filter(q => q.status === 'enviada' || q.status === 'borrador')
-            .reduce((acc, q) => acc + Number(q.total_amount), 0)
+        accepted: activeQuotes.filter(q => q.status === 'aprobada' || q.status === 'facturada').length,
+        pendingValue: activeQuotes.filter(q => q.status === 'pendiente')
+            .reduce((acc, q) => acc + Number(q.total_amount), 0),
+        opportunities: activeQuotes.filter(q => q.status === 'pendiente').length
     };
 
     return (
@@ -259,7 +260,7 @@ export default function QuotesPage() {
                         <div className="text-2xl font-black tracking-tight leading-none text-gray-900 dark:text-white">
                             {loading ? <Skeleton className="h-7 w-12" /> : kpis.total}
                         </div>
-                        <p className="text-xs font-bold text-orange-600 mt-2 italic shadow-sm bg-orange-50 dark:bg-orange-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Propuestas generadas</p>
+                        <p className="text-xs font-bold text-orange-600 mt-2 italic shadow-sm bg-orange-50 dark:bg-orange-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">{kpis.opportunities} Oportunidades Pendientes</p>
                     </CardContent>
                 </Card>
             </div>
