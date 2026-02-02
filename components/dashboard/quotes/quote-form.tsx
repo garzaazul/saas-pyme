@@ -33,7 +33,9 @@ import { Client, getClients } from "@/app/actions/clients";
 import { Product } from "@/types/products";
 import { getProducts } from "@/app/actions/products";
 import { createQuote } from "@/app/actions/quotes";
+import { getMyOrganization } from "@/app/actions/organizations";
 import { format, addDays } from "date-fns";
+import { Organization } from "@/types/organizations";
 import {
     Plus,
     Trash,
@@ -59,6 +61,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
     const [loading, setLoading] = useState(false);
     const [clients, setClients] = useState<Client[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+    const [organization, setOrganization] = useState<Organization | null>(null);
     const [isClientFormOpen, setIsClientFormOpen] = useState(false);
 
     // Selector de items local
@@ -92,12 +95,14 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
 
     const fetchInitialData = useCallback(async () => {
         try {
-            const [clientsData, productsData] = await Promise.all([
+            const [clientsData, productsData, orgData] = await Promise.all([
                 getClients(),
-                getProducts()
+                getProducts(),
+                getMyOrganization()
             ]);
             setClients(clientsData);
             setProducts(productsData);
+            setOrganization(orgData);
         } catch (error) {
             console.error("Error fetching form data:", error);
         }
@@ -466,6 +471,21 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                                 </div>
                             </div>
                         </div>
+
+                        {/* 5. Read-only Transfer Details (As requested by user) */}
+                        {organization?.transfer_details && (
+                            <div className="p-6 rounded-3xl bg-blue-50/30 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-3 flex items-center gap-2">
+                                    <FileText className="w-3.5 h-3.5" /> Datos de Transferencia (Cierre de Venta)
+                                </h4>
+                                <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line font-medium leading-relaxed italic">
+                                    {organization.transfer_details}
+                                </div>
+                                <p className="mt-3 text-[9px] font-bold text-gray-400 uppercase italic">
+                                    * Estos datos se incluirán automáticamente en el PDF final.
+                                </p>
+                            </div>
+                        )}
                     </form>
                 </div>
 

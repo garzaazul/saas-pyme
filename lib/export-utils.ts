@@ -92,22 +92,36 @@ export const exportToPDF = (
 /**
  * Generates a professional Quote PDF.
  */
-export const generateQuotePDF = (quote: any, companyName: string = 'FINANCIER') => {
+export const generateQuotePDF = (quote: any) => {
     const doc = new jsPDF();
     const date = new Date(quote.created_at).toLocaleDateString('es-CL');
     const validUntil = quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('es-CL') : 'N/A';
+    const org = quote.organization || {};
+    const companyName = org.name || 'FINANCIER';
 
     // 1. Header with branding
-    // Main Title
-    doc.setFontSize(32);
+    // Logo (if exists)
+    let headerY = 30;
+    if (org.logo_url) {
+        try {
+            // Basic check if it's a data URL or accessible URL
+            doc.addImage(org.logo_url, 'PNG', 20, 15, 30, 30);
+            headerY = 55; // Move text down if logo is present
+        } catch (e) {
+            console.error("Error loading logo in PDF:", e);
+        }
+    }
+
+    // Main Title / Company Name
+    doc.setFontSize(28);
     doc.setTextColor(30, 41, 59); // slate-800
     doc.setFont('helvetica', 'bold');
-    doc.text(companyName, 20, 30);
+    doc.text(companyName, 20, headerY);
 
     // Document Type Label
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text('DOCUMENTO DE VENTA / PROPUESTA COMERCIAL', 20, 38);
+    doc.text('DOCUMENTO DE VENTA / PROPUESTA COMERCIAL', 20, headerY + 8);
 
     // Folio & Dates on the right
     doc.setFillColor(248, 250, 252); // slate-50
@@ -127,21 +141,22 @@ export const generateQuotePDF = (quote: any, companyName: string = 'FINANCIER') 
     doc.text(validUntil, 145, 51);
 
     // 2. Client Section
+    const clientY = Math.max(80, headerY + 25);
     doc.setFontSize(10);
     doc.setTextColor(71, 85, 105); // slate-600
-    doc.text('DATOS DEL CLIENTE:', 20, 65);
+    doc.text('DATOS DEL CLIENTE:', 20, clientY);
 
     doc.setFontSize(12);
     doc.setTextColor(15, 23, 42); // slate-900
     doc.setFont('helvetica', 'bold');
-    doc.text(quote.client?.business_name || quote.clients?.business_name || 'Cliente Genérico', 20, 72);
+    doc.text(quote.client?.business_name || quote.clients?.business_name || 'Cliente Genérico', 20, clientY + 7);
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100);
-    doc.text(`RUT: ${quote.client?.rut || 'N/A'}`, 20, 78);
-    doc.text(`Dirección: ${quote.client?.direccion || 'N/A'}`, 20, 84);
-    doc.text(`Email: ${quote.client?.email || 'N/A'}`, 20, 90);
+    doc.text(`RUT: ${quote.client?.rut || 'N/A'}`, 20, clientY + 13);
+    doc.text(`Dirección: ${quote.client?.direccion || 'N/A'}`, 20, clientY + 19);
+    doc.text(`Email: ${quote.client?.email || 'N/A'}`, 20, clientY + 25);
 
     // 3. Items Table
     const tableData = quote.items.map((item: any) => [
@@ -152,7 +167,7 @@ export const generateQuotePDF = (quote: any, companyName: string = 'FINANCIER') 
     ]);
 
     autoTable(doc, {
-        startY: 100,
+        startY: clientY + 35,
         head: [['DESCRIPCIÓN / PRODUCTO', 'CANT.', 'P. UNITARIO', 'TOTAL']],
         body: tableData,
         theme: 'grid',
@@ -179,18 +194,7 @@ export const generateQuotePDF = (quote: any, companyName: string = 'FINANCIER') 
 
     // 4. Totals & Observations
     // @ts-ignore
-    const finalY = doc.lastAutoTable.finalY + 10;
-
-    // Observations on the left
-    if (quote.observations) {
-        doc.setFontSize(8);
-        doc.setTextColor(100);
-        doc.text('NOTAS / CONDICIONES:', 20, finalY + 5);
-        doc.setFontSize(9);
-        doc.setTextColor(30, 41, 59);
-        const splitText = doc.splitTextToSize(quote.observations, 100);
-        doc.text(splitText, 20, finalY + 12);
-    }
+    let finalY = doc.lastAutoTable.finalY + 10;
 
     // Totals Grid on the right
     const totalX = 140;
@@ -218,13 +222,41 @@ export const generateQuotePDF = (quote: any, companyName: string = 'FINANCIER') 
     doc.setTextColor(30, 41, 59);
     doc.text(new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(total), 195, finalY + 25, { align: 'right' });
 
+    // 5. Observations & Transfer Details
+    finalY += 35;
+
+    // Observations
+    if (quote.observations) {
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text('NOTAS / CONDICIONES:', 20, finalY);
+        doc.setFontSize(9);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'normal');
+        const splitObs = doc.splitTextToSize(quote.observations, 100);
+        doc.text(splitObs, 20, finalY + 7);
+        finalY += (splitObs.length * 5) + 10;
+    }
+
+    // Transfer Details
+    if (org.transfer_details) {
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text('DATOS PARA TRANSFERENCIA:', 20, finalY);
+        doc.setFontSize(9);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'bold');
+        const splitDetails = doc.splitTextToSize(org.transfer_details, 100);
+        doc.text(splitDetails, 20, finalY + 7);
+    }
+
     // Footer
     const pageSize = doc.internal.pageSize;
     const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
     doc.setFontSize(7);
     doc.setTextColor(150);
     doc.setFont('helvetica', 'italic');
-    doc.text('Gracias por su preferencia. Propuesta generada automáticamente por Financier SaaS Core.', pageSize.width / 2, pageHeight - 15, { align: 'center' });
+    doc.text(`Gracias por su preferencia. Propuesta generada automáticamente por ${companyName} via Financier SaaS.`, pageSize.width / 2, pageHeight - 15, { align: 'center' });
 
     doc.save(`Cotizacion_Ref_${quote.folio}_${quote.client?.business_name || 'CLIENTE'}.pdf`);
 };

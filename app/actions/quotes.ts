@@ -49,13 +49,14 @@ export async function getQuote(id: string) {
         .select(`
             *,
             items:quote_items (*),
-            client:clients (*)
+            client:clients (*),
+            organization:organizations (*)
         `)
         .eq("id", id)
         .single();
 
     if (error) throw error;
-    return data as Quote;
+    return data as any; // Using any to include organization field easily
 }
 
 /**
@@ -141,7 +142,7 @@ export async function duplicateQuote(id: string) {
         status: 'borrador', // New copy starts as draft
         valid_until: original.valid_until,
         observations: original.observations,
-        items: original.items?.map(item => ({
+        items: original.items?.map((item: any) => ({
             product_id: item.product_id,
             description: item.description,
             quantity: item.quantity,
