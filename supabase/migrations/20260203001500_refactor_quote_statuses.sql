@@ -1,4 +1,8 @@
 -- Refactor Quote Statuses
+-- 0. Ensure is_active column exists (in case previous migration was skipped)
+ALTER TABLE quotes ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+
 -- 1. Create new ENUM value or update existing one
 -- Note: In Postgres, updating ENUMs in a migration is safer by adding values or creating a new type.
 
