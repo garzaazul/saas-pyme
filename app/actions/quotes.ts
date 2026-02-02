@@ -130,6 +130,72 @@ export async function createQuote(input: CreateQuoteInput) {
 }
 
 /**
+ * Update an existing quote with items
+ */
+export async function updateQuote(input: UpdateQuoteInput) {
+    const supabase = await createClient();
+
+    // 1. Update header
+    const { data: quote, error: quoteError } = await supabase
+        .from("quotes")
+        .update({
+            client_id: input.client_id,
+            status: input.status,
+            valid_until: input.valid_until,
+            observations: input.observations,
+            payment_condition: input.payment_condition,
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", input.id)
+        .select()
+        .single();
+
+    if (quoteError) {
+        console.error("Error updating quote header:", quoteError);
+        return { error: quoteError.message };
+    }
+
+    // 2. Refresh items (Delete then Insert)
+    const { error: deleteError } = await supabase
+        .from("quote_items")
+        .delete()
+        .eq("quote_id", input.id);
+
+    if (deleteError) {
+        return { error: deleteError.message };
+    }
+
+    if (input.items && input.items.length > 0) {
+        const itemsToInsert = input.items.map(item => ({
+            quote_id: input.id,
+            product_id: item.product_id || null,
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            total_line: item.quantity * item.unit_price
+        }));
+
+        const { error: itemsError } = await supabase
+            .from("quote_items")
+            .insert(itemsToInsert);
+
+        if (itemsError) {
+            return { error: itemsError.message };
+        }
+    }
+
+    // 3. Update total amount in header
+    const total_amount = (input.items || []).reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+    await supabase
+        .from("quotes")
+        .update({ total_amount })
+        .eq("id", input.id);
+
+    revalidatePath("/dashboard/quotes");
+    return { data: { ...quote, total_amount } };
+}
+
+/**
  * Duplicate a quote (Versioning logic)
  */
 export async function duplicateQuote(id: string) {

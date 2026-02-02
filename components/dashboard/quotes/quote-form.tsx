@@ -32,7 +32,7 @@ import { Quote, CreateQuoteInput, QuoteStatus } from "@/types/quotes";
 import { Client, getClients } from "@/app/actions/clients";
 import { Product } from "@/types/products";
 import { getProducts } from "@/app/actions/products";
-import { createQuote } from "@/app/actions/quotes";
+import { createQuote, getQuote, updateQuote } from "@/app/actions/quotes";
 import { getMyOrganization } from "@/app/actions/organizations";
 import { format, addDays } from "date-fns";
 import { Organization } from "@/types/organizations";
@@ -73,17 +73,12 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
 
     const { register, control, handleSubmit, reset, watch, setValue } = useForm<CreateQuoteInput>({
         defaultValues: {
-            client_id: quote?.client_id || "",
-            status: quote?.status || "borrador",
-            observations: quote?.observations || "",
-            valid_until: quote?.valid_until || format(addDays(new Date(), 15), "yyyy-MM-dd"),
-            items: quote?.items?.map(i => ({
-                product_id: i.product_id,
-                description: i.description,
-                quantity: i.quantity,
-                unit_price: i.unit_price
-            })) || [],
-            payment_condition: quote?.payment_condition || ""
+            client_id: "",
+            status: "borrador",
+            observations: "",
+            valid_until: format(addDays(new Date(), 15), "yyyy-MM-dd"),
+            items: [],
+            payment_condition: ""
         }
     });
 
@@ -104,15 +99,43 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
             setClients(clientsData);
             setProducts(productsData);
             setOrganization(orgData);
+            return { clientsData, productsData, orgData };
         } catch (error) {
             console.error("Error fetching form data:", error);
+            return null;
         }
     }, []);
 
     useEffect(() => {
-        if (open) {
-            fetchInitialData();
-            if (!quote) {
+        const loadQuoteData = async () => {
+            if (!open) return;
+
+            setLoading(true);
+            const initialData = await fetchInitialData();
+
+            if (quote?.id) {
+                try {
+                    const fullQuote = await getQuote(quote.id);
+                    if (fullQuote) {
+                        reset({
+                            client_id: fullQuote.client_id,
+                            status: fullQuote.status,
+                            observations: fullQuote.observations || "",
+                            payment_condition: fullQuote.payment_condition || "",
+                            valid_until: fullQuote.valid_until,
+                            items: fullQuote.items?.map((i: any) => ({
+                                product_id: i.product_id,
+                                description: i.description,
+                                quantity: Number(i.quantity),
+                                unit_price: Number(i.unit_price)
+                            })) || []
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading full quote:", error);
+                    toast.error("Error al cargar los detalles de la cotización");
+                }
+            } else {
                 reset({
                     client_id: "",
                     status: "borrador",
@@ -121,19 +144,19 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                     valid_until: format(addDays(new Date(), 15), "yyyy-MM-dd"),
                     items: []
                 });
-            }
-        }
-    }, [open, quote, reset, fetchInitialData]);
 
-    // Handle initial default payment term
-    useEffect(() => {
-        if (!quote && organization?.payment_terms) {
-            const defaultTerm = organization.payment_terms.find(t => t.is_default);
-            if (defaultTerm) {
-                setValue("payment_condition", defaultTerm.label);
+                if (initialData?.orgData?.payment_terms) {
+                    const defaultTerm = initialData.orgData.payment_terms.find((t: any) => t.is_default);
+                    if (defaultTerm) {
+                        setValue("payment_condition", defaultTerm.label);
+                    }
+                }
             }
-        }
-    }, [quote, organization, setValue]);
+            setLoading(false);
+        };
+
+        loadQuoteData();
+    }, [open, quote?.id, reset, fetchInitialData, setValue]);
 
     const calculateTotal = () => {
         return (watchedItems || []).reduce((acc, item) => {
@@ -187,11 +210,20 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
 
         setLoading(true);
         try {
-            const res = await createQuote(data);
+            let res;
+            if (quote?.id) {
+                res = await updateQuote({
+                    ...data,
+                    id: quote.id
+                });
+            } else {
+                res = await createQuote(data);
+            }
+
             if (res.error) {
                 toast.error(res.error);
             } else {
-                toast.success("Cotización guardada exitosamente");
+                toast.success(quote ? "Cotización actualizada" : "Cotización guardada exitosamente");
                 onSuccess();
                 onOpenChange(false);
             }
@@ -498,10 +530,10 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                                         className="flex-[2] bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/30 rounded-2xl font-black h-14 gap-2 text-base"
                                     >
                                         {loading ? (
-                                            "Generando..."
+                                            "Procesando..."
                                         ) : (
                                             <>
-                                                <Plus className="w-5 h-5" /> Crear Cotización
+                                                <Plus className="w-5 h-5" /> {quote ? "Actualizar Cotización" : "Crear Cotización"}
                                             </>
                                         )}
                                     </Button>
@@ -509,7 +541,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                             </div>
                         </div>
 
-                        {/* 5. Read-only Transfer Details (As requested by user) */}
+                        {/* 5. Read-only Transfer Details */}
                         {organization?.transfer_details && (
                             <div className="p-6 rounded-3xl bg-blue-50/30 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20">
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-3 flex items-center gap-2">
