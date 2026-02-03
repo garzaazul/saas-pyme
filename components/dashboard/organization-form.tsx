@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Globe, Instagram, Facebook, MessageCircle, Mail, Music2, Upload, X, Plus, CheckCircle2 } from "lucide-react";
+import { Loader2, Globe, Instagram, Facebook, MessageCircle, Mail, Music2, Upload, X, Plus, CheckCircle2, Copy, ExternalLink } from "lucide-react";
 import { normalizePhone } from "@/lib/chile-formatters";
 
 interface OrganizationFormProps {
@@ -173,11 +173,43 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
                                     {...register("web_slug")}
                                 />
                             </div>
-                            <div className="bg-primary/5 px-3 py-2 rounded-lg border border-primary/10">
-                                <p className="text-[10px] text-primary font-bold tracking-tight">
-                                    PUBLIC URL:
-                                    <span className="ml-1 opacity-70 italic">financier.cl/c/{watch("web_slug") || "tu-slug"}</span>
-                                </p>
+                            <div className="bg-primary/5 px-3 py-2 rounded-lg border border-primary/10 flex items-center justify-between group/slug">
+                                <div className="flex flex-col">
+                                    <p className="text-[10px] text-primary font-black tracking-tight uppercase opacity-50">
+                                        URL de tu Catálogo Público:
+                                    </p>
+                                    <p className="text-sm font-bold text-primary truncate">
+                                        /catalogo/{watch("web_slug") || "tu-slug"}
+                                    </p>
+                                </div>
+                                <div className="flex gap-1">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-primary hover:bg-primary/20 rounded-lg"
+                                        onClick={() => {
+                                            const url = `${window.location.origin}/catalogo/${watch("web_slug")}`;
+                                            navigator.clipboard.writeText(url);
+                                            toast.success("Enlace copiado al portapapeles");
+                                        }}
+                                        title="Copiar enlace"
+                                    >
+                                        <Copy className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-primary hover:bg-primary/20 rounded-lg"
+                                        onClick={() => {
+                                            window.open(`/catalogo/${watch("web_slug")}`, "_blank");
+                                        }}
+                                        title="Visitar catálogo"
+                                    >
+                                        <ExternalLink className="w-4 h-4" />
+                                    </Button>
+                                </div>
                             </div>
                             {errors.web_slug && <p className="text-xs font-bold text-red-500 mt-1">{errors.web_slug.message}</p>}
                         </div>

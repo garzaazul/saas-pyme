@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Package, TrendingUp, AlertCircle, Search, ChevronLeft, ChevronRight, Loader2, DollarSign } from "lucide-react";
+import { Plus, Package, TrendingUp, AlertCircle, Search, ChevronLeft, ChevronRight, Loader2, DollarSign, ExternalLink } from "lucide-react";
 import { ProductTable } from "@/components/dashboard/products/product-table";
 import { ProductForm } from "@/components/dashboard/products/product-form";
 import { getProducts } from "@/app/actions/products";
+import { getMyOrganization } from "@/app/actions/organizations";
 import { Product } from "@/types/products";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableToolbar } from "@/components/dashboard/TableToolbar";
@@ -37,6 +38,7 @@ export default function ProductsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
     const [searchTerm, setSearchTerm] = useState("");
+    const [orgSlug, setOrgSlug] = useState<string | null>(null);
 
     // Navigation & Table Controls
     const [activeTab, setActiveTab] = useState("active");
@@ -58,6 +60,8 @@ export default function ProductsPage() {
 
     useEffect(() => {
         fetchProducts();
+        // Fetch org slug for catalog link
+        getMyOrganization().then(org => setOrgSlug(org.web_slug)).catch(() => { });
     }, [fetchProducts]);
 
     // Reset page when filtering or changing tabs
@@ -159,6 +163,16 @@ export default function ProductsPage() {
                         Gestione su inventario de productos y servicios con control de stock y alertas.
                     </p>
                 </div>
+                {orgSlug && (
+                    <Button
+                        variant="outline"
+                        onClick={() => window.open(`/catalogo/${orgSlug}`, "_blank")}
+                        className="rounded-xl font-bold gap-2 border-primary/20 text-primary hover:bg-primary/5 hidden md:flex"
+                    >
+                        <ExternalLink className="w-4 h-4" />
+                        Ver Catálogo Público
+                    </Button>
+                )}
             </div>
 
             {/* KPI Cards Grid */}
