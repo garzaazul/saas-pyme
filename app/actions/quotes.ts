@@ -30,7 +30,7 @@ export async function getQuotes() {
         .from("quotes")
         .select(`
             *,
-            clients (business_name)
+            clients (business_name, telefono)
         `)
         .eq("organization_id", profile.organization_id)
         .order("folio", { ascending: false });
