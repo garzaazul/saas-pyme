@@ -16,9 +16,9 @@ export function StoreProductCard({ product, quantity, onUpdateQuantity }: StoreP
     const hasImage = product.image_urls && product.image_urls.length > 0;
 
     return (
-        <div className="group bg-white dark:bg-slate-900 rounded-[2rem] border border-gray-100 dark:border-slate-800 p-4 transition-all hover:shadow-2xl hover:shadow-gray-200/50 dark:hover:shadow-none flex flex-col h-full">
+        <div className="group bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 p-4 transition-all hover:shadow-2xl hover:shadow-gray-200/50 dark:hover:shadow-none flex flex-col h-full">
             {/* Image Section */}
-            <div className="relative aspect-square rounded-[1.5rem] overflow-hidden bg-gray-50 dark:bg-slate-800 mb-4">
+            <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-50 dark:bg-slate-800 mb-4">
                 {hasImage ? (
                     <Image
                         src={product.image_urls[0]}
@@ -60,10 +60,10 @@ export function StoreProductCard({ product, quantity, onUpdateQuantity }: StoreP
                     </div>
 
                     {quantity > 0 ? (
-                        <div className="flex items-center gap-2 bg-primary/5 rounded-2xl p-1.5 border border-primary/10">
+                        <div className="flex items-center gap-2 bg-primary/5 rounded-xl p-1.5 border border-primary/10">
                             <button
                                 onClick={() => onUpdateQuantity(product.id, -1)}
-                                className="w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-primary shadow-sm hover:bg-primary hover:text-white transition-all scale-animation"
+                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-primary shadow-sm hover:bg-primary hover:text-white transition-all scale-animation"
                             >
                                 <Minus className="w-4 h-4" />
                             </button>
@@ -72,7 +72,7 @@ export function StoreProductCard({ product, quantity, onUpdateQuantity }: StoreP
                             </span>
                             <button
                                 onClick={() => onUpdateQuantity(product.id, 1)}
-                                className="w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-primary shadow-sm hover:bg-primary hover:text-white transition-all scale-animation"
+                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-primary shadow-sm hover:bg-primary hover:text-white transition-all scale-animation"
                             >
                                 <Plus className="w-4 h-4" />
                             </button>
@@ -80,7 +80,7 @@ export function StoreProductCard({ product, quantity, onUpdateQuantity }: StoreP
                     ) : (
                         <button
                             onClick={() => onUpdateQuantity(product.id, 1)}
-                            className="bg-primary text-white p-3 rounded-2xl shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:scale-105 transition-all flex items-center gap-2 font-black text-xs uppercase tracking-widest"
+                            className="bg-primary text-white p-3 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:scale-105 transition-all flex items-center gap-2 font-black text-xs uppercase tracking-widest"
                         >
                             <Plus className="w-4 h-4" />
                             Agregar

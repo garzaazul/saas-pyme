@@ -7,8 +7,8 @@ interface StoreFooterProps {
 
 export function StoreFooter({ organization }: StoreFooterProps) {
     return (
-        <footer className="bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 pt-16 pb-24">
-            <div className="container mx-auto px-4">
+        <footer className="bg-neutral-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 pt-16 pb-24">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                     <div className="space-y-4">
                         <h3 className="text-xl font-black tracking-tighter text-gray-900 dark:text-white uppercase">
