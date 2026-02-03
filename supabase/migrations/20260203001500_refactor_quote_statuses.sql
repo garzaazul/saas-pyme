@@ -24,3 +24,7 @@ UPDATE quotes SET is_active = true WHERE is_active IS NULL;
 
 -- 5. Add index for performance on status filtering if not exists
 CREATE INDEX IF NOT EXISTS idx_quotes_status ON quotes(status);
+
+-- DATA FIX: Update existing quotes to Gross amount (Net * 1.19)
+-- Assuming current total_amount is net.
+UPDATE quotes SET total_amount = ROUND(total_amount * 1.19);

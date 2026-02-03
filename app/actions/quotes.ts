@@ -83,8 +83,9 @@ export async function createQuote(input: CreateQuoteInput) {
 
     if (folioError) return { error: "Error generando folio" };
 
-    // 2. Calculate total amount
-    const total_amount = input.items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+    // 2. Calculate total amount (Net * 1.19 for Gross Total)
+    const net_amount = input.items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+    const total_amount = Math.round(net_amount * 1.19);
 
     // 3. Insert header
     const { data: quote, error: quoteError } = await supabase
@@ -185,8 +186,9 @@ export async function updateQuote(input: UpdateQuoteInput) {
         }
     }
 
-    // 3. Update total amount in header
-    const total_amount = (input.items || []).reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+    // 3. Update total amount in header (Net * 1.19 for Gross Total)
+    const net_amount = (input.items || []).reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+    const total_amount = Math.round(net_amount * 1.19);
     await supabase
         .from("quotes")
         .update({ total_amount })
