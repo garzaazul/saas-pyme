@@ -117,7 +117,7 @@ export default function QuotesPage() {
     };
 
     const handleWhatsApp = (quote: any) => {
-        const phone = quote.client?.telefono || quote.clients?.telefono || "";
+        const phone = quote.client?.phone || quote.clients?.phone || "";
         if (!phone) {
             toast.error("El cliente no tiene un teléfono registrado");
             return;
