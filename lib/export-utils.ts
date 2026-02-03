@@ -208,9 +208,9 @@ export const generateQuotePDF = (quote: any) => {
 
     // Totals Grid on the right
     const totalX = 140;
-    const neto = Number(quote.total_amount);
+    const neto = quote.items.reduce((acc: number, item: any) => acc + (item.total_line || 0), 0);
     const iva = Math.round(neto * 0.19);
-    const total = neto + iva;
+    const total = Number(quote.total_amount);
 
     doc.setFontSize(10);
     doc.setTextColor(100);
