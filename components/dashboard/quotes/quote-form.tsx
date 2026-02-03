@@ -138,7 +138,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
             } else {
                 reset({
                     client_id: "",
-                    status: "borrador",
+                    status: "pendiente",
                     observations: "",
                     payment_condition: "",
                     valid_until: format(addDays(new Date(), 15), "yyyy-MM-dd"),
