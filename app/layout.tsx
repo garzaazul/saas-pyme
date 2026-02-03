@@ -15,15 +15,15 @@ export default async function RootLayout({
     children: React.ReactNode;
 }>) {
     const profile = await getProfile();
-    const initialTheme = profile?.theme || "system";
+    const initialTheme = profile?.theme || "light";
 
     return (
-        <html lang="es" suppressHydrationWarning>
-            <body>
+        <html lang="es" suppressHydrationWarning className={initialTheme}>
+            <body className="antialiased">
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme={profile?.theme || "light"}
-                    enableSystem
+                    defaultTheme="light"
+                    enableSystem={false}
                     disableTransitionOnChange
                 >
                     {children}
