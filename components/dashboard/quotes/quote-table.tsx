@@ -188,14 +188,18 @@ export function QuoteTable({
                                                     Duplicar (Versión)
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
-                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aprobada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
-                                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                                                    Marcar como Aprobada
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'rechazada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
-                                                    <XCircle className="w-3.5 h-3.5 text-red-400" />
-                                                    Marcar como Rechazada
-                                                </DropdownMenuItem>
+                                                {quote.status === 'pendiente' && (
+                                                    <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'aprobada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
+                                                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                                                        Marcar como Aprobada
+                                                    </DropdownMenuItem>
+                                                )}
+                                                {(quote.status === 'pendiente' || quote.status === 'aprobada') && (
+                                                    <DropdownMenuItem onClick={() => onStatusChange(quote.id, 'rechazada')} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
+                                                        <XCircle className="w-3.5 h-3.5 text-red-400" />
+                                                        Marcar como Rechazada
+                                                    </DropdownMenuItem>
+                                                )}
                                                 <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
                                                 {quote.is_active ? (
                                                     <DropdownMenuItem
