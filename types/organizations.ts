@@ -19,7 +19,7 @@ export interface Organization extends BaseEntity {
     tiktok_url: string | null;
     transfer_details: string | null;
     payment_terms: PaymentTermTemplate[] | null;
-    show_tax_toggle_in_catalog: boolean;
+    show_tax_in_catalog: boolean;
 }
 
 export type UpdateOrganizationInput = Partial<Omit<Organization, keyof BaseEntity>>;

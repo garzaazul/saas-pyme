@@ -118,7 +118,7 @@ export function StoreCartSummary({
                                                 {item.product.name}
                                             </h4>
                                             <p className="text-xs font-bold text-primary italic">
-                                                {formatCLP(showIva ? Math.round(item.product.base_price * 1.19) : item.product.base_price)} {showIva ? "c/u (IVA incl.)" : "c/u (Neto)"}
+                                                {formatCLP(showIva ? Math.round(item.product.base_price * 1.19) : item.product.base_price)} {showIva ? "c/u (IVA incl.)" : "c/u (Neto + IVA)"}
                                             </p>
                                         </div>
                                         <div className="flex items-center justify-between mt-2">
@@ -155,7 +155,7 @@ export function StoreCartSummary({
                         <div className="flex justify-between items-end">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Estimado</span>
-                                <span className="text-[9px] font-bold text-gray-400">CLP • {showIva ? "IVA INCLUIDO" : "PRECIOS NETOS"}</span>
+                                <span className="text-[9px] font-bold text-gray-400 uppercase">CLP • {showIva ? "IVA INCLUIDO" : "VALORES NETOS (+ IVA)"}</span>
                             </div>
                             <span className="text-4xl font-black italic tracking-tighter text-gray-900 dark:text-white leading-none">
                                 {formatCLP(total)}

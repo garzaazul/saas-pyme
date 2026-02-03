@@ -39,7 +39,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
             tiktok_url: organization.tiktok_url || "",
             transfer_details: organization.transfer_details || "",
             payment_terms: organization.payment_terms || [],
-            show_tax_toggle_in_catalog: organization.show_tax_toggle_in_catalog || false,
+            show_tax_in_catalog: organization.show_tax_in_catalog || false,
         },
     });
 
@@ -333,12 +333,12 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800 transition-all hover:bg-white dark:hover:bg-slate-800">
                             <div className="space-y-0.5">
-                                <Label className="text-sm font-bold uppercase tracking-wide">Previsualización de IVA</Label>
-                                <p className="text-xs text-muted-foreground font-medium">Permitir que los clientes vean los precios con IVA (19%) mediante un interruptor en el catálogo.</p>
+                                <Label className="text-sm font-bold uppercase tracking-wide">Precios con IVA (19%)</Label>
+                                <p className="text-xs text-muted-foreground font-medium">Si se activa, el catálogo mostrará automáticamente los precios con el 19% de IVA incluido.</p>
                             </div>
                             <Switch
-                                checked={watch("show_tax_toggle_in_catalog")}
-                                onCheckedChange={(val) => setValue("show_tax_toggle_in_catalog", val, { shouldDirty: true })}
+                                checked={watch("show_tax_in_catalog")}
+                                onCheckedChange={(val) => setValue("show_tax_in_catalog", val, { shouldDirty: true })}
                             />
                         </div>
                     </CardContent>

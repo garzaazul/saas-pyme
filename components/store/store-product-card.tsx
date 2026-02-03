@@ -58,9 +58,14 @@ export function StoreProductCard({ product, quantity, onUpdateQuantity, showIva 
                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
                             {showIva ? "IVA incluido" : "Precio Neto"}
                         </span>
-                        <span className="text-xl font-black italic tracking-tighter text-primary leading-none">
-                            {formatCLP(displayedPrice)}
-                        </span>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-xl font-black italic tracking-tighter text-primary leading-none">
+                                {formatCLP(displayedPrice)}
+                            </span>
+                            {!showIva && (
+                                <span className="text-[10px] font-bold text-gray-400 italic font-sans">+ IVA</span>
+                            )}
+                        </div>
                     </div>
 
                     {quantity > 0 ? (

@@ -11,8 +11,6 @@ import { StoreFooter } from "@/components/store/store-footer";
 import { ShoppingBag, Search, Filter, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 interface StoreViewProps {
     organization: Organization;
@@ -25,7 +23,7 @@ export function StoreView({ organization, products, categories }: StoreViewProps
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [showIva, setShowIva] = useState(false);
+    const showIva = organization.show_tax_in_catalog;
 
     const updateQuantity = (id: string, delta: number) => {
         setCart(prev => {
@@ -119,20 +117,6 @@ export function StoreView({ organization, products, categories }: StoreViewProps
                                 ))}
                             </div>
                         </div>
-
-                        {/* IVA Toggle (if enabled by organization) */}
-                        {organization.show_tax_toggle_in_catalog && (
-                            <div className="mt-4 flex items-center justify-end gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-gray-100 dark:border-slate-800 w-fit ml-auto shadow-sm">
-                                <Label htmlFor="iva-toggle" className="text-xs font-bold text-muted-foreground whitespace-nowrap">
-                                    ¿Ver precios con IVA (19%)?
-                                </Label>
-                                <Switch
-                                    id="iva-toggle"
-                                    checked={showIva}
-                                    onCheckedChange={setShowIva}
-                                />
-                            </div>
-                        )}
                     </div>
                 </section>
 
