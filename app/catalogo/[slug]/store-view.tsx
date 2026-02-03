@@ -8,7 +8,7 @@ import { StoreHeader } from "@/components/store/store-header";
 import { StoreProductCard } from "@/components/store/store-product-card";
 import { StoreCartSummary } from "@/components/store/store-cart-summary";
 import { StoreFooter } from "@/components/store/store-footer";
-import { ShoppingBag, Search, Filter } from "lucide-react";
+import { ShoppingBag, Search, Filter, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -141,6 +141,20 @@ export function StoreView({ organization, products, categories }: StoreViewProps
             </main>
 
             <StoreFooter organization={organization} />
+
+            {/* Floating WhatsApp Contact Button (Direct Chat) */}
+            <a
+                href={`https://wa.me/${organization.whatsapp?.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-6 right-6 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform active:scale-95 shadow-green-500/20 flex items-center justify-center group"
+                title="Contactar por WhatsApp"
+            >
+                <MessageCircle className="w-7 h-7" />
+                <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out whitespace-nowrap font-bold text-sm px-0 group-hover:pl-3">
+                    ¿Te ayudo?
+                </span>
+            </a>
 
             {/* Cart Sheet */}
             <StoreCartSummary
