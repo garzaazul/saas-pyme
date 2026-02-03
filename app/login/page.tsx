@@ -63,7 +63,7 @@ export default function LoginPage() {
                     <div className="mx-auto w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center mb-4">
                         <span className="text-white font-bold text-xl">F</span>
                     </div>
-                    <CardTitle className="text-2xl">Financier</CardTitle>
+                    <CardTitle className="text-2xl">FLUXU</CardTitle>
                     <CardDescription>
                         {isSignUp ? "Crea tu cuenta" : "Inicia sesión en tu cuenta"}
                     </CardDescription>
@@ -96,8 +96,8 @@ export default function LoginPage() {
                         {message && (
                             <p
                                 className={`text-sm text-center ${message.includes("Error") || message.includes("Invalid")
-                                        ? "text-red-600"
-                                        : "text-green-600"
+                                    ? "text-red-600"
+                                    : "text-green-600"
                                     }`}
                             >
                                 {message}

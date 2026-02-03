@@ -97,7 +97,7 @@ export const generateQuotePDF = (quote: any) => {
     const date = new Date(quote.created_at).toLocaleDateString('es-CL');
     const validUntil = quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('es-CL') : 'N/A';
     const org = quote.organization || {};
-    const companyName = org.name || 'FINANCIER';
+    const companyName = org.name || 'FLUXU';
     const whatsapp = org.whatsapp || '';
 
     // 1. Header with branding
@@ -279,7 +279,7 @@ export const generateQuotePDF = (quote: any) => {
     doc.setTextColor(150);
     doc.setFont('helvetica', 'italic');
 
-    const footerText = `Gracias por su preferencia. Propuesta generada automáticamente por ${companyName}${whatsapp ? ` • WhatsApp: ${whatsapp}` : ''} via Financier SaaS.`;
+    const footerText = `Gracias por su preferencia. Propuesta generada automáticamente por ${companyName}${whatsapp ? ` • WhatsApp: ${whatsapp}` : ''} via FLUXU SaaS.`;
     doc.text(footerText, pageSize.width / 2, pageHeight - 15, { align: 'center' });
 
     doc.save(`Cotizacion_Ref_${quote.folio}_${quote.client?.business_name || 'CLIENTE'}.pdf`);

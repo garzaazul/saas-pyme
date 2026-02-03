@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import { getProfile } from "@/app/actions/auth";
 
 export const metadata: Metadata = {
-    title: "SaaS B2B - Gestión Operativa",
+    title: "FLUXU - Gestión Operativa",
     description: "Sistema de gestión operativa para Pymes",
 };
 

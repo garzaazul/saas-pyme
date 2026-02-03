@@ -60,7 +60,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         </div>
                         {!collapsed && (
                             <div className="flex flex-col">
-                                <span className="font-black text-white tracking-tighter leading-none text-xl italic">Financier</span>
+                                <span className="font-black text-white tracking-tighter leading-none text-xl italic">FLUXU</span>
                                 <span className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400 mt-1.5 opacity-80">SaaS Pyme Core</span>
                             </div>
                         )}

@@ -56,7 +56,7 @@ export function StoreFooter({ organization }: StoreFooterProps) {
 
                 <div className="mt-16 pt-8 border-t border-gray-100 dark:border-slate-800 text-center">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                        © {new Date().getFullYear()} {organization.name} • Potenciado por <span className="text-primary italic">Financier</span>
+                        © {new Date().getFullYear()} {organization.name} • Potenciado por <span className="text-primary italic">FLUXU</span>
                     </p>
                 </div>
             </div>
