@@ -74,7 +74,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
     const { register, control, handleSubmit, reset, watch, setValue } = useForm<CreateQuoteInput>({
         defaultValues: {
             client_id: "",
-            status: "borrador",
+            status: "pendiente",
             observations: "",
             valid_until: format(addDays(new Date(), 15), "yyyy-MM-dd"),
             items: [],
