@@ -11,6 +11,8 @@ import { StoreFooter } from "@/components/store/store-footer";
 import { ShoppingBag, Search, Filter, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface StoreViewProps {
     organization: Organization;
@@ -23,6 +25,7 @@ export function StoreView({ organization, products, categories }: StoreViewProps
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [showIva, setShowIva] = useState(false);
 
     const updateQuantity = (id: string, delta: number) => {
         setCart(prev => {
@@ -46,7 +49,10 @@ export function StoreView({ organization, products, categories }: StoreViewProps
     }, [cart, products]);
 
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    const cartTotal = cartItems.reduce((acc, item) => acc + (item.product.base_price * item.quantity), 0);
+    const cartTotal = cartItems.reduce((acc, item) => {
+        const price = showIva ? Math.round(item.product.base_price * 1.19) : item.product.base_price;
+        return acc + (price * item.quantity);
+    }, 0);
 
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
@@ -113,6 +119,20 @@ export function StoreView({ organization, products, categories }: StoreViewProps
                                 ))}
                             </div>
                         </div>
+
+                        {/* IVA Toggle (if enabled by organization) */}
+                        {organization.show_tax_toggle_in_catalog && (
+                            <div className="mt-4 flex items-center justify-end gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-gray-100 dark:border-slate-800 w-fit ml-auto shadow-sm">
+                                <Label htmlFor="iva-toggle" className="text-xs font-bold text-muted-foreground whitespace-nowrap">
+                                    ¿Ver precios con IVA (19%)?
+                                </Label>
+                                <Switch
+                                    id="iva-toggle"
+                                    checked={showIva}
+                                    onCheckedChange={setShowIva}
+                                />
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -132,6 +152,7 @@ export function StoreView({ organization, products, categories }: StoreViewProps
                                         product={product}
                                         quantity={cart[product.id] || 0}
                                         onUpdateQuantity={updateQuantity}
+                                        showIva={showIva}
                                     />
                                 ))}
                             </div>
@@ -164,6 +185,7 @@ export function StoreView({ organization, products, categories }: StoreViewProps
                 cartItems={cartItems}
                 onUpdateQuantity={updateQuantity}
                 onClearCart={clearCart}
+                showIva={showIva}
             />
 
             {/* Sticky Floating Total (Mobile/Desktop) */}
@@ -182,7 +204,9 @@ export function StoreView({ organization, products, categories }: StoreViewProps
                             </div>
                             <div className="h-6 w-px bg-white/20" />
                             <div className="flex flex-col items-start leading-none gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Ver pedido</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest opacity-80">
+                                    Ver pedido {showIva ? "(con IVA)" : "(Neto)"}
+                                </span>
                                 <span className="text-xl font-black italic tracking-tighter">
                                     ${cartTotal.toLocaleString("es-CL")}
                                 </span>

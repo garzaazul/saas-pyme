@@ -26,6 +26,7 @@ interface StoreCartSummaryProps {
     cartItems: CartItem[];
     onUpdateQuantity: (id: string, delta: number) => void;
     onClearCart: () => void;
+    showIva?: boolean;
 }
 
 export function StoreCartSummary({
@@ -34,18 +35,27 @@ export function StoreCartSummary({
     organization,
     cartItems,
     onUpdateQuantity,
-    onClearCart
+    onClearCart,
+    showIva = false
 }: StoreCartSummaryProps) {
-    const total = cartItems.reduce((acc, item) => acc + (item.product.base_price * item.quantity), 0);
+    const total = cartItems.reduce((acc, item) => {
+        const price = showIva ? Math.round(item.product.base_price * 1.19) : item.product.base_price;
+        return acc + (price * item.quantity);
+    }, 0);
+
     const isEmpty = cartItems.length === 0;
 
     const handleWhatsAppSend = () => {
+        const taxStatus = showIva ? "(Precios incluyen IVA)" : "(Precios Netos)";
         const productList = cartItems
-            .map(item => `${item.quantity}x ${item.product.name} (${formatCLP(item.product.base_price * item.quantity)})`)
+            .map(item => {
+                const price = showIva ? Math.round(item.product.base_price * 1.19) : item.product.base_price;
+                return `${item.quantity}x ${item.product.name} (${formatCLP(price * item.quantity)})`;
+            })
             .join("\n");
 
         const message = encodeURIComponent(
-            `Hola ${organization.name}, me interesa cotizar los siguientes productos:\n\n${productList}\n\n*Total estimado: ${formatCLP(total)}*`
+            `Hola ${organization.name}, me interesa cotizar los siguientes productos ${taxStatus}:\n\n${productList}\n\n*Total estimado: ${formatCLP(total)}*`
         );
 
         const phone = organization.whatsapp?.replace(/\D/g, '') || '';
@@ -108,7 +118,7 @@ export function StoreCartSummary({
                                                 {item.product.name}
                                             </h4>
                                             <p className="text-xs font-bold text-primary italic">
-                                                {formatCLP(item.product.base_price)} c/u
+                                                {formatCLP(showIva ? Math.round(item.product.base_price * 1.19) : item.product.base_price)} {showIva ? "c/u (IVA incl.)" : "c/u (Neto)"}
                                             </p>
                                         </div>
                                         <div className="flex items-center justify-between mt-2">
@@ -130,7 +140,7 @@ export function StoreCartSummary({
                                                 </button>
                                             </div>
                                             <span className="font-black text-gray-900 dark:text-white italic">
-                                                {formatCLP(item.product.base_price * item.quantity)}
+                                                {formatCLP((showIva ? Math.round(item.product.base_price * 1.19) : item.product.base_price) * item.quantity)}
                                             </span>
                                         </div>
                                     </div>
@@ -145,7 +155,7 @@ export function StoreCartSummary({
                         <div className="flex justify-between items-end">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Estimado</span>
-                                <span className="text-[9px] font-bold text-gray-400">CLP • IMPUESTOS INCL.</span>
+                                <span className="text-[9px] font-bold text-gray-400">CLP • {showIva ? "IVA INCLUIDO" : "PRECIOS NETOS"}</span>
                             </div>
                             <span className="text-4xl font-black italic tracking-tighter text-gray-900 dark:text-white leading-none">
                                 {formatCLP(total)}

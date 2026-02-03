@@ -23,6 +23,7 @@ export const organizationSchema = z.object({
         label: z.string().min(1, "La etiqueta no puede estar vacía"),
         is_default: z.boolean()
     })).nullable().optional(),
+    show_tax_toggle_in_catalog: z.boolean(),
 });
 
 export type OrganizationFormValues = z.infer<typeof organizationSchema>;

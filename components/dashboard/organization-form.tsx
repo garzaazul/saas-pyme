@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Loader2, Globe, Instagram, Facebook, MessageCircle, Mail, Music2, Upload, X, Plus, CheckCircle2, Copy, ExternalLink } from "lucide-react";
 import { normalizePhone } from "@/lib/chile-formatters";
 
@@ -30,6 +31,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
             description: organization.description || "",
             rut: organization.rut || "",
             web_slug: organization.web_slug || "",
+            logo_url: organization.logo_url || "",
             whatsapp: organization.whatsapp || "",
             email: organization.email || "",
             instagram_url: organization.instagram_url || "",
@@ -37,6 +39,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
             tiktok_url: organization.tiktok_url || "",
             transfer_details: organization.transfer_details || "",
             payment_terms: organization.payment_terms || [],
+            show_tax_toggle_in_catalog: organization.show_tax_toggle_in_catalog || false,
         },
     });
 
@@ -317,6 +320,26 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
                                 {...register("transfer_details")}
                             />
                             {errors.transfer_details && <p className="text-xs font-bold text-red-500 mt-1">{errors.transfer_details.message}</p>}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Configuración del Catálogo */}
+                <Card className="rounded-xl overflow-hidden premium-shadow border-none md:col-span-2">
+                    <CardHeader className="bg-slate-50 dark:bg-slate-800/50">
+                        <CardTitle className="text-xl font-black tracking-tight">Configuración del Catálogo</CardTitle>
+                        <CardDescription className="font-medium">Personaliza la experiencia de tus clientes en la vitrina pública.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800 transition-all hover:bg-white dark:hover:bg-slate-800">
+                            <div className="space-y-0.5">
+                                <Label className="text-sm font-bold uppercase tracking-wide">Previsualización de IVA</Label>
+                                <p className="text-xs text-muted-foreground font-medium">Permitir que los clientes vean los precios con IVA (19%) mediante un interruptor en el catálogo.</p>
+                            </div>
+                            <Switch
+                                checked={watch("show_tax_toggle_in_catalog")}
+                                onCheckedChange={(val) => setValue("show_tax_toggle_in_catalog", val, { shouldDirty: true })}
+                            />
                         </div>
                     </CardContent>
                 </Card>

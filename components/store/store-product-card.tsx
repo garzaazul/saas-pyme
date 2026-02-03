@@ -10,10 +10,12 @@ interface StoreProductCardProps {
     product: Product & { categories: { name: string } | null };
     quantity: number;
     onUpdateQuantity: (id: string, delta: number) => void;
+    showIva?: boolean;
 }
 
-export function StoreProductCard({ product, quantity, onUpdateQuantity }: StoreProductCardProps) {
+export function StoreProductCard({ product, quantity, onUpdateQuantity, showIva = false }: StoreProductCardProps) {
     const hasImage = product.image_urls && product.image_urls.length > 0;
+    const displayedPrice = showIva ? Math.round(product.base_price * 1.19) : product.base_price;
 
     return (
         <div className="group bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 p-4 transition-all hover:shadow-2xl hover:shadow-gray-200/50 dark:hover:shadow-none flex flex-col h-full">
@@ -53,9 +55,11 @@ export function StoreProductCard({ product, quantity, onUpdateQuantity }: StoreP
 
                 <div className="mt-auto pt-4 flex items-center justify-between gap-4">
                     <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Precio</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
+                            {showIva ? "IVA incluido" : "Precio Neto"}
+                        </span>
                         <span className="text-xl font-black italic tracking-tighter text-primary leading-none">
-                            {formatCLP(product.base_price)}
+                            {formatCLP(displayedPrice)}
                         </span>
                     </div>
 
