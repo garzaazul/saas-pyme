@@ -251,7 +251,7 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
                                 }}
                             >
                                 <SelectTrigger className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11">
-                                    <SelectValue placeholder="Agregar categoría..." />
+                                    <SelectValue placeholder={selectedCategoryIds.length > 0 ? "+ Añadir otra..." : "Añadir categoría..."} />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl">
                                     {categories
