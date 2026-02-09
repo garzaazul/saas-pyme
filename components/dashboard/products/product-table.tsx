@@ -125,9 +125,21 @@ export function ProductTable({ products, activeTab, onEdit, onRefresh }: Product
                             </div>
                         </TableCell>
                         <TableCell>
-                            <span className="text-gray-500 font-bold text-xs">
-                                {product.categories?.name || "Sin categoría"}
-                            </span>
+                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                {(product as any).product_categories?.length > 0 ? (
+                                    (product as any).product_categories.map((pc: any, idx: number) => (
+                                        <Badge
+                                            key={idx}
+                                            variant="outline"
+                                            className="text-[9px] font-bold uppercase tracking-tight bg-gray-50 dark:bg-slate-800 border-gray-100 dark:border-slate-700 text-gray-500 py-0 px-1.5"
+                                        >
+                                            {pc.categories?.name}
+                                        </Badge>
+                                    ))
+                                ) : (
+                                    <span className="text-gray-400 font-bold text-[10px] italic">Sin categorías</span>
+                                )}
+                            </div>
                         </TableCell>
                         <TableCell className="font-black text-primary italic">
                             {formatCLP(product.base_price)}

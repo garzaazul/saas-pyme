@@ -56,11 +56,13 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
             unit: product?.unit || "un",
             is_stock_product: product?.is_stock_product ?? true,
             type: product?.type || "product",
-            category_id: product?.category_id || "",
+            category_ids: product?.category_ids || [],
             is_active: product?.is_active ?? true,
             image_urls: product?.image_urls || [],
         }
     });
+
+    const selectedCategoryIds = watch("category_ids") || [];
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -201,26 +203,62 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
                             {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1 flex justify-between items-center">
-                                Categoría
+                                Categorías
                                 {categories.length === 0 && (
                                     <Link href="/dashboard/categories" className="text-primary hover:underline lowercase normal-case">
                                         crear categoría
                                     </Link>
                                 )}
                             </label>
+
+                            {/* Multi-select badging area */}
+                            <div className="flex flex-wrap gap-2 min-h-[44px] p-2 rounded-xl bg-gray-50 dark:bg-slate-800 border border-transparent focus-within:border-primary/20 transition-all">
+                                {selectedCategoryIds.length > 0 ? (
+                                    selectedCategoryIds.map(id => {
+                                        const cat = categories.find(c => c.id === id);
+                                        return (
+                                            <Badge
+                                                key={id}
+                                                variant="secondary"
+                                                className="bg-primary/10 text-primary border-primary/10 pl-2 pr-1 py-1 rounded-lg flex items-center gap-1 group"
+                                            >
+                                                <span className="text-xs font-bold leading-none">{cat?.name || "Cargando..."}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newVal = selectedCategoryIds.filter(cid => cid !== id);
+                                                        setValue("category_ids", newVal);
+                                                    }}
+                                                    className="p-0.5 hover:bg-primary/20 rounded-md transition-colors"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </Badge>
+                                        );
+                                    })
+                                ) : (
+                                    <span className="text-xs text-gray-400 font-medium italic pl-1 flex items-center">Ninguna seleccionada</span>
+                                )}
+                            </div>
+
                             <Select
-                                value={watch("category_id")}
-                                onValueChange={(val) => setValue("category_id", val)}
+                                onValueChange={(val) => {
+                                    if (!selectedCategoryIds.includes(val)) {
+                                        setValue("category_ids", [...selectedCategoryIds, val]);
+                                    }
+                                }}
                             >
                                 <SelectTrigger className="rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11">
-                                    <SelectValue placeholder="Seleccionar categoría" />
+                                    <SelectValue placeholder="Agregar categoría..." />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl">
-                                    {categories.map(cat => (
-                                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                                    ))}
+                                    {categories
+                                        .filter(cat => !selectedCategoryIds.includes(cat.id))
+                                        .map(cat => (
+                                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                                        ))}
                                 </SelectContent>
                             </Select>
                         </div>
