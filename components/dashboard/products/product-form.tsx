@@ -244,8 +244,9 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
                             </div>
 
                             <Select
+                                value=""
                                 onValueChange={(val) => {
-                                    if (!selectedCategoryIds.includes(val)) {
+                                    if (val && !selectedCategoryIds.includes(val)) {
                                         setValue("category_ids", [...selectedCategoryIds, val]);
                                     }
                                 }}
