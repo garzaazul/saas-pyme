@@ -53,20 +53,18 @@ export function StoreView({ organization, products, categories }: StoreViewProps
     }, 0);
 
     const filteredProducts = useMemo(() => {
-        const filteredProducts = useMemo(() => {
-            return products.filter(p => {
-                const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+        return products.filter(p => {
+            const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
 
-                // Requisito: "Todos" solo muestra productos con al menos una categoría
-                // Filtro específico verifica si el ID está incluido en el array de categorías del producto
-                const hasCategories = (p.category_ids || []).length > 0;
-                const matchesCategory = selectedCategory
-                    ? p.category_ids?.includes(selectedCategory)
-                    : hasCategories;
+            // Requisito: "Todos" solo muestra productos con al menos una categoría
+            // Filtro específico verifica si el ID está incluido en el array de categorías del producto
+            const hasCategories = (p.category_ids || []).length > 0;
+            const matchesCategory = selectedCategory
+                ? p.category_ids?.includes(selectedCategory)
+                : hasCategories;
 
-                return matchesSearch && matchesCategory;
-            });
-        }, [products, searchTerm, selectedCategory]);
+            return matchesSearch && matchesCategory;
+        });
     }, [products, searchTerm, selectedCategory]);
 
     return (
