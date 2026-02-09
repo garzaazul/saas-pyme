@@ -20,7 +20,15 @@ export async function getProducts() {
 
     const { data, error } = await supabase
         .from("products")
-        .select("*, categories(name)")
+        .select(`
+            *,
+            product_categories (
+                category_id,
+                categories (
+                    name
+                )
+            )
+        `)
         .eq("organization_id", profile.organization_id)
         .order("created_at", { ascending: false });
 
@@ -29,7 +37,12 @@ export async function getProducts() {
         return [];
     }
 
-    return data as (Product & { categories: { name: string } | null })[];
+    // Adaptar la estructura para que sea compatible con lo que espera el frontend
+    return data.map(product => ({
+        ...product,
+        category_ids: product.product_categories?.map((pc: any) => pc.category_id) || [],
+        categories: product.product_categories?.[0]?.categories || null // Mantener compatibilidad básica if needed
+    })) as (Product & { categories: { name: string } | null })[];
 }
 
 export async function createProduct(input: CreateProductInput) {
@@ -51,11 +64,11 @@ export async function createProduct(input: CreateProductInput) {
         return { error: "Máximo 3 imágenes permitidas" };
     }
 
-    const { data, error } = await supabase
+    // 1. Insertar el producto
+    const { data: product, error: productError } = await supabase
         .from("products")
         .insert({
             organization_id: profile.organization_id,
-            category_id: input.category_id,
             name: input.name,
             description: input.description,
             base_price: input.base_price,
@@ -70,13 +83,31 @@ export async function createProduct(input: CreateProductInput) {
         .select()
         .single();
 
-    if (error) {
-        console.error("Error creating product:", error);
+    if (productError) {
+        console.error("Error creating product:", productError);
         return { error: "Error al crear el producto" };
     }
 
+    // 2. Insertar relaciones de categorías si existen
+    if (input.category_ids && input.category_ids.length > 0) {
+        const productCategories = input.category_ids.map(categoryId => ({
+            product_id: product.id,
+            category_id: categoryId,
+            organization_id: profile.organization_id
+        }));
+
+        const { error: relationError } = await supabase
+            .from("product_categories")
+            .insert(productCategories);
+
+        if (relationError) {
+            console.error("Error creating product-category relations:", relationError);
+            // No fallamos el proceso completo, pero informamos (o podríamos hacer un rollback si fuera crítico)
+        }
+    }
+
     revalidatePath("/dashboard/products");
-    return { data };
+    return { data: product };
 }
 
 export async function updateProduct(input: UpdateProductInput) {
@@ -98,10 +129,10 @@ export async function updateProduct(input: UpdateProductInput) {
         return { error: "Máximo 3 imágenes permitidas" };
     }
 
-    const { data, error } = await supabase
+    // 1. Actualizar datos básicos del producto
+    const { data: product, error: productError } = await supabase
         .from("products")
         .update({
-            category_id: input.category_id,
             name: input.name,
             description: input.description,
             base_price: input.base_price,
@@ -118,13 +149,39 @@ export async function updateProduct(input: UpdateProductInput) {
         .select()
         .single();
 
-    if (error) {
-        console.error("Error updating product:", error);
+    if (productError) {
+        console.error("Error updating product:", productError);
         return { error: "Error al actualizar el producto" };
     }
 
+    // 2. Actualizar relaciones de categorías si se proporcionan
+    if (input.category_ids !== undefined) {
+        // Eliminar relaciones actuales
+        await supabase
+            .from("product_categories")
+            .delete()
+            .eq("product_id", input.id);
+
+        // Insertar nuevas relaciones si el array no está vacío
+        if (input.category_ids.length > 0) {
+            const productCategories = input.category_ids.map(categoryId => ({
+                product_id: input.id,
+                category_id: categoryId,
+                organization_id: profile.organization_id
+            }));
+
+            const { error: relationError } = await supabase
+                .from("product_categories")
+                .insert(productCategories);
+
+            if (relationError) {
+                console.error("Error updating product-category relations:", relationError);
+            }
+        }
+    }
+
     revalidatePath("/dashboard/products");
-    return { data };
+    return { data: product };
 }
 
 /**

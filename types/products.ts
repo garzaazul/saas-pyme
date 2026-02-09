@@ -3,7 +3,6 @@ import { BaseEntity } from "./categories";
 export type ProductType = 'product' | 'service';
 
 export interface Product extends BaseEntity {
-    category_id: string | null;
     name: string;
     description: string | null;
     base_price: number;
@@ -13,13 +12,14 @@ export interface Product extends BaseEntity {
     is_stock_product: boolean;
     type: ProductType;
     image_urls: string[];
+    category_ids?: string[]; // Para la relación muchos a muchos
     is_active: boolean;
 }
 
 export interface CreateProductInput {
     name: string;
     description?: string;
-    category_id?: string;
+    category_ids?: string[]; // Array de IDs de categorías
     base_price: number;
     current_stock?: number;
     min_stock_alert?: number;
