@@ -19,10 +19,18 @@ export async function getStoreData(slug: string) {
         return { error: "Organization not found" };
     }
 
-    // 2. Fetch Active Products for this Org
+    // 2. Fetch Active Products for this Org with their Categories
     const { data: products, error: prodError } = await supabase
         .from("products")
-        .select("*, categories(name)")
+        .select(`
+            *,
+            product_categories (
+                category_id,
+                categories (
+                    name
+                )
+            )
+        `)
         .eq("organization_id", organization.id)
         .eq("is_active", true)
         .order("name", { ascending: true });
@@ -30,6 +38,12 @@ export async function getStoreData(slug: string) {
     if (prodError) {
         console.error("Error fetching store products:", prodError);
     }
+
+    // Adaptar la estructura para el catálogo público
+    const adaptedProducts = (products || []).map(p => ({
+        ...p,
+        category_ids: p.product_categories?.map((pc: any) => pc.category_id) || [],
+    }));
 
     // 3. Fetch Active Categories for filter
     const { data: categories, error: catError } = await supabase
@@ -41,7 +55,7 @@ export async function getStoreData(slug: string) {
 
     return {
         organization: organization as Organization,
-        products: (products || []) as (Product & { categories: { name: string } | null })[],
+        products: adaptedProducts as (Product & { product_categories: any[] })[],
         categories: (categories || []) as Category[]
     };
 }

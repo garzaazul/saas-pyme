@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 
 interface StoreViewProps {
     organization: Organization;
-    products: (Product & { categories: { name: string } | null })[];
+    products: (Product & { product_categories: any[] })[];
     categories: Category[];
 }
 
@@ -53,11 +53,20 @@ export function StoreView({ organization, products, categories }: StoreViewProps
     }, 0);
 
     const filteredProducts = useMemo(() => {
-        return products.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesCategory = !selectedCategory || p.category_ids?.includes(selectedCategory);
-            return matchesSearch && matchesCategory;
-        });
+        const filteredProducts = useMemo(() => {
+            return products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+                // Requisito: "Todos" solo muestra productos con al menos una categoría
+                // Filtro específico verifica si el ID está incluido en el array de categorías del producto
+                const hasCategories = (p.category_ids || []).length > 0;
+                const matchesCategory = selectedCategory
+                    ? p.category_ids?.includes(selectedCategory)
+                    : hasCategories;
+
+                return matchesSearch && matchesCategory;
+            });
+        }, [products, searchTerm, selectedCategory]);
     }, [products, searchTerm, selectedCategory]);
 
     return (
