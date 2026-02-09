@@ -7,7 +7,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface StoreProductCardProps {
-    product: Product & { categories: { name: string } | null };
+    product: Product & { product_categories?: any[] };
     quantity: number;
     onUpdateQuantity: (id: string, delta: number) => void;
     showIva?: boolean;
@@ -35,9 +35,10 @@ export function StoreProductCard({ product, quantity, onUpdateQuantity, showIva 
                     </div>
                 )}
 
-                {product.categories?.name && (
+                {product.product_categories?.[0]?.categories?.name && (
                     <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-primary shadow-sm">
-                        {product.categories.name}
+                        {product.product_categories[0].categories.name}
+                        {product.product_categories.length > 1 && ` +${product.product_categories.length - 1}`}
                     </span>
                 )}
             </div>
