@@ -55,7 +55,7 @@ export function StoreView({ organization, products, categories }: StoreViewProps
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
             const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesCategory = !selectedCategory || p.category_id === selectedCategory;
+            const matchesCategory = !selectedCategory || p.category_ids?.includes(selectedCategory);
             return matchesSearch && matchesCategory;
         });
     }, [products, searchTerm, selectedCategory]);
