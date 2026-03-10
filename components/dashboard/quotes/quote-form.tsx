@@ -70,11 +70,12 @@ export function QuoteForm({
     initialProducts
 }: QuoteFormProps) {
     const [loading, setLoading] = useState(false);
-    const [clients, setClients] = useState<Client[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
-    const [organization, setOrganization] = useState<OrganizationWithActivity | null>(null);
+    const [clients, setClients] = useState<Client[]>(initialClients || []);
+    const [products, setProducts] = useState<Product[]>(initialProducts || []);
+    const [organization, setOrganization] = useState<OrganizationWithActivity | null>(initialOrganization || null);
     const [isClientFormOpen, setIsClientFormOpen] = useState(false);
     const [nextFolio, setNextFolio] = useState<number | null>(null);
+    const [isFolioRefreshing, setIsFolioRefreshing] = useState(false);
 
     // Selector de items local
     const [isManualMode, setIsManualMode] = useState(false);
@@ -135,9 +136,13 @@ export function QuoteForm({
     useEffect(() => {
         const loadQuoteData = async () => {
             if (open) {
-                setLoading(true);
+                // Solo activamos loading si es edición (para traer la cotización completa)
+                // O si no tenemos datos iniciales básicos
+                if (quote || (!initialClients && clients.length === 0)) {
+                    setLoading(true);
+                }
 
-                // Usamos los datos iniciales si están presentes para que sea instantáneo
+                // Sincronizamos con los datos más frescos recibidos por props (por si cambiaron)
                 if (initialClients) setClients(initialClients);
                 if (initialProducts) setProducts(initialProducts);
                 if (initialOrganization) setOrganization(initialOrganization);
@@ -186,7 +191,8 @@ export function QuoteForm({
                     setLoading(false);
                 }
 
-                // En segundo plano, refrescamos todo (sin el await que bloquea la UI)
+                // En segundo plano, refrescamos todo para asegurar consistencia
+                setIsFolioRefreshing(true);
                 fetchInitialData().then((initialData) => {
                     if (!quote && initialData?.orgResult?.payment_terms) {
                         const defaultTerm = initialData.orgResult.payment_terms.find((t: any) => t.is_default);
@@ -194,6 +200,7 @@ export function QuoteForm({
                             setValue("payment_condition", defaultTerm.label, { shouldDirty: false });
                         }
                     }
+                    setIsFolioRefreshing(false);
                 });
             }
         };
@@ -296,12 +303,15 @@ export function QuoteForm({
                                         <span className="text-[10px] font-black uppercase tracking-widest text-primary/60 leading-none mb-1">
                                             Folio Sugerido
                                         </span>
-                                        <span className="text-2xl font-black text-primary tracking-tighter leading-none">
+                                        <span className="text-2xl font-black text-primary tracking-tighter leading-none flex items-center gap-2">
                                             {nextFolio !== null
                                                 ? `#${nextFolio}`
                                                 : (organization?.folio_inicial
                                                     ? `#${organization.folio_inicial}`
                                                     : "---")}
+                                            {isFolioRefreshing && (
+                                                <Loader2 className="w-4 h-4 animate-spin text-primary/40" />
+                                            )}
                                         </span>
                                     </div>
                                     <span className="text-[9px] font-bold text-muted-foreground mt-1 uppercase tracking-tight">
