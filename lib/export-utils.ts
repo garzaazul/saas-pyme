@@ -37,7 +37,7 @@ export const exportToPDF = (
     columns: { header: string; dataKey: string }[],
     companyName: string = 'Mi Empresa SpA'
 ) => {
-    const doc = new jsPDF();
+    const doc = new jsPDF({ compress: true });
     const date = new Date().toLocaleDateString('es-CL');
 
     // Header logic
@@ -105,7 +105,10 @@ const formatCLP = (amount: number) => {
  * Generates a professional Quote PDF with FLUXU aesthetic.
  */
 export const generateQuotePDF = (quote: any) => {
-    const doc = new jsPDF();
+    // Activar compresión para reducir el peso del archivo (de ~60MB a <1MB)
+    const doc = new jsPDF({
+        compress: true
+    });
     const date = new Date(quote.created_at).toLocaleDateString('es-CL');
     const validUntil = quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('es-CL') : 'N/A';
     const org = quote.organization || {};
@@ -124,7 +127,8 @@ export const generateQuotePDF = (quote: any) => {
     if (org.logo_url) {
         try {
             // Logo larger and with generous margin
-            doc.addImage(org.logo_url, 'PNG', 14, 15, 52, 0);
+            // Añadimos compresión 'FAST' para reducir el peso drásticamente
+            doc.addImage(org.logo_url, 'PNG', 14, 15, 52, 0, undefined, 'FAST');
             headerY = 55;
         } catch (e) {
             console.error("Error loading logo in PDF:", e);
