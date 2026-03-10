@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Globe, Instagram, Facebook, MessageCircle, Mail, Music2, Upload, X, Plus, CheckCircle2, Copy, ExternalLink } from "lucide-react";
 import { normalizePhone } from "@/lib/chile-formatters";
+import { processImageToBase64 } from "@/lib/image-processing";
 
 interface OrganizationFormProps {
     organization: OrganizationWithActivity;
@@ -66,14 +67,22 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
         }
     }, [nameValue, autoGenerateSlug, setValue]);
 
-    const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setValue("logo_url", reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            try {
+                // Comprimir y redimensionar el logo antes de guardarlo
+                // Usamos PNG para preservar transparencia en logos
+                const base64 = await processImageToBase64(file, {
+                    maxDim: 800, // Dimensión suficiente para un logo en PDF
+                    quality: 0.8,
+                    type: "image/png"
+                });
+                setValue("logo_url", base64);
+            } catch (error) {
+                console.error("Error procesando logo:", error);
+                toast.error("Error al procesar la imagen del logo");
+            }
         }
     };
 

@@ -2,7 +2,15 @@
  * Utility to resize and compress images on the client side before uploading to Supabase.
  */
 
-export async function processImage(file: File): Promise<File> {
+export interface ProcessImageOptions {
+    maxDim?: number;
+    quality?: number;
+    type?: "image/jpeg" | "image/png" | "image/webp";
+}
+
+export async function processImage(file: File, options: ProcessImageOptions = {}): Promise<File> {
+    const { maxDim = 1024, quality = 0.8, type = file.type } = options;
+
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -13,7 +21,6 @@ export async function processImage(file: File): Promise<File> {
                 const canvas = document.createElement("canvas");
                 let width = img.width;
                 let height = img.height;
-                const maxDim = 1024;
 
                 // Resize logic
                 if (width > height) {
@@ -35,22 +42,38 @@ export async function processImage(file: File): Promise<File> {
 
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Compress to JPEG with quality 0.8 to target <1MB
+                // Use requested type or default to input type
+                // For logos, PNG is usually preferred if it has transparency
+                const outputType = type === "image/jpeg" || type === "image/png" || type === "image/webp" ? type : "image/jpeg";
+
                 canvas.toBlob(
                     (blob) => {
                         if (!blob) return reject(new Error("Canvas to Blob failed"));
-                        const processedFile = new File([blob], file.name, {
-                            type: "image/jpeg",
+                        const processedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + (outputType === "image/png" ? ".png" : ".jpg"), {
+                            type: outputType,
                             lastModified: Date.now(),
                         });
                         resolve(processedFile);
                     },
-                    "image/jpeg",
-                    0.8
+                    outputType,
+                    quality
                 );
             };
             img.onerror = (err) => reject(err);
         };
         reader.onerror = (err) => reject(err);
+    });
+}
+
+/**
+ * Processes an image and returns a base64 DataURL.
+ */
+export async function processImageToBase64(file: File, options: ProcessImageOptions = {}): Promise<string> {
+    const processedFile = await processImage(file, options);
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(processedFile);
     });
 }
