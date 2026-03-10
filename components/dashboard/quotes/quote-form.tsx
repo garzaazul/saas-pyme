@@ -105,34 +105,43 @@ export function QuoteForm({
 
     const fetchInitialData = useCallback(async () => {
         try {
-            // Usamos Promise.allSettled para asegurar que carguemos lo que podamos.
-            // Si una falla (ej. folio preview por falta de migración), el resto sigue cargando.
+            // Ya no incluimos el folio aquí para que no bloquee ni sea bloqueado por otros datos
             const results = await Promise.allSettled([
                 getClients(),
                 getProducts(),
-                getMyOrganization(),
-                getFolioPreview()
+                getMyOrganization()
             ]);
 
             const clientsResult = results[0].status === 'fulfilled' ? results[0].value : [];
             const productsResult = results[1].status === 'fulfilled' ? results[1].value : [];
             const orgResult = results[2].status === 'fulfilled' ? results[2].value : null;
-            const folioResult = results[3].status === 'fulfilled' ? results[3].value : null;
 
             setClients(clientsResult || []);
             setProducts(productsResult || []);
             setOrganization(orgResult);
-            setNextFolio(folioResult);
 
-            return { clientsResult, productsResult, orgResult, folioResult };
+            return { clientsResult, productsResult, orgResult };
         } catch (error) {
             console.error("Error crítico en fetchInitialData:", error);
-            // Fallback total para evitar que el componente explote
             setClients([]);
             setProducts([]);
             return null;
         }
     }, []);
+
+    const refreshFolio = useCallback(async () => {
+        if (quote) return; // No refrescamos folio si es edición
+
+        setIsFolioRefreshing(true);
+        try {
+            const folio = await getFolioPreview();
+            setNextFolio(folio);
+        } catch (error) {
+            console.error("Error refreshing folio:", error);
+        } finally {
+            setIsFolioRefreshing(false);
+        }
+    }, [quote]);
 
     useEffect(() => {
         const loadQuoteData = async () => {
@@ -192,8 +201,10 @@ export function QuoteForm({
                     setLoading(false);
                 }
 
-                // En segundo plano, refrescamos todo para asegurar consistencia
-                setIsFolioRefreshing(true);
+                // Refrescamos folio de forma independiente y rápida
+                refreshFolio();
+
+                // En segundo plano, refrescamos el resto de los datos (clientes, productos, etc)
                 fetchInitialData().then((initialData) => {
                     if (!quote && initialData?.orgResult?.payment_terms) {
                         const defaultTerm = initialData.orgResult.payment_terms.find((t: any) => t.is_default);
@@ -201,13 +212,12 @@ export function QuoteForm({
                             setValue("payment_condition", defaultTerm.label, { shouldDirty: false });
                         }
                     }
-                    setIsFolioRefreshing(false);
                 });
             }
         };
 
         loadQuoteData();
-    }, [open, quote, reset, fetchInitialData, setValue, initialOrganization, initialClients, initialProducts]);
+    }, [open, quote, reset, fetchInitialData, refreshFolio, setValue, initialOrganization, initialClients, initialProducts]);
 
     const calculateTotal = () => {
         return (watchedItems || []).reduce((acc, item) => {
