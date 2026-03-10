@@ -161,6 +161,7 @@ export function QuoteForm({
                             }))
                         });
                     }
+                    setLoading(false);
                 } else {
                     // Si es nueva, reseteamos a valores por defecto
                     reset({
@@ -180,19 +181,20 @@ export function QuoteForm({
                             setValue("payment_condition", defaultTerm.label);
                         }
                     }
+
+                    // IMPORTANTE: Quitamos el loading de inmediato para que sea instantáneo
+                    setLoading(false);
                 }
 
-                // En segundo plano (o si faltan datos), refrescamos todo
-                const initialData = await fetchInitialData();
-
-                if (!quote && initialData?.orgResult?.payment_terms) {
-                    const defaultTerm = initialData.orgResult.payment_terms.find((t: any) => t.is_default);
-                    if (defaultTerm) {
-                        setValue("payment_condition", defaultTerm.label);
+                // En segundo plano, refrescamos todo (sin el await que bloquea la UI)
+                fetchInitialData().then((initialData) => {
+                    if (!quote && initialData?.orgResult?.payment_terms) {
+                        const defaultTerm = initialData.orgResult.payment_terms.find((t: any) => t.is_default);
+                        if (defaultTerm) {
+                            setValue("payment_condition", defaultTerm.label, { shouldDirty: false });
+                        }
                     }
-                }
-
-                setLoading(false);
+                });
             }
         };
 
