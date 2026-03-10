@@ -26,7 +26,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
     const [autoGenerateSlug, setAutoGenerateSlug] = useState(!organization.web_slug);
 
     const form = useForm<OrganizationFormValues>({
-        resolver: zodResolver(organizationSchema),
+        resolver: zodResolver(organizationSchema) as any,
         defaultValues: {
             name: organization.name || "",
             description: organization.description || "",
