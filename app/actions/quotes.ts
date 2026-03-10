@@ -78,10 +78,13 @@ export async function createQuote(input: CreateQuoteInput) {
 
     // 1. Get next folio (atomic and concurrent-safe)
     const { data: folio, error: folioError } = await supabase.rpc('get_next_correlative', {
-        org_id: profile.organization_id
+        p_org_id: profile.organization_id
     });
 
-    if (folioError) return { error: "Error generando folio" };
+    if (folioError) {
+        console.error("RPC Error (get_next_correlative):", folioError);
+        return { error: "Error generando folio" };
+    }
 
     // 2. Calculate total amount (Net * 1.19 for Gross Total)
     const net_amount = input.items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
