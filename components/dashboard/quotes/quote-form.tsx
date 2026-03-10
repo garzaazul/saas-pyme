@@ -271,7 +271,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                                         <span className="text-2xl font-black text-primary tracking-tighter leading-none">
                                             {nextFolio !== null
                                                 ? `#${nextFolio}`
-                                                : (organization && !organization.has_activity
+                                                : (organization?.folio_inicial
                                                     ? `#${organization.folio_inicial}`
                                                     : "---")}
                                         </span>
