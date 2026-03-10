@@ -24,10 +24,14 @@ import {
     getQuote
 } from "@/app/actions/quotes";
 import { Quote, QuoteStatus } from "@/types/quotes";
+import { Product } from "@/types/products";
 import { TableToolbar } from "@/components/dashboard/TableToolbar";
 import { generateQuotePDF, exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { getMyOrganization, OrganizationWithActivity } from "@/app/actions/organizations";
+import { getClients, Client } from "@/app/actions/clients";
+import { getProducts } from "@/app/actions/products";
 
 export default function QuotesPage() {
     const [quotes, setQuotes] = useState<any[]>([]);
@@ -41,13 +45,29 @@ export default function QuotesPage() {
     const [itemsPerPage, setItemsPerPage] = useState("10");
     const [currentPage, setCurrentPage] = useState(1);
 
+    // Pre-fetched data for QuoteForm
+    const [organization, setOrganization] = useState<OrganizationWithActivity | null>(null);
+    const [clients, setClients] = useState<Client[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
+
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await getQuotes();
-            setQuotes(data);
+            // Carga paralela de todo lo necesario para la página y el formulario
+            const [quotesData, orgData, clientsData, productsData] = await Promise.all([
+                getQuotes(),
+                getMyOrganization(),
+                getClients(),
+                getProducts()
+            ]);
+
+            setQuotes(quotesData);
+            setOrganization(orgData);
+            setClients(clientsData);
+            setProducts(productsData);
         } catch (error) {
-            toast.error("Error al cargar cotizaciones");
+            console.error("Error fetching quotes page data:", error);
+            toast.error("Error al cargar los datos");
         } finally {
             setLoading(false);
         }
@@ -358,6 +378,9 @@ export default function QuotesPage() {
                 onOpenChange={setIsFormOpen}
                 quote={selectedQuote}
                 onSuccess={fetchData}
+                initialOrganization={organization}
+                initialClients={clients}
+                initialProducts={products}
             />
         </div>
     );

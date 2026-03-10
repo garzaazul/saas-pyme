@@ -55,9 +55,20 @@ interface QuoteFormProps {
     onOpenChange: (open: boolean) => void;
     quote?: Quote;
     onSuccess: () => void;
+    initialOrganization?: OrganizationWithActivity | null;
+    initialClients?: Client[];
+    initialProducts?: Product[];
 }
 
-export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormProps) {
+export function QuoteForm({
+    open,
+    onOpenChange,
+    quote,
+    onSuccess,
+    initialOrganization,
+    initialClients,
+    initialProducts
+}: QuoteFormProps) {
     const [loading, setLoading] = useState(false);
     const [clients, setClients] = useState<Client[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
@@ -123,55 +134,70 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
 
     useEffect(() => {
         const loadQuoteData = async () => {
-            if (!open) return;
+            if (open) {
+                setLoading(true);
 
-            setLoading(true);
-            const initialData = await fetchInitialData();
+                // Usamos los datos iniciales si están presentes para que sea instantáneo
+                if (initialClients) setClients(initialClients);
+                if (initialProducts) setProducts(initialProducts);
+                if (initialOrganization) setOrganization(initialOrganization);
 
-            if (quote?.id) {
-                try {
-                    const fullQuote = await getQuote(quote.id);
-                    if (fullQuote) {
+                if (quote) {
+                    // Si es edición, cargamos los datos de la cotización específica
+                    const quoteData = await getQuote(quote.id);
+                    if (quoteData) {
                         reset({
-                            client_id: fullQuote.client_id,
-                            status: fullQuote.status,
-                            observations: fullQuote.observations || "",
-                            payment_condition: fullQuote.payment_condition || "",
-                            valid_until: fullQuote.valid_until,
-                            items: fullQuote.items?.map((i: any) => ({
-                                product_id: i.product_id,
-                                description: i.description,
-                                quantity: Number(i.quantity),
-                                unit_price: Number(i.unit_price)
-                            })) || []
+                            client_id: quoteData.client_id,
+                            status: quoteData.status,
+                            observations: quoteData.observations || "",
+                            payment_condition: quoteData.payment_condition || "",
+                            valid_until: format(new Date(quoteData.valid_until), "yyyy-MM-dd"),
+                            items: quoteData.items.map((item: any) => ({
+                                product_id: item.product_id || "",
+                                description: item.description,
+                                quantity: item.quantity,
+                                unit_price: item.unit_price,
+                                is_custom: !item.product_id
+                            }))
                         });
                     }
-                } catch (error) {
-                    console.error("Error loading full quote:", error);
-                    toast.error("Error al cargar los detalles de la cotización");
-                }
-            } else {
-                reset({
-                    client_id: "",
-                    status: "pendiente",
-                    observations: "",
-                    payment_condition: "",
-                    valid_until: format(addDays(new Date(), 15), "yyyy-MM-dd"),
-                    items: []
-                });
+                } else {
+                    // Si es nueva, reseteamos a valores por defecto
+                    reset({
+                        client_id: "",
+                        status: "pendiente",
+                        observations: "",
+                        payment_condition: "",
+                        valid_until: format(addDays(new Date(), 15), "yyyy-MM-dd"),
+                        items: []
+                    });
 
-                if (initialData?.orgResult?.payment_terms) {
+                    // Si hay una organización inicial con términos de pago, los aplicamos
+                    const currentOrg = initialOrganization || organization;
+                    if (currentOrg?.payment_terms) {
+                        const defaultTerm = currentOrg.payment_terms.find((t: any) => t.is_default);
+                        if (defaultTerm) {
+                            setValue("payment_condition", defaultTerm.label);
+                        }
+                    }
+                }
+
+                // En segundo plano (o si faltan datos), refrescamos todo
+                const initialData = await fetchInitialData();
+
+                if (!quote && initialData?.orgResult?.payment_terms) {
                     const defaultTerm = initialData.orgResult.payment_terms.find((t: any) => t.is_default);
                     if (defaultTerm) {
                         setValue("payment_condition", defaultTerm.label);
                     }
                 }
+
+                setLoading(false);
             }
-            setLoading(false);
         };
 
         loadQuoteData();
-    }, [open, quote?.id, reset, fetchInitialData, setValue]);
+    }, [open, quote, reset, fetchInitialData, setValue, initialOrganization, initialClients, initialProducts]);
 
     const calculateTotal = () => {
         return (watchedItems || []).reduce((acc, item) => {
@@ -524,7 +550,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                                                     <SelectValue placeholder="Usar Plantilla..." />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-xl border-none premium-shadow">
-                                                    {organization.payment_terms.map(term => (
+                                                    {organization.payment_terms.map((term: any) => (
                                                         <SelectItem key={term.id} value={term.label}>{term.label}</SelectItem>
                                                     ))}
                                                 </SelectContent>
