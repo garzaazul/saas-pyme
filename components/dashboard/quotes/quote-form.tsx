@@ -92,19 +92,31 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
 
     const fetchInitialData = useCallback(async () => {
         try {
-            const [clientsData, productsData, orgData, folioData] = await Promise.all([
+            // Usamos Promise.allSettled para asegurar que carguemos lo que podamos.
+            // Si una falla (ej. folio preview por falta de migración), el resto sigue cargando.
+            const results = await Promise.allSettled([
                 getClients(),
                 getProducts(),
                 getMyOrganization(),
                 getFolioPreview()
             ]);
-            setClients(clientsData);
-            setProducts(productsData);
-            setOrganization(orgData);
-            setNextFolio(folioData);
-            return { clientsData, productsData, orgData, folioData };
+
+            const clientsResult = results[0].status === 'fulfilled' ? results[0].value : [];
+            const productsResult = results[1].status === 'fulfilled' ? results[1].value : [];
+            const orgResult = results[2].status === 'fulfilled' ? results[2].value : null;
+            const folioResult = results[3].status === 'fulfilled' ? results[3].value : null;
+
+            setClients(clientsResult || []);
+            setProducts(productsResult || []);
+            setOrganization(orgResult);
+            setNextFolio(folioResult);
+
+            return { clientsResult, productsResult, orgResult, folioResult };
         } catch (error) {
-            console.error("Error fetching form data:", error);
+            console.error("Error crítico en fetchInitialData:", error);
+            // Fallback total para evitar que el componente explote
+            setClients([]);
+            setProducts([]);
             return null;
         }
     }, []);
@@ -148,8 +160,8 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                     items: []
                 });
 
-                if (initialData?.orgData?.payment_terms) {
-                    const defaultTerm = initialData.orgData.payment_terms.find((t: any) => t.is_default);
+                if (initialData?.orgResult?.payment_terms) {
+                    const defaultTerm = initialData.orgResult.payment_terms.find((t: any) => t.is_default);
                     if (defaultTerm) {
                         setValue("payment_condition", defaultTerm.label);
                     }
@@ -248,7 +260,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                             </span>
                             <div className="flex flex-col">
                                 <span>{quote ? `Refinar Cotización #${quote.folio}` : "Nueva Cotización"}</span>
-                                {!quote && nextFolio && (
+                                {!quote && nextFolio !== null && (
                                     <span className="text-xs font-black uppercase tracking-widest text-primary/60 mt-1">
                                         Folio Sugerido: #{nextFolio} (Vista Previa)
                                     </span>

@@ -33,14 +33,19 @@ export async function getMyOrganization() {
 
     if (error) {
         console.error("Error fetching organization:", error);
-        throw new Error(error.message);
+        return null;
     }
 
     // Check if there's activity (entry in organization_sequences)
-    const { count } = await supabase
+    const { count, error: countError } = await supabase
         .from("organization_sequences")
         .select("*", { count: "exact", head: true })
         .eq("organization_id", profile.organization_id);
+
+    if (countError) {
+        console.error("Error checking activity:", countError);
+        // We don't fail for this, just assume no activity if blocked
+    }
 
     return {
         ...data,

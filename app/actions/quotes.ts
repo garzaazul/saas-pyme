@@ -310,23 +310,32 @@ export async function reactivateQuote(id: string) {
  * Obtiene el folio que correspondería a la siguiente cotización sin incrementarlo.
  */
 export async function getFolioPreview() {
-    const supabase = await createClient();
+    try {
+        const supabase = await createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("No autenticado");
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
 
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("organization_id")
-        .eq("id", user.id)
-        .single();
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("organization_id")
+            .eq("id", user.id)
+            .single();
 
-    if (!profile) throw new Error("Perfil no encontrado");
+        if (!profile) return null;
 
-    const { data: folio, error } = await supabase.rpc('preview_next_correlative', {
-        org_id: profile.organization_id
-    });
+        const { data: folio, error } = await supabase.rpc('get_next_folio_preview', {
+            p_org_id: profile.organization_id
+        });
 
-    if (error) throw error;
-    return folio as number;
+        if (error) {
+            console.error("RPC Error (get_next_folio_preview):", error);
+            return null;
+        }
+
+        return folio as number;
+    } catch (error) {
+        console.error("Error in getFolioPreview action:", error);
+        return null;
+    }
 }

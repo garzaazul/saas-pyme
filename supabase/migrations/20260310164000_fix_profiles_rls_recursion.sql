@@ -29,6 +29,12 @@ CREATE POLICY "Users can update own organization"
 ON organizations FOR UPDATE
 USING (id = get_my_organization_id());
 
+-- Organization Sequences
+DROP POLICY IF EXISTS "Users can view own org sequences" ON organization_sequences;
+CREATE POLICY "Users can view own org sequences"
+ON organization_sequences FOR SELECT
+USING (organization_id = get_my_organization_id());
+
 -- Quotes
 DROP POLICY IF EXISTS "Users can view own org quotes" ON quotes;
 CREATE POLICY "Users can view own org quotes"
