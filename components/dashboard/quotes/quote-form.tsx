@@ -46,7 +46,8 @@ import {
     Pencil,
     Calculator,
     UserPlus,
-    ShoppingCart
+    ShoppingCart,
+    Loader2
 } from "lucide-react";
 import { ClientForm } from "../clients/client-form";
 
