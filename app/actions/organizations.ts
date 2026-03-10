@@ -4,6 +4,10 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { Organization, UpdateOrganizationInput } from "@/types/organizations";
 
+export interface OrganizationWithActivity extends Organization {
+    has_activity: boolean;
+}
+
 /**
  * Obtiene la información de la organización del usuario autenticado.
  */
@@ -32,7 +36,16 @@ export async function getMyOrganization() {
         throw new Error(error.message);
     }
 
-    return data as Organization;
+    // Check if there's activity (entry in organization_sequences)
+    const { count } = await supabase
+        .from("organization_sequences")
+        .select("*", { count: "exact", head: true })
+        .eq("organization_id", profile.organization_id);
+
+    return {
+        ...data,
+        has_activity: (count || 0) > 0
+    } as OrganizationWithActivity;
 }
 
 /**

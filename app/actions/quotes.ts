@@ -76,8 +76,8 @@ export async function createQuote(input: CreateQuoteInput) {
 
     if (!profile) return { error: "Perfil no encontrado" };
 
-    // 1. Get next folio
-    const { data: folio, error: folioError } = await supabase.rpc('get_next_quote_folio', {
+    // 1. Get next folio (atomic and concurrent-safe)
+    const { data: folio, error: folioError } = await supabase.rpc('get_next_correlative', {
         org_id: profile.organization_id
     });
 

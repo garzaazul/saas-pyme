@@ -20,6 +20,7 @@ export interface Organization extends BaseEntity {
     transfer_details: string | null;
     payment_terms: PaymentTermTemplate[] | null;
     show_tax_in_catalog: boolean;
+    folio_inicial: number;
 }
 
 export type UpdateOrganizationInput = Partial<Omit<Organization, keyof BaseEntity>>;

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Organization } from "@/types/organizations";
+import { OrganizationWithActivity } from "@/app/actions/organizations";
 import { organizationSchema, OrganizationFormValues } from "@/lib/validations/organization";
 import { updateMyOrganization } from "@/app/actions/organizations";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import { Loader2, Globe, Instagram, Facebook, MessageCircle, Mail, Music2, Uploa
 import { normalizePhone } from "@/lib/chile-formatters";
 
 interface OrganizationFormProps {
-    organization: Organization;
+    organization: OrganizationWithActivity;
 }
 
 export function OrganizationForm({ organization }: OrganizationFormProps) {
@@ -40,6 +41,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
             transfer_details: organization.transfer_details || "",
             payment_terms: organization.payment_terms || [],
             show_tax_in_catalog: organization.show_tax_in_catalog || false,
+            folio_inicial: organization.folio_inicial || 1,
         },
     });
 
@@ -325,21 +327,55 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
                 </Card>
 
                 {/* Configuración del Catálogo */}
-                <Card className="rounded-xl overflow-hidden premium-shadow border-none md:col-span-2">
+                <Card className="rounded-xl overflow-hidden premium-shadow border-none md:col-span-1">
                     <CardHeader className="bg-slate-50 dark:bg-slate-800/50">
                         <CardTitle className="text-xl font-black tracking-tight">Configuración del Catálogo</CardTitle>
-                        <CardDescription className="font-medium">Personaliza la experiencia de tus clientes en la vitrina pública.</CardDescription>
+                        <CardDescription className="font-medium">Personaliza la experiencia de tus clientes.</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800 transition-all hover:bg-white dark:hover:bg-slate-800">
                             <div className="space-y-0.5">
                                 <Label className="text-sm font-bold uppercase tracking-wide">Precios con IVA (19%)</Label>
-                                <p className="text-xs text-muted-foreground font-medium">Si se activa, el catálogo mostrará automáticamente los precios con el 19% de IVA incluido.</p>
+                                <p className="text-[10px] text-muted-foreground font-medium">Muestra precios con IVA incluido.</p>
                             </div>
                             <Switch
                                 checked={watch("show_tax_in_catalog")}
                                 onCheckedChange={(val) => setValue("show_tax_in_catalog", val, { shouldDirty: true })}
                             />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Configuración de Folios */}
+                <Card className="rounded-xl overflow-hidden premium-shadow border-none md:col-span-1">
+                    <CardHeader className="bg-slate-50 dark:bg-slate-800/50">
+                        <CardTitle className="text-xl font-black tracking-tight">Configuración de Folios</CardTitle>
+                        <CardDescription className="font-medium">Define el punto de partida de tus documentos.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="folio_inicial" className="font-bold text-sm">Folio de Inicio (Próxima Cotización)</Label>
+                            <Input
+                                id="folio_inicial"
+                                type="number"
+                                className="rounded-xl h-11 border-gray-100 dark:border-slate-800 h-11"
+                                placeholder="1"
+                                readOnly={organization.has_activity}
+                                {...register("folio_inicial")}
+                            />
+                            {organization.has_activity ? (
+                                <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl mt-2">
+                                    <CheckCircle2 className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5" />
+                                    <p className="text-[11px] font-medium text-amber-700 dark:text-amber-300">
+                                        El folio ya está en uso por la operación activa y no puede ser modificado.
+                                    </p>
+                                </div>
+                            ) : (
+                                <p className="text-[10px] text-muted-foreground font-medium px-1">
+                                    Este valor solo puede ser editado antes de emitir tu primera cotización.
+                                </p>
+                            )}
+                            {errors.folio_inicial && <p className="text-xs font-bold text-red-500 mt-1">{errors.folio_inicial.message}</p>}
                         </div>
                     </CardContent>
                 </Card>

@@ -24,6 +24,7 @@ export const organizationSchema = z.object({
         is_default: z.boolean()
     })).nullable().optional(),
     show_tax_in_catalog: z.boolean(),
+    folio_inicial: z.coerce.number().int().min(1, "El folio inicial debe ser al menos 1"),
 });
 
 export type OrganizationFormValues = z.infer<typeof organizationSchema>;
