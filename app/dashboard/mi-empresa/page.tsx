@@ -4,6 +4,14 @@ import { OrganizationForm } from "@/components/dashboard/organization-form";
 export default async function MiEmpresaPage() {
     const organization = await getMyOrganization();
 
+    if (!organization) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <p className="text-muted-foreground">No se pudo cargar la información de la empresa.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <div>

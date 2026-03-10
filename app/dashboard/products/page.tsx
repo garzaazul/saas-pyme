@@ -61,7 +61,9 @@ export default function ProductsPage() {
     useEffect(() => {
         fetchProducts();
         // Fetch org slug for catalog link
-        getMyOrganization().then(org => setOrgSlug(org.web_slug)).catch(() => { });
+        getMyOrganization().then(org => {
+            if (org?.web_slug) setOrgSlug(org.web_slug);
+        }).catch(() => { });
     }, [fetchProducts]);
 
     // Reset page when filtering or changing tabs
