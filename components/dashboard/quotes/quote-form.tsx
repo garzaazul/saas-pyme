@@ -59,6 +59,7 @@ interface QuoteFormProps {
     initialOrganization?: OrganizationWithActivity | null;
     initialClients?: Client[];
     initialProducts?: Product[];
+    initialNextFolio?: number | null;
 }
 
 export function QuoteForm({
@@ -68,14 +69,15 @@ export function QuoteForm({
     onSuccess,
     initialOrganization,
     initialClients,
-    initialProducts
+    initialProducts,
+    initialNextFolio
 }: QuoteFormProps) {
     const [loading, setLoading] = useState(false);
     const [clients, setClients] = useState<Client[]>(initialClients || []);
     const [products, setProducts] = useState<Product[]>(initialProducts || []);
     const [organization, setOrganization] = useState<OrganizationWithActivity | null>(initialOrganization || null);
     const [isClientFormOpen, setIsClientFormOpen] = useState(false);
-    const [nextFolio, setNextFolio] = useState<number | null>(null);
+    const [nextFolio, setNextFolio] = useState<number | null>(initialNextFolio || null);
     const [isFolioRefreshing, setIsFolioRefreshing] = useState(false);
 
     // Selector de items local
@@ -146,11 +148,10 @@ export function QuoteForm({
     useEffect(() => {
         const loadQuoteData = async () => {
             if (open) {
-                // Forzar limpieza de estado para evitar folios antiguos
-                setNextFolio(null);
+                // Priorizar el folio pre-cargado para evitar flashes de datos antiguos
+                if (initialNextFolio) setNextFolio(initialNextFolio);
+                else if (!quote) setNextFolio(null);
 
-                // Pequeño timeout opcional si queremos asegurar que el render de limpieza ocurra
-                // pero por ahora síncrono es suficiente.
                 // Solo activamos loading si es edición (para traer la cotización completa)
                 // O si no tenemos datos iniciales básicos
                 if (quote || (!initialClients && clients.length === 0)) {
@@ -322,7 +323,7 @@ export function QuoteForm({
                                         <span className="text-2xl font-black text-primary tracking-tighter leading-none flex items-center gap-2">
                                             {nextFolio !== null
                                                 ? `#${nextFolio}`
-                                                : (organization?.folio_inicial
+                                                : (organization && !organization.has_activity && organization.folio_inicial
                                                     ? `#${organization.folio_inicial}`
                                                     : "---")}
                                             {isFolioRefreshing && (

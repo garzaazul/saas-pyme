@@ -21,7 +21,8 @@ import {
     softDeleteQuote,
     reactivateQuote,
     updateQuoteStatus,
-    getQuote
+    getQuote,
+    getFolioPreview
 } from "@/app/actions/quotes";
 import { Quote, QuoteStatus } from "@/types/quotes";
 import { Product } from "@/types/products";
@@ -49,22 +50,25 @@ export default function QuotesPage() {
     const [organization, setOrganization] = useState<OrganizationWithActivity | null>(null);
     const [clients, setClients] = useState<Client[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+    const [nextFolio, setNextFolio] = useState<number | null>(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             // Carga paralela de todo lo necesario para la página y el formulario
-            const [quotesData, orgData, clientsData, productsData] = await Promise.all([
+            const [quotesData, orgData, clientsData, productsData, folioData] = await Promise.all([
                 getQuotes(),
                 getMyOrganization(),
                 getClients(),
-                getProducts()
+                getProducts(),
+                getFolioPreview()
             ]);
 
             setQuotes(quotesData);
             setOrganization(orgData);
             setClients(clientsData);
             setProducts(productsData);
+            setNextFolio(folioData);
         } catch (error) {
             console.error("Error fetching quotes page data:", error);
             toast.error("Error al cargar los datos");
@@ -381,6 +385,7 @@ export default function QuotesPage() {
                 initialOrganization={organization}
                 initialClients={clients}
                 initialProducts={products}
+                initialNextFolio={nextFolio}
             />
         </div>
     );
