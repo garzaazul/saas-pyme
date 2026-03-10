@@ -124,7 +124,7 @@ export const generateQuotePDF = (quote: any) => {
     if (org.logo_url) {
         try {
             // Logo larger and with generous margin
-            doc.addImage(org.logo_url, 'PNG', 14, 15, 45, 0);
+            doc.addImage(org.logo_url, 'PNG', 14, 15, 52, 0);
             headerY = 55;
         } catch (e) {
             console.error("Error loading logo in PDF:", e);
@@ -142,23 +142,27 @@ export const generateQuotePDF = (quote: any) => {
         headerY = 35;
     }
 
-    // Folio Block (Top Right) - Highlighted
+    // Folio Block (Top Right) - Highlighted & Centered
+    const folioBoxX = 140;
+    const folioBoxWidth = 56;
+    const folioCenterX = folioBoxX + (folioBoxWidth / 2);
+
     doc.setFillColor(mutedColor[0], mutedColor[1], mutedColor[2]);
-    doc.roundedRect(140, 15, 56, 35, 3, 3, 'F');
+    doc.roundedRect(folioBoxX, 15, folioBoxWidth, 35, 3, 3, 'F');
 
     doc.setFontSize(10);
     doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text('FOLIO PROPUESTA:', 145, 25);
+    doc.text('FOLIO PROPUESTA:', folioCenterX, 25, { align: 'center' });
 
     doc.setFontSize(18);
     doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-    doc.text(`#${quote.folio}`, 145, 33);
+    doc.text(`#${quote.folio}`, folioCenterX, 33, { align: 'center' });
 
-    doc.setFontSize(8);
+    doc.setFontSize(10); // Aumentado de 8 a 10
     doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Fecha: ${date}`, 145, 42);
+    doc.text(`Fecha: ${date}`, folioCenterX, 42, { align: 'center' });
 
     // 2. Client Information Block (Card style)
     const clientY = Math.max(headerY + 10, 65);
@@ -167,16 +171,16 @@ export const generateQuotePDF = (quote: any) => {
     doc.setDrawColor(226, 232, 240); // slate-200
     doc.roundedRect(14, clientY, 182, 35, 2, 2, 'D');
 
-    doc.setFontSize(8);
+    doc.setFontSize(9); // Aumentado de 8 a 9
     doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setFont('helvetica', 'bold');
     doc.text('PROPUESTA PARA:', 20, clientY + 8);
 
-    doc.setFontSize(12);
+    doc.setFontSize(14); // Aumentado de 12 a 14
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text(quote.client?.business_name || quote.clients?.business_name || 'Cliente', 20, clientY + 16);
 
-    doc.setFontSize(9);
+    doc.setFontSize(10); // Aumentado de 9 a 10
     doc.setFont('helvetica', 'normal');
     const labelX = 20;
     const valueOffset = 25;
@@ -260,18 +264,19 @@ export const generateQuotePDF = (quote: any) => {
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text(formatCLP(iva), 195, finalY + 8, { align: 'right' });
 
-    // Total Highlight
+    // Total Highlight with internal padding
+    const totalBoxWidth = 76; // Aumentado para dar padding
     doc.setFillColor(mutedColor[0], mutedColor[1], mutedColor[2]);
-    doc.roundedRect(totalsX - 5, finalY + 14, 70, 15, 2, 2, 'F');
+    doc.roundedRect(196 - totalBoxWidth, finalY + 14, totalBoxWidth, 18, 2, 2, 'F');
 
     doc.setFontSize(11);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL FINAL:', totalsX, finalY + 24);
+    doc.text('TOTAL FINAL:', 196 - totalBoxWidth + 5, finalY + 26); // +5 padding X, centrado Y
 
     doc.setFontSize(18);
     doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-    doc.text(formatCLP(total), 195, finalY + 24, { align: 'right' });
+    doc.text(formatCLP(total), 196 - 5, finalY + 26, { align: 'right' }); // -5 padding X
 
     // 5. Notes & Conditions
     let helpY = finalY + 45;
