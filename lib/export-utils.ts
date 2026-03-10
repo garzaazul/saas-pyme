@@ -90,7 +90,19 @@ export const exportToPDF = (
 };
 
 /**
- * Generates a professional Quote PDF.
+ * Formatea montos en pesos chilenos (CLP)
+ */
+const formatCLP = (amount: number) => {
+    return new Intl.NumberFormat("es-CL", {
+        style: "currency",
+        currency: "CLP",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(Math.round(amount));
+};
+
+/**
+ * Generates a professional Quote PDF with FLUXU aesthetic.
  */
 export const generateQuotePDF = (quote: any) => {
     const doc = new jsPDF();
@@ -98,189 +110,223 @@ export const generateQuotePDF = (quote: any) => {
     const validUntil = quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('es-CL') : 'N/A';
     const org = quote.organization || {};
     const companyName = org.name || 'FLUXU';
-    const whatsapp = org.whatsapp || '';
 
-    // 1. Header with branding
-    let headerY = 25;
+    // System Colors
+    const primaryColor = [15, 23, 42]; // slate-900 (Main text)
+    const accentColor = [37, 99, 235]; // blue-600
+    const secondaryColor = [100, 116, 139]; // slate-500 (Etiquetas)
+    const mutedColor = [241, 245, 249]; // slate-100 (Borders/Cards)
+
+    // 1. Header: Logo (Top Left) & Folio Block (Top Right)
+    let headerY = 15;
+
+    // Logo Identity
     if (org.logo_url) {
         try {
-            // Logo scaling: 40mm width, proportional height (0)
-            doc.addImage(org.logo_url, 'PNG', 20, 15, 40, 0);
-            headerY = Math.max(50, 15 + 15); // Adjust based on expected height or fixed offset
-            // User requested: If logo exists, DON'T show company name text.
+            // Logo larger and with generous margin
+            doc.addImage(org.logo_url, 'PNG', 14, 15, 45, 0);
             headerY = 55;
         } catch (e) {
             console.error("Error loading logo in PDF:", e);
-            // Fallback to text name if logo fails
-            doc.setFontSize(24);
-            doc.setTextColor(30, 41, 59);
+            doc.setFontSize(22);
+            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
             doc.setFont('helvetica', 'bold');
-            doc.text(companyName, 20, 30);
-            headerY = 40;
+            doc.text(companyName, 14, 25);
+            headerY = 35;
         }
     } else {
-        // No logo: Show company name as text
-        doc.setFontSize(24);
-        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(22);
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.setFont('helvetica', 'bold');
-        doc.text(companyName, 20, 30);
-        headerY = 40;
+        doc.text(companyName, 14, 25);
+        headerY = 35;
     }
 
-    // Document Type Label
-    doc.setFontSize(14);
-    doc.setTextColor(15, 23, 42); // slate-900
+    // Folio Block (Top Right) - Highlighted
+    doc.setFillColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+    doc.roundedRect(140, 15, 56, 35, 3, 3, 'F');
+
+    doc.setFontSize(10);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text('COTIZACIÓN', 20, headerY);
+    doc.text('FOLIO PROPUESTA:', 145, 25);
 
-    // Folio & Dates on the right
-    doc.setFillColor(248, 250, 252); // slate-50
-    doc.rect(140, 15, 50, 40, 'F');
-    doc.setDrawColor(226, 232, 240); // slate-200
-    doc.rect(140, 15, 50, 40, 'D');
-
-    doc.setFontSize(14);
-    doc.setTextColor(30, 41, 59);
-    doc.text(`FOLIO: #${quote.folio}`, 145, 25);
+    doc.setFontSize(18);
+    doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+    doc.text(`#${quote.folio}`, 145, 33);
 
     doc.setFontSize(8);
-    doc.setTextColor(100);
-    doc.text('FECHA EMISIÓN:', 145, 35);
-    doc.text(date, 145, 39);
-    doc.text('VÁLIDO HASTA:', 145, 47);
-    doc.text(validUntil, 145, 51);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Fecha: ${date}`, 145, 42);
 
-    // 2. Client Section
-    const clientY = Math.max(80, headerY + 25);
-    doc.setFontSize(10);
-    doc.setTextColor(71, 85, 105); // slate-600
-    doc.text('DATOS DEL CLIENTE:', 20, clientY);
+    // 2. Client Information Block (Card style)
+    const clientY = Math.max(headerY + 10, 65);
+
+    // Client Card Background
+    doc.setDrawColor(226, 232, 240); // slate-200
+    doc.roundedRect(14, clientY, 182, 35, 2, 2, 'D');
+
+    doc.setFontSize(8);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROPUESTA PARA:', 20, clientY + 8);
 
     doc.setFontSize(12);
-    doc.setTextColor(15, 23, 42); // slate-900
-    doc.setFont('helvetica', 'bold');
-    doc.text(quote.client?.business_name || quote.clients?.business_name || 'Cliente Genérico', 20, clientY + 7);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(quote.client?.business_name || quote.clients?.business_name || 'Cliente', 20, clientY + 16);
 
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100);
-    doc.text(`RUT: ${quote.client?.rut || quote.clients?.rut || 'N/A'}`, 20, clientY + 13);
-    doc.text(`Dirección: ${quote.client?.address || quote.clients?.address || quote.client?.direccion || 'N/A'}`, 20, clientY + 19);
-    doc.text(`Email: ${quote.client?.email || quote.clients?.email || 'N/A'}`, 20, clientY + 25);
+    const labelX = 20;
+    const valueOffset = 25;
 
-    // 3. Items Table
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text('RUT:', labelX, clientY + 23);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(quote.client?.rut || quote.clients?.rut || 'N/A', labelX + 10, clientY + 23);
+
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text('Email:', labelX + 60, clientY + 23);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(quote.client?.email || quote.clients?.email || 'N/A', labelX + 72, clientY + 23);
+
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text('Validez:', labelX + 130, clientY + 23);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(validUntil, labelX + 145, clientY + 23);
+
+    // 3. Items Table (Dashboard Style)
     const tableData = quote.items.map((item: any) => [
         item.description,
         item.quantity,
-        new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(item.unit_price),
-        new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(item.total_line)
+        formatCLP(item.unit_price),
+        formatCLP(item.total_line)
     ]);
 
     autoTable(doc, {
-        startY: clientY + 35,
-        head: [['DESCRIPCIÓN / PRODUCTO', 'CANT.', 'P. UNITARIO', 'TOTAL']],
+        startY: clientY + 45,
+        head: [['DESCRIPCIÓN / SERVICIO', 'CANT.', 'UNITARIO', 'SUBTOTAL']],
         body: tableData,
-        theme: 'grid',
+        theme: 'plain',
         headStyles: {
-            fillColor: [15, 23, 42], // slate-900
-            textColor: 255,
-            fontSize: 10,
+            fillColor: [248, 250, 252], // slate-50
+            textColor: [71, 85, 105], // slate-600
+            fontSize: 8,
             fontStyle: 'bold',
-            halign: 'left'
+            halign: 'left',
+            cellPadding: 4
         },
         styles: {
             fontSize: 9,
-            cellPadding: 5
+            cellPadding: 6,
+            textColor: [15, 23, 42], // slate-900
+            lineColor: [241, 245, 249], // slate-100
+            lineWidth: 0.1
         },
         columnStyles: {
-            1: { halign: 'center' },
-            2: { halign: 'right' },
-            3: { halign: 'right' }
+            0: { cellWidth: 'auto' },
+            1: { halign: 'center', cellWidth: 20 },
+            2: { halign: 'right', cellWidth: 35 },
+            3: { halign: 'right', cellWidth: 35, fontStyle: 'bold' }
         },
-        alternateRowStyles: {
-            fillColor: [250, 250, 250]
-        }
+        // Dibujar solo líneas horizontales sutiles
+        didDrawCell: (data) => {
+            if (data.section === 'body') {
+                doc.setDrawColor(241, 245, 249); // slate-100
+                doc.setLineWidth(0.1);
+                doc.line(data.cell.x, data.cell.y + data.cell.height, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+            }
+        },
+        margin: { left: 14, right: 14 }
     });
 
-    // 4. Totals & Observations
+    // 4. Totals Block (Bottom Right)
     // @ts-ignore
-    let finalY = doc.lastAutoTable.finalY + 10;
-
-    // Totals Grid on the right
-    const totalX = 140;
+    let finalY = doc.lastAutoTable.finalY + 15;
+    const totalsX = 130;
     const neto = quote.items.reduce((acc: number, item: any) => acc + (item.total_line || 0), 0);
     const iva = Math.round(neto * 0.19);
     const total = Number(quote.total_amount);
 
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text('TOTAL NETO:', totalX, finalY + 5);
-    doc.text('IVA (19%):', totalX, finalY + 13);
+    doc.setFontSize(9);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text('NETO:', totalsX, finalY);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(formatCLP(neto), 195, finalY, { align: 'right' });
 
-    doc.setFontSize(12);
-    doc.setTextColor(30, 41, 59);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text('IVA (19%):', totalsX, finalY + 8);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(formatCLP(iva), 195, finalY + 8, { align: 'right' });
+
+    // Total Highlight
+    doc.setFillColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+    doc.roundedRect(totalsX - 5, finalY + 14, 70, 15, 2, 2, 'F');
+
+    doc.setFontSize(11);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL FINAL:', totalX, finalY + 25);
+    doc.text('TOTAL FINAL:', totalsX, finalY + 24);
 
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(neto), 195, finalY + 5, { align: 'right' });
-    doc.text(new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(iva), 195, finalY + 13, { align: 'right' });
+    doc.setFontSize(18);
+    doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+    doc.text(formatCLP(total), 195, finalY + 24, { align: 'right' });
 
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(30, 41, 59);
-    doc.text(new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(total), 195, finalY + 25, { align: 'right' });
+    // 5. Notes & Conditions
+    let helpY = finalY + 45;
 
-    // 5. Observations & Transfer Details
-    finalY += 35;
-
-    // Observations
     if (quote.observations) {
         doc.setFontSize(8);
-        doc.setTextColor(100);
-        doc.text('NOTAS / CONDICIONES:', 20, finalY);
-        doc.setFontSize(9);
-        doc.setTextColor(30, 41, 59);
+        doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+        doc.text('NOTAS Y CONDICIONES:', 14, helpY);
+        doc.setFontSize(8);
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.setFont('helvetica', 'normal');
-        const splitObs = doc.splitTextToSize(quote.observations, 100);
-        doc.text(splitObs, 20, finalY + 7);
-        finalY += (splitObs.length * 5) + 10;
+        const splitObs = doc.splitTextToSize(quote.observations, 120);
+        doc.text(splitObs, 14, helpY + 6);
+        helpY += (splitObs.length * 4) + 12;
     }
 
-    // Payment Condition
     if (quote.payment_condition) {
         doc.setFontSize(8);
-        doc.setTextColor(100);
-        doc.text('CONDICIÓN DE PAGO:', 20, finalY);
+        doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+        doc.text('CONDICIÓN DE PAGO:', 14, helpY);
         doc.setFontSize(9);
-        doc.setTextColor(15, 23, 42);
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.setFont('helvetica', 'bold');
-        doc.text(quote.payment_condition, 20, finalY + 7);
-        finalY += 15;
+        doc.text(quote.payment_condition, 14, helpY + 6);
+        helpY += 15;
     }
 
-    // Transfer Details
+    // Transfer Data (Bank Info)
     if (org.transfer_details) {
+        doc.setDrawColor(accentColor[0], accentColor[1], accentColor[2]);
+        doc.setLineWidth(0.5);
+        doc.line(14, helpY, 30, helpY);
+
         doc.setFontSize(8);
-        doc.setTextColor(100);
-        doc.text('DATOS PARA TRANSFERENCIA:', 20, finalY);
-        doc.setFontSize(9);
-        doc.setTextColor(30, 41, 59);
+        doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+        doc.text('DATOS DE TRANSFERENCIA:', 14, helpY + 8);
+        doc.setFontSize(8);
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.setFont('helvetica', 'bold');
-        const splitDetails = doc.splitTextToSize(org.transfer_details, 100);
-        doc.text(splitDetails, 20, finalY + 7);
+        const splitDetails = doc.splitTextToSize(org.transfer_details, 120);
+        doc.text(splitDetails, 14, helpY + 14);
     }
 
-    // Footer
+    // 6. Footer Marca Blanca (Absolute Bottom)
     const pageSize = doc.internal.pageSize;
     const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+
+    doc.setDrawColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+    doc.line(14, pageHeight - 20, 196, pageHeight - 20);
+
     doc.setFontSize(7);
-    doc.setTextColor(150);
-    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(180, 180, 180);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Propuesta comercial generada vía FLUXU SaaS', 14, pageHeight - 12);
+    doc.text(`Gracias por confiar en ${companyName}`, 196, pageHeight - 12, { align: 'right' });
 
-    const footerText = `Gracias por su preferencia. Propuesta generada automáticamente por ${companyName}${whatsapp ? ` • WhatsApp: ${whatsapp}` : ''} via FLUXU SaaS.`;
-    doc.text(footerText, pageSize.width / 2, pageHeight - 15, { align: 'center' });
-
-    doc.save(`Cotizacion_Ref_${quote.folio}_${quote.client?.business_name || 'CLIENTE'}.pdf`);
+    doc.save(`Cotizacion_${quote.folio}_${quote.client?.business_name || 'PROPUESTA'}.pdf`);
 };
