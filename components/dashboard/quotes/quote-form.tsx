@@ -33,7 +33,7 @@ import { Client, getClients } from "@/app/actions/clients";
 import { Product } from "@/types/products";
 import { getProducts } from "@/app/actions/products";
 import { createQuote, getQuote, updateQuote, getFolioPreview } from "@/app/actions/quotes";
-import { getMyOrganization } from "@/app/actions/organizations";
+import { getMyOrganization, OrganizationWithActivity } from "@/app/actions/organizations";
 import { format, addDays } from "date-fns";
 import { Organization } from "@/types/organizations";
 import {
@@ -61,7 +61,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
     const [loading, setLoading] = useState(false);
     const [clients, setClients] = useState<Client[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
-    const [organization, setOrganization] = useState<Organization | null>(null);
+    const [organization, setOrganization] = useState<OrganizationWithActivity | null>(null);
     const [isClientFormOpen, setIsClientFormOpen] = useState(false);
     const [nextFolio, setNextFolio] = useState<number | null>(null);
 
@@ -269,7 +269,11 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                                             Folio Sugerido
                                         </span>
                                         <span className="text-2xl font-black text-primary tracking-tighter leading-none">
-                                            {nextFolio !== null ? `#${nextFolio}` : "---"}
+                                            {nextFolio !== null
+                                                ? `#${nextFolio}`
+                                                : (organization && !organization.has_activity
+                                                    ? `#${organization.folio_inicial}`
+                                                    : "---")}
                                         </span>
                                     </div>
                                     <span className="text-[9px] font-bold text-muted-foreground mt-1 uppercase tracking-tight">

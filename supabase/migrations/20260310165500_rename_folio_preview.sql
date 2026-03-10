@@ -27,3 +27,7 @@ BEGIN
     RETURN COALESCE(init_val, 1);
 END;
 $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
+
+-- Explicit permissions
+GRANT EXECUTE ON FUNCTION get_next_folio_preview(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_next_folio_preview(UUID) TO service_role;
