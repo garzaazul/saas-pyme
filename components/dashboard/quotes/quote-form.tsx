@@ -146,6 +146,7 @@ export function QuoteForm({
     useEffect(() => {
         const loadQuoteData = async () => {
             if (open) {
+                setNextFolio(null);
                 // Solo activamos loading si es edición (para traer la cotización completa)
                 // O si no tenemos datos iniciales básicos
                 if (quote || (!initialClients && clients.length === 0)) {

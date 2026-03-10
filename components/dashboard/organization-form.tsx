@@ -358,7 +358,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
                             <Input
                                 id="folio_inicial"
                                 type="number"
-                                className="rounded-xl h-11 border-gray-100 dark:border-slate-800 h-11"
+                                className={`rounded-xl h-11 border-gray-100 dark:border-slate-800 transition-all ${organization.has_activity ? "bg-gray-50 dark:bg-slate-800/50 text-muted-foreground cursor-not-allowed opacity-70" : ""}`}
                                 placeholder="1"
                                 readOnly={organization.has_activity}
                                 {...register("folio_inicial")}
