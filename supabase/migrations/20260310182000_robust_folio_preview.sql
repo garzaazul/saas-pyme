@@ -1,6 +1,9 @@
 -- Migration: Robust Folio Preview and Correlative Logic
 -- Date: 2026-03-10
 
+DROP FUNCTION IF EXISTS get_next_folio_preview(UUID);
+DROP FUNCTION IF EXISTS get_next_correlative(UUID);
+
 CREATE OR REPLACE FUNCTION get_next_folio_preview(p_org_id UUID)
 RETURNS INTEGER AS $$
 DECLARE

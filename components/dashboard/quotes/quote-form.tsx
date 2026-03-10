@@ -146,7 +146,11 @@ export function QuoteForm({
     useEffect(() => {
         const loadQuoteData = async () => {
             if (open) {
+                // Forzar limpieza de estado para evitar folios antiguos
                 setNextFolio(null);
+
+                // Pequeño timeout opcional si queremos asegurar que el render de limpieza ocurra
+                // pero por ahora síncrono es suficiente.
                 // Solo activamos loading si es edición (para traer la cotización completa)
                 // O si no tenemos datos iniciales básicos
                 if (quote || (!initialClients && clients.length === 0)) {
