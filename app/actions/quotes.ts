@@ -305,3 +305,28 @@ export async function reactivateQuote(id: string) {
     revalidatePath("/dashboard/quotes");
     return { success: true };
 }
+
+/**
+ * Obtiene el folio que correspondería a la siguiente cotización sin incrementarlo.
+ */
+export async function getFolioPreview() {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+    if (!profile) throw new Error("Perfil no encontrado");
+
+    const { data: folio, error } = await supabase.rpc('preview_next_correlative', {
+        org_id: profile.organization_id
+    });
+
+    if (error) throw error;
+    return folio as number;
+}

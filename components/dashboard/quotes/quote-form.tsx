@@ -32,7 +32,7 @@ import { Quote, CreateQuoteInput, QuoteStatus } from "@/types/quotes";
 import { Client, getClients } from "@/app/actions/clients";
 import { Product } from "@/types/products";
 import { getProducts } from "@/app/actions/products";
-import { createQuote, getQuote, updateQuote } from "@/app/actions/quotes";
+import { createQuote, getQuote, updateQuote, getFolioPreview } from "@/app/actions/quotes";
 import { getMyOrganization } from "@/app/actions/organizations";
 import { format, addDays } from "date-fns";
 import { Organization } from "@/types/organizations";
@@ -63,6 +63,7 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
     const [products, setProducts] = useState<Product[]>([]);
     const [organization, setOrganization] = useState<Organization | null>(null);
     const [isClientFormOpen, setIsClientFormOpen] = useState(false);
+    const [nextFolio, setNextFolio] = useState<number | null>(null);
 
     // Selector de items local
     const [isManualMode, setIsManualMode] = useState(false);
@@ -91,15 +92,17 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
 
     const fetchInitialData = useCallback(async () => {
         try {
-            const [clientsData, productsData, orgData] = await Promise.all([
+            const [clientsData, productsData, orgData, folioData] = await Promise.all([
                 getClients(),
                 getProducts(),
-                getMyOrganization()
+                getMyOrganization(),
+                getFolioPreview()
             ]);
             setClients(clientsData);
             setProducts(productsData);
             setOrganization(orgData);
-            return { clientsData, productsData, orgData };
+            setNextFolio(folioData);
+            return { clientsData, productsData, orgData, folioData };
         } catch (error) {
             console.error("Error fetching form data:", error);
             return null;
@@ -243,7 +246,14 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
                             <span className="bg-primary/10 text-primary p-2 rounded-xl">
                                 <FileText className="w-6 h-6" />
                             </span>
-                            {quote ? `Refinar Cotización #${quote.folio}` : "Nueva Cotización"}
+                            <div className="flex flex-col">
+                                <span>{quote ? `Refinar Cotización #${quote.folio}` : "Nueva Cotización"}</span>
+                                {!quote && nextFolio && (
+                                    <span className="text-xs font-black uppercase tracking-widest text-primary/60 mt-1">
+                                        Folio Sugerido: #{nextFolio} (Vista Previa)
+                                    </span>
+                                )}
+                            </div>
                         </DialogTitle>
                     </DialogHeader>
 
