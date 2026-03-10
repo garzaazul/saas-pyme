@@ -253,20 +253,42 @@ export function QuoteForm({ open, onOpenChange, quote, onSuccess }: QuoteFormPro
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[850px] rounded-2xl border-none premium-shadow bg-white dark:bg-slate-900 max-h-[95vh] overflow-y-auto custom-scrollbar p-0">
                 <div className="p-8">
-                    <DialogHeader className="mb-8">
-                        <DialogTitle className="text-3xl font-black tracking-tighter flex items-center gap-3">
-                            <span className="bg-primary/10 text-primary p-2 rounded-xl">
-                                <FileText className="w-6 h-6" />
-                            </span>
-                            <div className="flex flex-col">
-                                <span>{quote ? `Refinar Cotización #${quote.folio}` : "Nueva Cotización"}</span>
-                                {!quote && nextFolio !== null && (
-                                    <span className="text-xs font-black uppercase tracking-widest text-primary/60 mt-1">
-                                        Folio Sugerido: #{nextFolio} (Vista Previa)
+                    <DialogHeader className="mb-8 pr-12">
+                        <div className="flex items-center justify-between w-full">
+                            <DialogTitle className="text-3xl font-black tracking-tighter flex items-center gap-3 text-gray-900 dark:text-white">
+                                <span className="bg-primary/10 text-primary p-2.5 rounded-2xl">
+                                    <FileText className="w-7 h-7" />
+                                </span>
+                                <span>{quote ? "Editar Cotización" : "Nueva Cotización"}</span>
+                            </DialogTitle>
+
+                            {!quote && (
+                                <div className="flex flex-col items-end">
+                                    <div className="bg-primary/5 dark:bg-primary/10 border-2 border-primary/20 rounded-2xl px-5 py-2.5 flex flex-col items-end">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary/60 leading-none mb-1">
+                                            Folio Sugerido
+                                        </span>
+                                        <span className="text-2xl font-black text-primary tracking-tighter leading-none">
+                                            {nextFolio !== null ? `#${nextFolio}` : "---"}
+                                        </span>
+                                    </div>
+                                    <span className="text-[9px] font-bold text-muted-foreground mt-1 uppercase tracking-tight">
+                                        Vista Previa
                                     </span>
-                                )}
-                            </div>
-                        </DialogTitle>
+                                </div>
+                            )}
+
+                            {quote && (
+                                <div className="bg-gray-100 dark:bg-slate-800 rounded-2xl px-5 py-2.5 flex flex-col items-end">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 leading-none mb-1">
+                                        Folio
+                                    </span>
+                                    <span className="text-2xl font-black text-gray-700 dark:text-gray-300 tracking-tighter leading-none">
+                                        #{quote.folio}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </DialogHeader>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
