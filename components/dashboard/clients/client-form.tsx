@@ -103,18 +103,27 @@ export function ClientForm({ client, onSuccess, onCancel }: ClientFormProps) {
             </div>
             <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">RUT Empresa</label>
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400 pl-1">
+                        {formData.rut === "1-1" ? "Identificador Genérico" : "RUT Empresa"}
+                    </label>
                     {errors.rut && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">RUT Inválido</span>}
+                    {formData.rut === "1-1" && <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">Inscripción Rápida</span>}
                 </div>
                 <Input
-                    placeholder="76.000.000-0"
+                    placeholder="76.000.000-0 o 1-1"
                     className={cn(
                         "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-mono transition-all",
-                        errors.rut && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10"
+                        errors.rut && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10",
+                        formData.rut === "1-1" && "ring-2 ring-blue-500/50 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400"
                     )}
                     value={formData.rut}
                     onChange={handleRutChange}
                 />
+                {formData.rut === "1-1" && (
+                    <p className="text-[10px] text-blue-500 font-medium pl-1 mt-1">
+                        * Solo el nombre o razón social es obligatorio para clientes genéricos.
+                    </p>
+                )}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

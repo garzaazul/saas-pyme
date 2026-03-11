@@ -11,6 +11,7 @@ export function cleanRut(rut: string): string {
  */
 export function formatRut(rut: string): string {
     const cleaned = cleanRut(rut);
+    if (cleaned === "11") return "1-1";
     if (cleaned === "19") return "1-9";
     if (cleaned.length <= 1) return cleaned;
 
@@ -31,12 +32,13 @@ export function formatRut(rut: string): string {
 
 /**
  * Valida un RUT chileno usando el algoritmo Módulo 11.
- * Incluye excepción para el RUT "1-9".
+ * Incluye excepción para el RUT "1-9" y el genérico "1-1".
  */
 export function validateRut(rut: string): boolean {
     const cleaned = cleanRut(rut);
 
-    // Excepción genérica solicitada
+    // Excepciones genéricas
+    if (cleaned === "11") return true;
     if (cleaned === "19") return true;
 
     if (cleaned.length < 2) return false;
