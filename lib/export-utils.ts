@@ -111,7 +111,7 @@ export const generateQuotePDF = (quote: any) => {
     });
     const date = new Date(quote.created_at).toLocaleDateString('es-CL');
     const validUntil = quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('es-CL') : 'N/A';
-    const org = quote.organization || {};
+    const org = quote.organization || quote.organizations || {};
     const companyName = org.name || 'FLUXU';
 
     // System Colors
@@ -251,7 +251,15 @@ export const generateQuotePDF = (quote: any) => {
 
     // 4. Totals Block (Bottom Right)
     // @ts-ignore
-    let finalY = doc.lastAutoTable.finalY + 15;
+    const lastTableY = doc.lastAutoTable.finalY;
+    const pageHeightForTotals = doc.internal.pageSize.getHeight();
+    let finalY = lastTableY + 15;
+    
+    // Si no hay espacio para el bloque de totales (~40 unidades), saltar de página
+    if (finalY + 40 > pageHeightForTotals - 20) {
+        doc.addPage();
+        finalY = 20;
+    }
     const totalsX = 130;
     const neto = quote.items.reduce((acc: number, item: any) => acc + (item.total_line || 0), 0);
     const iva = Math.round(neto * 0.19);
@@ -283,9 +291,21 @@ export const generateQuotePDF = (quote: any) => {
     doc.text(formatCLP(total), 196 - 5, finalY + 26, { align: 'right' }); // -5 padding X
 
     // 5. Notes & Conditions
-    let helpY = finalY + 45;
+    let helpY = finalY + 40;
+
+    // Helper para manejar saltos de página
+    const checkPageBreak = (neededHeight: number) => {
+        const pageHeight = doc.internal.pageSize.getHeight();
+        if (helpY + neededHeight > pageHeight - 35) { // Margen para el footer
+            doc.addPage();
+            helpY = 20;
+            return true;
+        }
+        return false;
+    };
 
     if (quote.observations) {
+        checkPageBreak(25);
         doc.setFontSize(8);
         doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         doc.text('NOTAS Y CONDICIONES:', 14, helpY);
@@ -298,6 +318,7 @@ export const generateQuotePDF = (quote: any) => {
     }
 
     if (quote.payment_condition) {
+        checkPageBreak(15);
         doc.setFontSize(8);
         doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         doc.text('CONDICIÓN DE PAGO:', 14, helpY);
@@ -310,6 +331,11 @@ export const generateQuotePDF = (quote: any) => {
 
     // Transfer Data (Bank Info)
     if (org.transfer_details) {
+        const splitDetails = doc.splitTextToSize(org.transfer_details, 120);
+        const detailsHeight = (splitDetails.length * 4) + 15;
+        
+        checkPageBreak(detailsHeight);
+        
         doc.setDrawColor(accentColor[0], accentColor[1], accentColor[2]);
         doc.setLineWidth(0.5);
         doc.line(14, helpY, 30, helpY);
@@ -320,8 +346,8 @@ export const generateQuotePDF = (quote: any) => {
         doc.setFontSize(8);
         doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.setFont('helvetica', 'bold');
-        const splitDetails = doc.splitTextToSize(org.transfer_details, 120);
         doc.text(splitDetails, 14, helpY + 14);
+        helpY += detailsHeight;
     }
 
     // 6. Footer Marca Blanca (Absolute Bottom)
