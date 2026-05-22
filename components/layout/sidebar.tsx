@@ -6,8 +6,6 @@ import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
     FileText,
-    ShoppingCart,
-    Receipt,
     Package,
     Users,
     Settings,
@@ -16,6 +14,9 @@ import {
     Tag,
     Building2,
 } from "lucide-react";
+// PLAN SUPERIOR — ShoppingCart y Receipt se reactivarán cuando se habilite
+// el módulo de control financiero (Ventas y Gastos).
+// import { ShoppingCart, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Tooltip,
@@ -32,8 +33,9 @@ interface SidebarProps {
 const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/dashboard/quotes", label: "Cotizaciones", icon: FileText },
-    { href: "/dashboard/sales", label: "Ventas", icon: ShoppingCart },
-    { href: "/dashboard/expenses", label: "Gastos", icon: Receipt },
+    // PLAN SUPERIOR — descomentar cuando se active el módulo de control financiero
+    // { href: "/dashboard/sales", label: "Ventas", icon: ShoppingCart },
+    // { href: "/dashboard/expenses", label: "Gastos", icon: Receipt },
     { href: "/dashboard/products", label: "Productos", icon: Package },
     { href: "/dashboard/categories", label: "Categorías", icon: Tag },
     { href: "/dashboard/clients", label: "Clientes", icon: Users },
@@ -61,7 +63,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         {!collapsed && (
                             <div className="flex flex-col">
                                 <span className="font-black text-white tracking-tighter leading-none text-xl italic">FLUXU</span>
-                                <span className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400 mt-1.5 opacity-80">SaaS Pyme Core</span>
+                                {/* TODO: nombre del plan — actualizar cuando se defina */}
+                                <span className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400 mt-1.5 opacity-80">Pro</span>
                             </div>
                         )}
                     </div>

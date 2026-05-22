@@ -254,3 +254,144 @@ function formatDateShort(dateStr: string): string {
         year: "numeric"
     });
 }
+
+// =============================================================================
+// Fase 2.1 — KPIs del plan de entrada (cotizaciones)
+// Las funciones anteriores (getDashboardKPIs, getRecentMovements, getQuoteAlerts)
+// quedan intactas para el plan superior de control financiero.
+// =============================================================================
+
+export interface QuoteDashboardKPIs {
+    /** Cotizaciones pendientes activas */
+    pipelineCount: number;
+    /** Monto total del pipeline pendiente */
+    pipelineAmount: number;
+    /** Cotizaciones creadas en el mes actual */
+    quotesThisMonth: number;
+    /** Cotizaciones aprobadas en el mes actual */
+    approvedThisMonth: number;
+    /** Tasa de aceptación del mes (0-100) */
+    acceptanceRate: number;
+    /** Clientes activos de la organización */
+    totalClients: number;
+    /** Cotizaciones pendientes que vencen en los próximos 7 días */
+    expiringCount: number;
+    /** Monto total de las cotizaciones próximas a vencer */
+    expiringAmount: number;
+}
+
+const EMPTY_QUOTE_KPIS: QuoteDashboardKPIs = {
+    pipelineCount: 0,
+    pipelineAmount: 0,
+    quotesThisMonth: 0,
+    approvedThisMonth: 0,
+    acceptanceRate: 0,
+    totalClients: 0,
+    expiringCount: 0,
+    expiringAmount: 0,
+};
+
+/**
+ * KPIs orientados a cotizaciones para el plan de entrada.
+ * Corre todas las queries en paralelo con Promise.all.
+ */
+export async function getQuoteDashboardKPIs(): Promise<QuoteDashboardKPIs> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return EMPTY_QUOTE_KPIS;
+
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+    if (!profile) return EMPTY_QUOTE_KPIS;
+
+    const orgId = profile.organization_id;
+
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        .toISOString()
+        .split("T")[0];
+    const today = now.toISOString().split("T")[0];
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0];
+
+    const [
+        pendingResult,
+        monthResult,
+        clientsResult,
+        expiringResult,
+    ] = await Promise.all([
+        // a. Pipeline: cotizaciones pendientes activas
+        supabase
+            .from("quotes")
+            .select("total_amount")
+            .eq("organization_id", orgId)
+            .eq("status", "pendiente")
+            .eq("is_active", true),
+
+        // b. Mes actual: todas las cotizaciones activas creadas este mes
+        supabase
+            .from("quotes")
+            .select("status")
+            .eq("organization_id", orgId)
+            .eq("is_active", true)
+            .gte("created_at", firstDayOfMonth),
+
+        // c. Clientes activos de la organización
+        supabase
+            .from("clients")
+            .select("*", { count: "exact", head: true })
+            .eq("organization_id", orgId)
+            .eq("is_active", true),
+
+        // d. Cotizaciones por vencer en 7 días
+        supabase
+            .from("quotes")
+            .select("total_amount")
+            .eq("organization_id", orgId)
+            .eq("status", "pendiente")
+            .eq("is_active", true)
+            .gte("valid_until", today)
+            .lte("valid_until", nextWeek),
+    ]);
+
+    // Pipeline
+    const pipelineCount = pendingResult.data?.length ?? 0;
+    const pipelineAmount = pendingResult.data?.reduce(
+        (acc, q) => acc + Number(q.total_amount ?? 0), 0
+    ) ?? 0;
+
+    // Conversión del mes
+    const quotesThisMonth = monthResult.data?.length ?? 0;
+    const approvedThisMonth =
+        monthResult.data?.filter((q) => q.status === "aprobada").length ?? 0;
+    const acceptanceRate =
+        quotesThisMonth > 0
+            ? Math.round((approvedThisMonth / quotesThisMonth) * 100)
+            : 0;
+
+    // Clientes
+    const totalClients = clientsResult.count ?? 0;
+
+    // Alertas de vencimiento
+    const expiringCount = expiringResult.data?.length ?? 0;
+    const expiringAmount = expiringResult.data?.reduce(
+        (acc, q) => acc + Number(q.total_amount ?? 0), 0
+    ) ?? 0;
+
+    return {
+        pipelineCount,
+        pipelineAmount,
+        quotesThisMonth,
+        approvedThisMonth,
+        acceptanceRate,
+        totalClients,
+        expiringCount,
+        expiringAmount,
+    };
+}
