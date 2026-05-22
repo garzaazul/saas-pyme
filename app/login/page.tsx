@@ -1,3 +1,8 @@
+// SEGURIDAD: Registro público desactivado (invite-only).
+// Complementar desactivando "Enable Sign Ups" en:
+// Supabase Dashboard → Authentication → Providers → Email → Disable Sign Ups
+// Esto bloquea signUp() a nivel de API aunque alguien llame al endpoint directo.
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -12,7 +17,6 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
-    const [isSignUp, setIsSignUp] = useState(false);
 
     // Crear cliente solo en el cliente (browser)
     const supabase = useMemo(() => {
@@ -31,26 +35,38 @@ export default function LoginPage() {
         setMessage("");
 
         try {
-            if (isSignUp) {
-                const { error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        emailRedirectTo: `${window.location.origin}/auth/callback`,
-                    },
-                });
-                if (error) throw error;
-                setMessage("Revisa tu email para confirmar tu cuenta");
-            } else {
-                const { error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password,
-                });
-                if (error) throw error;
-                window.location.href = "/dashboard";
-            }
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) throw error;
+            window.location.href = "/dashboard";
         } catch (error: any) {
             setMessage(error.message || "Error al iniciar sesión");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleForgotPassword = async () => {
+        if (!supabase) return;
+
+        if (!email.trim()) {
+            setMessage("Ingresa tu email para recuperar tu contraseña");
+            return;
+        }
+
+        setLoading(true);
+        setMessage("");
+
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/update-password`,
+            });
+            if (error) throw error;
+            setMessage("Revisa tu email para restablecer tu contraseña");
+        } catch (error: any) {
+            setMessage(error.message || "Error al enviar el correo de recuperación");
         } finally {
             setLoading(false);
         }
@@ -65,11 +81,10 @@ export default function LoginPage() {
                     </div>
                     <CardTitle className="text-2xl">FLUXU</CardTitle>
                     <CardDescription>
-                        {isSignUp ? "Crea tu cuenta" : "Inicia sesión en tu cuenta"}
+                        Inicia sesión en tu cuenta
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {/* Email Login Form */}
                     <form onSubmit={handleEmailLogin} className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Email</label>
@@ -95,10 +110,11 @@ export default function LoginPage() {
 
                         {message && (
                             <p
-                                className={`text-sm text-center ${message.includes("Error") || message.includes("Invalid")
-                                    ? "text-red-600"
-                                    : "text-green-600"
-                                    }`}
+                                className={`text-sm text-center ${
+                                    message.includes("Error") || message.includes("Invalid")
+                                        ? "text-red-600"
+                                        : "text-green-600"
+                                }`}
                             >
                                 {message}
                             </p>
@@ -114,7 +130,7 @@ export default function LoginPage() {
                             ) : (
                                 <Mail className="w-4 h-4 mr-2" />
                             )}
-                            {isSignUp ? "Crear cuenta" : "Iniciar sesión"}
+                            Iniciar sesión
                         </Button>
                     </form>
 
@@ -122,11 +138,9 @@ export default function LoginPage() {
                         <button
                             type="button"
                             className="text-blue-600 hover:underline"
-                            onClick={() => setIsSignUp(!isSignUp)}
+                            onClick={handleForgotPassword}
                         >
-                            {isSignUp
-                                ? "¿Ya tienes cuenta? Inicia sesión"
-                                : "¿No tienes cuenta? Regístrate"}
+                            ¿Olvidaste tu contraseña?
                         </button>
                     </div>
                 </CardContent>
