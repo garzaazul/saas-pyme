@@ -42,7 +42,7 @@ export default function TerminosPage() {
             <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <Link href="/">
-                        <FluxuLogo variant="dark" height={28} />
+                        <FluxuLogo variant="light" height={28} />
                     </Link>
                     <Link
                         href="/"

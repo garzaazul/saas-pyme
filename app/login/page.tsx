@@ -78,7 +78,7 @@ export default function LoginPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <div className="flex justify-center mb-5">
-                        <FluxuLogo variant="dark" height={36} />
+                        <FluxuLogo variant="light" height={36} />
                     </div>
                     <CardDescription>
                         Inicia sesión en tu cuenta

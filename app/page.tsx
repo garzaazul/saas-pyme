@@ -96,7 +96,7 @@ export default function LandingPage() {
             {/* ── HEADER ─────────────────────────────────────────────────── */}
             <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100/80">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-                    <FluxuLogo variant="dark" />
+                    <FluxuLogo variant="light" />
 
                     {/* Nav desktop — solo color change, sin hover:bg */}
                     <nav className="hidden md:flex items-center gap-6">
@@ -429,7 +429,7 @@ export default function LandingPage() {
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                         {/* Logo */}
-                        <FluxuLogo variant="white" height={28} />
+                        <FluxuLogo variant="dark" height={28} />
 
                         <div className="flex items-center gap-6 text-sm">
                             <Link href="/terminos" className="hover:text-white transition-colors">

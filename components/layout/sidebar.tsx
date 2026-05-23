@@ -63,7 +63,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                             <span className="text-white font-black text-lg italic">F</span>
                         </div>
                     ) : (
-                        <FluxuLogo variant="white" height={28} className="max-w-[110px]" />
+                        <FluxuLogo variant="dark" height={28} className="max-w-[110px]" />
                     )}
                 </div>
 

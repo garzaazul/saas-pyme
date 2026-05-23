@@ -1,57 +1,35 @@
+import Image from "next/image";
+
 interface FluxuLogoProps {
-    /** "dark" = logo oscuro (#091226) para fondos claros
-     *  "white" = logo blanco para fondos oscuros */
-    variant?: "dark" | "white";
+    /** "dark" = logo claro (blanco) para fondos oscuros/azules
+     *  "light" = logo oscuro (navy #091226) para fondos claros/blancos */
+    variant?: "dark" | "light";
     /** Altura en px */
     height?: number;
     className?: string;
 }
 
 /**
- * Logo FLUXU — SVG inline.
- * No requiere archivos en /public.
- * Para reemplazar con el PNG oficial:
- *   1. Coloca logo-dark.png y logo-white.png en /public
- *   2. Sustituye el return por: <Image src={`/logo-${variant}.png`} ... />
+ * Logo FLUXU — PNG estático servido desde /public/brand/.
+ * Archivos requeridos:
+ *   public/brand/logo-dark.png  → logo blanco, para fondos oscuros
+ *   public/brand/logo-light.png → logo navy,   para fondos claros
+ *
+ * Aspect ratio original ≈ 4.12 : 1 (3398×825 px)
  */
-export function FluxuLogo({ variant = "dark", height = 34, className = "" }: FluxuLogoProps) {
-    const fill = variant === "white" ? "#ffffff" : "#091226";
-    const h = height;
-    // Aspect ratio del wordmark ≈ 4.2 : 1
-    const w = Math.round(h * 4.2);
+export function FluxuLogo({ variant = "light", height = 34, className = "" }: FluxuLogoProps) {
+    // Aspect ratio del PNG original ≈ 4.12 : 1
+    const width = Math.round(height * 4.12);
+    const src = variant === "dark" ? "/brand/logo-dark.png" : "/brand/logo-light.png";
 
     return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 420 100"
-            width={w}
-            height={h}
+        <Image
+            src={src}
+            alt="FLUXU"
+            width={width}
+            height={height}
+            priority
             className={`flex-shrink-0 ${className}`}
-            aria-label="FLUXU"
-            role="img"
-        >
-            {/* ── Ícono "F" estilizado ── */}
-            <g fill={fill}>
-                {/* Barra vertical izquierda */}
-                <rect x="0" y="0" width="18" height="100" rx="4" />
-                {/* Barra superior horizontal */}
-                <rect x="0" y="0" width="62" height="18" rx="4" />
-                {/* Barra media horizontal */}
-                <rect x="0" y="41" width="50" height="16" rx="4" />
-            </g>
-
-            {/* ── Letras L U X U ── */}
-            <text
-                x="88"
-                y="86"
-                fontFamily="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
-                fontSize="96"
-                fontWeight="900"
-                fill={fill}
-                letterSpacing="-2"
-            >
-                LUXU
-            </text>
-        </svg>
+        />
     );
 }
