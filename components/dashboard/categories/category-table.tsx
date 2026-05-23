@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { softDeleteCategory, reactivateCategory } from "@/app/actions/categories";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface CategoryTableProps {
     categories: Category[];
@@ -34,24 +35,33 @@ interface CategoryTableProps {
 
 export function CategoryTable({ categories, totalCount, activeTab, onEdit, onRefresh }: CategoryTableProps) {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleSoftDelete = async (id: string) => {
-        if (!confirm("¿Está seguro de desactivar esta categoría?")) return;
-
-        setActionLoading(id);
+    const handleSoftDelete = async () => {
+        if (!pendingDeleteId) return;
+        setIsDeleting(true);
         try {
-            const res = await softDeleteCategory(id);
+            const res = await softDeleteCategory(pendingDeleteId);
             if (res.error) {
                 toast.error(res.error);
             } else {
                 toast.success("Categoría desactivada");
                 onRefresh();
             }
-        } catch (error) {
+        } catch {
             toast.error("Error al desactivar");
         } finally {
-            setActionLoading(null);
+            setIsDeleting(false);
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         }
+    };
+
+    const requestDelete = (id: string) => {
+        setPendingDeleteId(id);
+        setConfirmOpen(true);
     };
 
     const handleReactivate = async (id: string) => {
@@ -83,6 +93,7 @@ export function CategoryTable({ categories, totalCount, activeTab, onEdit, onRef
     }
 
     return (
+        <>
         <Table>
             <TableHeader>
                 <TableRow className="hover:bg-transparent border-gray-50 dark:border-slate-800">
@@ -148,7 +159,7 @@ export function CategoryTable({ categories, totalCount, activeTab, onEdit, onRef
                                         <div className="h-px bg-gray-100 dark:bg-slate-800 my-1" />
                                         {category.is_active ? (
                                             <DropdownMenuItem
-                                                onSelect={() => handleSoftDelete(category.id)}
+                                                onSelect={() => requestDelete(category.id)}
                                                 className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
@@ -171,5 +182,19 @@ export function CategoryTable({ categories, totalCount, activeTab, onEdit, onRef
                 ))}
             </TableBody>
         </Table>
+
+        <ConfirmDialog
+            open={confirmOpen}
+            onOpenChange={(open) => {
+                setConfirmOpen(open);
+                if (!open) setPendingDeleteId(null);
+            }}
+            title="¿Desactivar categoría?"
+            description="Esta categoría quedará inactiva. Los productos que la usan no se verán afectados, pero no podrás asignarla a nuevos items."
+            confirmLabel="Desactivar"
+            onConfirm={handleSoftDelete}
+            isLoading={isDeleting}
+        />
+        </>
     );
 }

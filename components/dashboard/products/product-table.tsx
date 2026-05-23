@@ -22,6 +22,7 @@ import { Product } from "@/types/products";
 import { softDeleteProduct, reactivateProduct } from "@/app/actions/products";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface ProductTableProps {
     products: (Product & { categories: { name: string } | null })[];
@@ -40,23 +41,32 @@ function formatCLP(amount: number): string {
 
 export function ProductTable({ products, activeTab, onEdit, onRefresh }: ProductTableProps) {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleSoftDelete = async (id: string) => {
-        if (!confirm("¿Está seguro de desactivar este item del catálogo?")) return;
+    const requestDelete = (id: string) => {
+        setPendingDeleteId(id);
+        setConfirmOpen(true);
+    };
 
-        setActionLoading(id);
+    const handleSoftDelete = async () => {
+        if (!pendingDeleteId) return;
+        setIsDeleting(true);
         try {
-            const res = await softDeleteProduct(id);
+            const res = await softDeleteProduct(pendingDeleteId);
             if (res.error) {
                 toast.error(res.error);
             } else {
                 toast.success("Item movido a la papelera");
                 onRefresh();
             }
-        } catch (error) {
+        } catch {
             toast.error("Error al desactivar");
         } finally {
-            setActionLoading(null);
+            setIsDeleting(false);
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         }
     };
 
@@ -89,6 +99,7 @@ export function ProductTable({ products, activeTab, onEdit, onRefresh }: Product
     }
 
     return (
+        <>
         <Table>
             <TableHeader>
                 <TableRow className="hover:bg-transparent border-gray-50 dark:border-slate-800">
@@ -199,7 +210,7 @@ export function ProductTable({ products, activeTab, onEdit, onRefresh }: Product
                                         <div className="h-px bg-gray-100 dark:bg-slate-800 my-1" />
                                         {product.is_active ? (
                                             <DropdownMenuItem
-                                                onSelect={() => handleSoftDelete(product.id)}
+                                                onSelect={() => requestDelete(product.id)}
                                                 className="rounded-lg font-bold text-xs py-2 text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer gap-2"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
@@ -222,5 +233,19 @@ export function ProductTable({ products, activeTab, onEdit, onRefresh }: Product
                 ))}
             </TableBody>
         </Table>
+
+        <ConfirmDialog
+            open={confirmOpen}
+            onOpenChange={(open) => {
+                setConfirmOpen(open);
+                if (!open) setPendingDeleteId(null);
+            }}
+            title="¿Mover a la papelera?"
+            description="Este item quedará inactivo y no aparecerá en el catálogo ni en el selector de cotizaciones. Puedes reactivarlo en cualquier momento desde la pestaña Papelera."
+            confirmLabel="Mover a Papelera"
+            onConfirm={handleSoftDelete}
+            isLoading={isDeleting}
+        />
+        </>
     );
 }

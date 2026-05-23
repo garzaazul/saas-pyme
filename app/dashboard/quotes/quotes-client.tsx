@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { getMyOrganization, OrganizationWithActivity } from "@/app/actions/organizations";
 import { getClients, Client } from "@/app/actions/clients";
 import { getProducts } from "@/app/actions/products";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 // ---------------------------------------------------------------------------
 // Props — datos pre-cargados por el Server Component padre
@@ -61,6 +62,10 @@ export function QuotesClient({
     const [activeTab, setActiveTab] = useState("active");
     const [itemsPerPage, setItemsPerPage] = useState("10");
     const [currentPage, setCurrentPage] = useState(1);
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const [organization, setOrganization] = useState<OrganizationWithActivity | null>(initialOrganization);
     const [clients, setClients] = useState<Client[]>(initialClients);
@@ -106,14 +111,26 @@ export function QuotesClient({
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("¿Está seguro de mover esta cotización a la papelera?")) return;
-        const res = await softDeleteQuote(id);
-        if (res.error) {
-            toast.error(res.error);
-        } else {
-            toast.success("Movida a la papelera correctamente");
-            fetchData();
+    const requestDelete = (id: string) => {
+        setPendingDeleteId(id);
+        setConfirmOpen(true);
+    };
+
+    const handleDelete = async () => {
+        if (!pendingDeleteId) return;
+        setIsDeleting(true);
+        try {
+            const res = await softDeleteQuote(pendingDeleteId);
+            if (res.error) {
+                toast.error(res.error);
+            } else {
+                toast.success("Movida a la papelera correctamente");
+                fetchData();
+            }
+        } finally {
+            setIsDeleting(false);
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         }
     };
 
@@ -333,7 +350,7 @@ export function QuotesClient({
                                 setIsFormOpen(true);
                             }}
                             onDuplicate={handleDuplicate}
-                            onDelete={handleDelete}
+                            onDelete={requestDelete}
                             onReactivate={handleReactivate}
                             onStatusChange={handleStatusChange}
                             onDownloadPDF={handleDownloadPDF}
@@ -386,6 +403,19 @@ export function QuotesClient({
                 initialClients={clients}
                 initialProducts={products}
                 initialNextFolio={nextFolio}
+            />
+
+            <ConfirmDialog
+                open={confirmOpen}
+                onOpenChange={(open) => {
+                    setConfirmOpen(open);
+                    if (!open) setPendingDeleteId(null);
+                }}
+                title="¿Mover a la papelera?"
+                description="Esta cotización quedará inactiva. Podrás recuperarla en cualquier momento desde la pestaña Papelera."
+                confirmLabel="Mover a Papelera"
+                onConfirm={handleDelete}
+                isLoading={isDeleting}
             />
         </div>
     );
