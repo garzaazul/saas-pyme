@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import {
     FileText,
     Globe,
@@ -15,24 +16,26 @@ import {
 import { MobileMenu } from "@/components/landing/mobile-menu";
 import { ContactForm } from "@/components/landing/contact-form";
 
+// ── Fuente display — carácter sin instalación adicional ─────────────────────
+const jakarta = Plus_Jakarta_Sans({
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700", "800"],
+    display: "swap",
+});
+
 const WHATSAPP_URL =
     "https://wa.me/56972420708?text=Hola%2C%20me%20interesa%20FLUXU%20para%20mi%20negocio";
 
 // ---------------------------------------------------------------------------
-// Logo inline — ícono F + wordmark, idéntico al sidebar
+// Logo inline
 // ---------------------------------------------------------------------------
-function FluxuLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-    const iconSize = size === "lg" ? "w-10 h-10" : size === "sm" ? "w-7 h-7" : "w-8 h-8";
-    const textSize = size === "lg" ? "text-2xl" : size === "sm" ? "text-lg" : "text-xl";
-
+function FluxuLogo() {
     return (
-        <div className="flex items-center gap-2">
-            <div className={`${iconSize} rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-200`}>
-                <span className="text-white font-black italic" style={{ fontSize: size === "lg" ? "1.25rem" : "1rem" }}>
-                    F
-                </span>
+        <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center shadow-md shadow-blue-200">
+                <span className="text-white font-extrabold italic text-sm">F</span>
             </div>
-            <span className={`${textSize} font-black italic tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent`}>
+            <span className="text-xl font-extrabold italic tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
                 FLUXU
             </span>
         </div>
@@ -40,50 +43,7 @@ function FluxuLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 }
 
 // ---------------------------------------------------------------------------
-// Feature card
-// ---------------------------------------------------------------------------
-function FeatureCard({
-    icon: Icon,
-    title,
-    description,
-}: {
-    icon: React.ElementType;
-    title: string;
-    description: string;
-}) {
-    return (
-        <div className="group p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-            <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
-                <Icon className="w-5 h-5 text-blue-600" />
-            </div>
-            <h3 className="font-bold text-gray-900 mb-1.5">{title}</h3>
-            <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
-        </div>
-    );
-}
-
-// ---------------------------------------------------------------------------
-// Pain point card
-// ---------------------------------------------------------------------------
-function PainCard({
-    icon: Icon,
-    text,
-}: {
-    icon: React.ElementType;
-    text: string;
-}) {
-    return (
-        <div className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-                <Icon className="w-5 h-5 text-red-500" />
-            </div>
-            <p className="text-sm font-medium text-gray-700 leading-relaxed pt-1">{text}</p>
-        </div>
-    );
-}
-
-// ---------------------------------------------------------------------------
-// Check list item
+// Check list item (sección precio)
 // ---------------------------------------------------------------------------
 function CheckItem({ text }: { text: string }) {
     return (
@@ -95,36 +55,79 @@ function CheckItem({ text }: { text: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// Pain row — lista de dolores con dividers
+// ---------------------------------------------------------------------------
+function PainRow({ icon: Icon, text }: { icon: React.ElementType; text: string }) {
+    return (
+        <div className="flex items-center gap-4 py-4 group">
+            <div className="w-9 h-9 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-100 transition-colors">
+                <Icon className="w-4 h-4 text-orange-500" />
+            </div>
+            <p className="text-base font-medium text-gray-700 leading-snug">{text}</p>
+        </div>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Feature card estándar (bento)
+// ---------------------------------------------------------------------------
+function FeatureCard({
+    icon: Icon,
+    title,
+    description,
+    accent = false,
+}: {
+    icon: React.ElementType;
+    title: string;
+    description: string;
+    accent?: boolean;
+}) {
+    return (
+        <div className={`group p-6 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 ${
+            accent
+                ? "bg-blue-50 border-blue-100 hover:shadow-md hover:shadow-blue-100"
+                : "bg-white border-gray-100 shadow-sm hover:shadow-md"
+        }`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-colors ${
+                accent ? "bg-blue-100 group-hover:bg-blue-200" : "bg-gray-50 group-hover:bg-blue-50"
+            }`}>
+                <Icon className={`w-4.5 h-4.5 ${accent ? "text-blue-600" : "text-gray-600 group-hover:text-blue-600"} transition-colors`} />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1.5 text-sm">{title}</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">{description}</p>
+        </div>
+    );
+}
+
+// ---------------------------------------------------------------------------
 // PAGE — Server Component
 // ---------------------------------------------------------------------------
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-white text-gray-900 antialiased">
+        <div className={`${jakarta.className} min-h-screen bg-white text-gray-900 antialiased`}>
 
             {/* ── HEADER ─────────────────────────────────────────────────── */}
-            <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+            <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100/80">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-                    {/* Logo */}
                     <FluxuLogo />
 
-                    {/* Nav — desktop */}
-                    <nav className="hidden md:flex items-center gap-1">
-                        <a href="#funciones" className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors">
+                    {/* Nav desktop — solo color change, sin hover:bg */}
+                    <nav className="hidden md:flex items-center gap-6">
+                        <a href="#funciones" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
                             Funciones
                         </a>
-                        <a href="#precio" className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors">
+                        <a href="#precio" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
                             Precio
                         </a>
-                        <a href="#contacto" className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors">
+                        <a href="#contacto" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
                             Contacto
                         </a>
                     </nav>
 
-                    {/* CTA + Mobile menu */}
                     <div className="flex items-center gap-3">
                         <Link
                             href="/login"
-                            className="hidden md:inline-flex items-center px-5 py-2 text-sm font-bold text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors"
+                            className="hidden md:inline-flex items-center px-5 py-2 text-sm font-semibold text-gray-700 border border-gray-200 rounded-full hover:border-blue-300 hover:text-blue-600 transition-colors"
                         >
                             Iniciar sesión
                         </Link>
@@ -133,127 +136,172 @@ export default function LandingPage() {
                 </div>
             </header>
 
-            {/* ── HERO ───────────────────────────────────────────────────── */}
-            <section className="relative overflow-hidden pt-16 pb-24 sm:pt-24 sm:pb-32">
-                {/* Fondo decorativo */}
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-50/60 to-white pointer-events-none" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-r from-blue-400/10 via-indigo-400/10 to-violet-400/10 rounded-full blur-3xl pointer-events-none" />
+            {/* ── HERO — layout asimétrico ────────────────────────────────── */}
+            <section className="relative overflow-hidden pt-14 pb-16 sm:pt-20 sm:pb-24">
+                {/* Dot grid pattern */}
+                <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                        backgroundImage: "radial-gradient(circle, #d1d5db 1.5px, transparent 1.5px)",
+                        backgroundSize: "28px 28px",
+                    }}
+                />
+                {/* Gradient overlay that fades the dots */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white pointer-events-none" />
+                {/* Color wash top-right */}
+                <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-gradient-to-bl from-blue-50 via-indigo-50/40 to-transparent pointer-events-none rounded-bl-full" />
 
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-xs font-bold text-blue-700 uppercase tracking-wider mb-6">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        Precio de lanzamiento — cupos limitados
-                    </div>
+                <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+                    {/* GRID: texto izquierda, mockup derecha */}
+                    <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 items-center">
 
-                    {/* Titular */}
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-gray-900 mb-5 leading-tight">
-                        Tu negocio,{" "}
-                        <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                            ordenado y profesional
-                        </span>
-                    </h1>
+                        {/* ─ Columna izquierda — texto ─ */}
+                        <div>
+                            {/* Badge — estilo editorial, no pill */}
+                            <div className="inline-flex items-center gap-2.5 border border-gray-900 px-3 py-1.5 mb-8">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-900">
+                                    Precio de lanzamiento — cupos limitados
+                                </span>
+                            </div>
 
-                    {/* Subtítulo */}
-                    <p className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-6 leading-relaxed">
-                        Gestiona clientes, productos, cotizaciones y muestra tu catálogo
-                        público. Todo en un solo lugar, sin complicaciones.
-                    </p>
+                            {/* h1 grande, compacto, alineado izquierda */}
+                            <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight text-gray-900 leading-[1.08] mb-6">
+                                Tu negocio,{" "}
+                                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                                    ordenado y<br />profesional
+                                </span>
+                            </h1>
 
-                    {/* Precio */}
-                    <div className="flex items-center justify-center gap-3 mb-8">
-                        <span className="text-gray-400 line-through text-sm font-medium">$15.000/mes</span>
-                        <span className="text-2xl font-black text-blue-600">$10.000/mes</span>
-                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide">
-                            Primer mes gratis
-                        </span>
-                    </div>
+                            <p className="text-base sm:text-lg text-gray-500 mb-6 leading-relaxed max-w-md">
+                                Gestiona clientes, productos, cotizaciones y muestra tu catálogo
+                                público. Todo en un solo lugar, sin complicaciones.
+                            </p>
 
-                    {/* CTAs */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                        <a
-                            href={WHATSAPP_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-blue-200 transition-all hover:scale-105 active:scale-95"
-                        >
-                            Quiero probarlo gratis
-                            <ArrowRight className="w-4 h-4" />
-                        </a>
-                        <a
-                            href="#contacto"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-gray-200 hover:border-blue-200 text-gray-700 hover:text-blue-600 font-bold text-sm rounded-2xl transition-all hover:bg-blue-50"
-                        >
-                            Solicitar acceso
-                        </a>
-                    </div>
+                            {/* Precio inline */}
+                            <div className="flex flex-wrap items-center gap-2.5 mb-8">
+                                <span className="text-gray-400 line-through text-sm font-medium">$15.000/mes</span>
+                                <span className="text-2xl font-extrabold text-blue-600">$10.000/mes</span>
+                                <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200 uppercase tracking-wide">
+                                    Primer mes gratis
+                                </span>
+                            </div>
 
-                    {/* Dashboard screenshot placeholder */}
-                    <div className="mt-14 relative mx-auto max-w-3xl">
-                        <div className="absolute inset-x-0 -bottom-6 h-16 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none" />
-                        <div className="aspect-video w-full rounded-2xl bg-gradient-to-br from-slate-100 to-blue-50 border border-gray-200 shadow-2xl flex items-center justify-center">
-                            <p className="text-sm font-medium text-gray-400">Captura del dashboard · Próximamente</p>
+                            {/* CTAs — pill buttons */}
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <a
+                                    href={WHATSAPP_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-full shadow-lg shadow-blue-200 transition-all duration-200 hover:scale-105 active:scale-95"
+                                >
+                                    Quiero probarlo gratis
+                                    <ArrowRight className="w-4 h-4" />
+                                </a>
+                                <a
+                                    href="#contacto"
+                                    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-semibold text-sm rounded-full transition-colors duration-200"
+                                >
+                                    Solicitar acceso
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* ─ Columna derecha — mockup ─ */}
+                        <div className="order-first lg:order-last">
+                            <div className="relative">
+                                {/* Blob decorativo detrás */}
+                                <div className="absolute -inset-4 bg-gradient-to-br from-blue-100 via-indigo-50 to-violet-100 rounded-3xl blur-2xl opacity-60 pointer-events-none" />
+                                <div className="relative aspect-[4/3] w-full rounded-2xl bg-white border border-gray-200 shadow-2xl shadow-slate-200/60 flex flex-col items-center justify-center gap-3 overflow-hidden">
+                                    {/* Mini header bar simulado */}
+                                    <div className="absolute top-0 left-0 right-0 h-8 bg-gray-50 border-b border-gray-100 flex items-center px-4 gap-1.5">
+                                        <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
+                                    </div>
+                                    <LayoutDashboard className="w-10 h-10 text-blue-200 mt-6" />
+                                    <p className="text-sm font-medium text-gray-400">Captura del dashboard</p>
+                                    <p className="text-xs text-gray-300">Próximamente</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* ── PROBLEMA ───────────────────────────────────────────────── */}
-            <section id="problema" className="py-20 bg-gray-50/70">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3">
-                            ¿Te suena esto?
-                        </h2>
-                        <p className="text-gray-500 max-w-xl mx-auto">
-                            Problemas comunes que tienen las PyMEs chilenas sin una herramienta adecuada.
-                        </p>
-                    </div>
+            {/* ── PROBLEMA — 2 columnas asimétrico ───────────────────────── */}
+            <section id="problema" className="py-20 bg-stone-50">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-20 items-start">
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <PainCard
-                            icon={MessageSquare}
-                            text="Cotizas por WhatsApp o Word y se te pierden los números"
-                        />
-                        <PainCard
-                            icon={Globe}
-                            text="No tienes un catálogo online para mostrar tus productos"
-                        />
-                        <PainCard
-                            icon={Building2}
-                            text="Quieres verte profesional pero un ERP es caro y complicado"
-                        />
-                        <PainCard
-                            icon={FileCheck}
-                            text="No necesitas facturar, pero sí necesitas orden"
-                        />
+                        {/* Título — left column */}
+                        <div className="lg:pt-2">
+                            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-[1.1] mb-4">
+                                ¿Te suena<br />esto?
+                            </h2>
+                            <p className="text-gray-500 text-sm leading-relaxed">
+                                Problemas comunes que tienen las PyMEs chilenas sin una herramienta adecuada.
+                            </p>
+                        </div>
+
+                        {/* Lista de dolores con dividers */}
+                        <div className="divide-y divide-stone-200">
+                            <PainRow icon={MessageSquare} text="Cotizas por WhatsApp o Word y se te pierden los números" />
+                            <PainRow icon={Globe} text="No tienes un catálogo online para mostrar tus productos" />
+                            <PainRow icon={Building2} text="Quieres verte profesional pero un ERP es caro y complicado" />
+                            <PainRow icon={FileCheck} text="No necesitas facturar, pero sí necesitas orden" />
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* ── FUNCIONES ──────────────────────────────────────────────── */}
-            <section id="funciones" className="py-20">
+            {/* ── FUNCIONES — bento grid ──────────────────────────────────── */}
+            <section id="funciones" className="py-20 bg-white">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3">
-                            Todo lo que necesitas para gestionar tu negocio
+
+                    {/* Título — izquierda, no centrado */}
+                    <div className="mb-10">
+                        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-[1.1] mb-3">
+                            Todo lo que necesitas<br className="hidden sm:block" />para gestionar tu negocio
                         </h2>
-                        <p className="text-gray-500 max-w-xl mx-auto">
+                        <p className="text-gray-500 max-w-lg text-sm leading-relaxed">
                             Sin complicaciones, sin exceso de funciones. Solo lo que una PyME realmente usa.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        <FeatureCard
-                            icon={FileText}
-                            title="Cotizaciones profesionales"
-                            description="Crea, envía y haz seguimiento. PDF con tu marca y folio automático. Tus clientes te ven serio."
-                        />
+                    {/* Bento grid — primera card ocupa 2 de 3 columnas */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
+                        {/* ── Card hero: Cotizaciones — oscura, 2 columnas ── */}
+                        <div className="sm:col-span-2 group relative overflow-hidden p-7 bg-slate-950 rounded-2xl">
+                            {/* decoración esquina */}
+                            <div className="absolute top-0 right-0 w-56 h-56 bg-gradient-to-bl from-blue-600/20 via-indigo-600/10 to-transparent pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-violet-600/10 to-transparent pointer-events-none" />
+
+                            <div className="relative">
+                                <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center mb-5">
+                                    <FileText className="w-5 h-5 text-blue-400" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Cotizaciones profesionales</h3>
+                                <p className="text-slate-400 text-sm leading-relaxed mb-5 max-w-sm">
+                                    Crea, envía y haz seguimiento. PDF con tu marca y folio automático. Tus clientes te ven serio.
+                                </p>
+                                {/* Mini preview placeholder */}
+                                <div className="w-full h-20 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                                    <span className="text-xs text-slate-600 font-medium">Preview PDF · Próximamente</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ── Card 2: Catálogo — tono acento ── */}
                         <FeatureCard
                             icon={Globe}
                             title="Catálogo público online"
                             description="Tu vitrina con productos, precios y fotos. Tus clientes te escriben directo por WhatsApp al ver lo que quieren."
+                            accent
                         />
+
+                        {/* ── Card 3, 4, 5 — cards normales ── */}
                         <FeatureCard
                             icon={Users}
                             title="Gestión de clientes"
@@ -269,21 +317,23 @@ export default function LandingPage() {
                             title="Dashboard de gestión"
                             description="Pipeline de cotizaciones, tasa de aceptación, alertas de vencimiento. Tu negocio de un vistazo."
                         />
-                        {/* Sexta card — CTA */}
+
+                        {/* ── CTA banner — ancho completo ── */}
                         <a
                             href={WHATSAPP_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group p-6 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 rounded-2xl shadow-lg shadow-blue-200 flex flex-col items-start justify-between hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                            className="sm:col-span-2 md:col-span-3 group flex items-center justify-between px-7 py-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 rounded-2xl shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-200 transition-all duration-200"
                         >
-                            <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center mb-4">
-                                <ArrowRight className="w-5 h-5 text-white" />
-                            </div>
                             <div>
-                                <h3 className="font-bold text-white mb-1.5">¿Quieres verlo en acción?</h3>
-                                <p className="text-sm text-blue-100 leading-relaxed">
+                                <p className="font-bold text-white text-sm">¿Quieres verlo en acción?</p>
+                                <p className="text-blue-100 text-xs mt-0.5">
                                     Escríbenos por WhatsApp y te mostramos el sistema en menos de 10 minutos.
                                 </p>
+                            </div>
+                            <div className="flex items-center gap-2 text-white font-bold text-sm ml-6 shrink-0 group-hover:translate-x-1 transition-transform duration-200">
+                                Escribir ahora
+                                <ArrowRight className="w-4 h-4" />
                             </div>
                         </a>
                     </div>
@@ -291,26 +341,26 @@ export default function LandingPage() {
             </section>
 
             {/* ── PRECIO ─────────────────────────────────────────────────── */}
-            <section id="precio" className="py-20 bg-gray-50/70">
+            <section id="precio" className="py-20 bg-stone-50">
                 <div className="max-w-lg mx-auto px-4 sm:px-6">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3">
+                        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3 leading-tight">
                             Un solo plan. Todo incluido.
                         </h2>
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 text-sm">
                             Sin cobros por funciones extras ni sorpresas en la boleta.
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-3xl border-2 border-blue-100 shadow-xl shadow-blue-50 overflow-hidden">
-                        {/* Header card */}
-                        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-8 py-6 text-center">
-                            <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full uppercase tracking-wider mb-4">
+                    <div className="bg-white rounded-3xl border border-gray-200 shadow-2xl shadow-slate-200/80 overflow-hidden">
+                        {/* Header card con gradiente */}
+                        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-8 py-7 text-center">
+                            <span className="inline-block border border-white/30 px-3 py-1 text-[10px] font-bold text-white uppercase tracking-[0.12em] mb-5">
                                 Lanzamiento — primeros 100 inscritos
                             </span>
-                            <div className="flex items-baseline justify-center gap-3 mb-2">
-                                <span className="text-blue-200 line-through text-lg font-medium">$15.000/mes</span>
-                                <span className="text-4xl font-black text-white">$10.000</span>
+                            <div className="flex items-baseline justify-center gap-3 mb-3">
+                                <span className="text-blue-300 line-through text-base font-medium">$15.000/mes</span>
+                                <span className="text-4xl font-extrabold text-white">$10.000</span>
                                 <span className="text-blue-200 text-sm font-medium">/mes</span>
                             </div>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-400/20 border border-green-300/30 rounded-full">
@@ -319,7 +369,7 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        {/* Body card */}
+                        {/* Body */}
                         <div className="px-8 py-8">
                             <ul className="space-y-3 mb-8">
                                 <CheckItem text="Cotizaciones ilimitadas con PDF" />
@@ -335,7 +385,7 @@ export default function LandingPage() {
                                 href={WHATSAPP_URL}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block w-full text-center px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-blue-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                className="block w-full text-center px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-full shadow-lg shadow-blue-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
                             >
                                 Empezar gratis
                             </a>
@@ -349,36 +399,36 @@ export default function LandingPage() {
             </section>
 
             {/* ── CONTACTO ───────────────────────────────────────────────── */}
-            <section id="contacto" className="py-20">
+            <section id="contacto" className="py-20 bg-white">
                 <div className="max-w-xl mx-auto px-4 sm:px-6">
                     <div className="text-center mb-10">
-                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3">
-                            ¿Prefieres que te contactemos?
+                        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3 leading-tight">
+                            ¿Prefieres que<br />te contactemos?
                         </h2>
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 text-sm">
                             Déjanos tus datos y te activamos tu cuenta en menos de 24 horas.
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-3xl border border-gray-100 shadow-lg p-8">
+                    {/* Contenedor form — cálido, no plano blanco */}
+                    <div className="bg-stone-50 rounded-3xl border border-stone-200 p-8">
                         <ContactForm />
                     </div>
                 </div>
             </section>
 
             {/* ── FOOTER ─────────────────────────────────────────────────── */}
-            <footer className="bg-slate-900 text-slate-400">
+            <footer className="bg-slate-950 text-slate-400">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                        {/* Logo en oscuro */}
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-500 flex items-center justify-center shadow-lg">
-                                <span className="text-white font-black italic text-sm">F</span>
+                        {/* Logo */}
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-500 flex items-center justify-center">
+                                <span className="text-white font-extrabold italic text-sm">F</span>
                             </div>
-                            <span className="text-lg font-black italic text-white tracking-tight">FLUXU</span>
+                            <span className="text-lg font-extrabold italic text-white tracking-tight">FLUXU</span>
                         </div>
 
-                        {/* Links */}
                         <div className="flex items-center gap-6 text-sm">
                             <Link href="/terminos" className="hover:text-white transition-colors">
                                 Términos

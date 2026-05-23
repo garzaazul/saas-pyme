@@ -6,6 +6,11 @@ import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 // Reemplaza este endpoint con el tuyo en https://formspree.io
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
 
+const inputClass =
+    "w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all";
+
+const labelClass = "block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5";
+
 export function ContactForm() {
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [errorMsg, setErrorMsg] = useState("");
@@ -47,18 +52,20 @@ export function ContactForm() {
                 </div>
                 <div>
                     <p className="text-lg font-bold text-gray-900">¡Recibido!</p>
-                    <p className="text-sm text-gray-500 mt-1">Te contactamos en menos de 24 horas para activar tu cuenta.</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Te contactamos en menos de 24 horas para activar tu cuenta.
+                    </p>
                 </div>
             </div>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                    <label htmlFor="name" className="text-sm font-semibold text-gray-700">
-                        Nombre <span className="text-red-500">*</span>
+        <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label htmlFor="name" className={labelClass}>
+                        Nombre <span className="text-red-400 normal-case tracking-normal font-bold">*</span>
                     </label>
                     <input
                         id="name"
@@ -66,12 +73,12 @@ export function ContactForm() {
                         type="text"
                         required
                         placeholder="Juan Pérez"
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className={inputClass}
                     />
                 </div>
-                <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-sm font-semibold text-gray-700">
-                        Email <span className="text-red-500">*</span>
+                <div>
+                    <label htmlFor="email" className={labelClass}>
+                        Email <span className="text-red-400 normal-case tracking-normal font-bold">*</span>
                     </label>
                     <input
                         id="email"
@@ -79,27 +86,28 @@ export function ContactForm() {
                         type="email"
                         required
                         placeholder="juan@ejemplo.cl"
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className={inputClass}
                     />
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                    <label htmlFor="phone" className="text-sm font-semibold text-gray-700">
-                        Teléfono <span className="text-gray-400 font-normal">(opcional)</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label htmlFor="phone" className={labelClass}>
+                        Teléfono{" "}
+                        <span className="text-gray-400 normal-case tracking-normal font-normal">(opcional)</span>
                     </label>
                     <input
                         id="phone"
                         name="phone"
                         type="tel"
                         placeholder="+56 9 1234 5678"
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className={inputClass}
                     />
                 </div>
-                <div className="space-y-1.5">
-                    <label htmlFor="business" className="text-sm font-semibold text-gray-700">
-                        Nombre de tu negocio <span className="text-red-500">*</span>
+                <div>
+                    <label htmlFor="business" className={labelClass}>
+                        Tu negocio <span className="text-red-400 normal-case tracking-normal font-bold">*</span>
                     </label>
                     <input
                         id="business"
@@ -107,7 +115,7 @@ export function ContactForm() {
                         type="text"
                         required
                         placeholder="Mi Empresa SpA"
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className={inputClass}
                     />
                 </div>
             </div>
@@ -122,7 +130,7 @@ export function ContactForm() {
             <button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-blue-200 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold text-sm rounded-full transition-all shadow-lg shadow-blue-100 hover:scale-[1.02] active:scale-[0.98]"
             >
                 {status === "loading" ? (
                     <>
