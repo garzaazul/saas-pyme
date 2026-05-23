@@ -450,6 +450,17 @@ export default function LandingPage() {
                     <div className="mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-600 space-y-1.5">
                         <p>© 2026 FLUXU. Todos los derechos reservados.</p>
                         <p>Hecho en Chile 🇨🇱 para PyMEs y emprendimientos.</p>
+                        <p>
+                            Desarrollado por{" "}
+                            <a
+                                href="https://www.agenciabestia.cl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-slate-500 hover:text-white transition-colors font-medium"
+                            >
+                                Agencia bestIA
+                            </a>
+                        </p>
                     </div>
                 </div>
             </footer>
