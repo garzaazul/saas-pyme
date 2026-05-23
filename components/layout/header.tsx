@@ -60,12 +60,9 @@ export function Header({
                             variant="ghost"
                             className="flex items-center gap-3 px-1 py-1 hover:bg-transparent group"
                         >
-                            <div className="flex flex-col items-end hidden md:flex">
+                            <div className="hidden md:flex">
                                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100 leading-none">
                                     {userName || "Usuario"}
-                                </span>
-                                <span className="text-[10px] font-medium text-gray-400 mt-0.5">
-                                    Pro Plan
                                 </span>
                             </div>
                             <Avatar className="w-9 h-9 border-2 border-white dark:border-slate-800 shadow-sm group-hover:border-primary/50 transition-all">

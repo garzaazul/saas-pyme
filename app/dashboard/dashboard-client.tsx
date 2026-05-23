@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { formatCLP } from "@/lib/currency";
-import { QuoteDashboardKPIs } from "@/app/actions/dashboard";
+import { QuoteDashboardKPIs, getQuoteDashboardKPIs } from "@/app/actions/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
     Table,
     TableBody,
@@ -24,6 +31,8 @@ import {
     Sparkles,
     FileText,
     CheckCircle2,
+    ChevronDown,
+    Loader2,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -43,6 +52,12 @@ interface QuoteRow {
 interface DashboardClientProps {
     kpis: QuoteDashboardKPIs;
     quotes: QuoteRow[];
+}
+
+interface MonthOption {
+    year: number;
+    month: number; // 0-indexed
+    label: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -71,15 +86,39 @@ function formatDate(dateStr: string) {
     });
 }
 
+/** Genera las últimas N meses como opciones de selector */
+function buildMonthOptions(count = 12): MonthOption[] {
+    const options: MonthOption[] = [];
+    const now = new Date();
+    for (let i = 0; i < count; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        options.push({
+            year: d.getFullYear(),
+            month: d.getMonth(),
+            label: d.toLocaleDateString("es-CL", { month: "long", year: "numeric" }),
+        });
+    }
+    return options;
+}
+
 // ---------------------------------------------------------------------------
 // Componente principal
 // ---------------------------------------------------------------------------
 
-export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
-    const currentMonth = new Date().toLocaleDateString("es-CL", {
-        month: "short",
-        year: "numeric",
-    });
+export function DashboardClient({ kpis: initialKpis, quotes }: DashboardClientProps) {
+    const monthOptions = buildMonthOptions(12);
+    const [selected, setSelected] = useState<MonthOption>(monthOptions[0]);
+    const [kpis, setKpis] = useState<QuoteDashboardKPIs>(initialKpis);
+    const [isPending, startTransition] = useTransition();
+
+    function handleMonthChange(option: MonthOption) {
+        if (option.year === selected.year && option.month === selected.month) return;
+        setSelected(option);
+        startTransition(async () => {
+            const fresh = await getQuoteDashboardKPIs(option.year, option.month);
+            setKpis(fresh);
+        });
+    }
 
     return (
         <div className="space-y-10 pb-10">
@@ -95,13 +134,45 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                    <Button
-                        variant="outline"
-                        className="gap-2 bg-white dark:bg-slate-900 shadow-sm border-gray-200 dark:border-slate-800"
-                    >
-                        <Calendar className="w-4 h-4 text-primary" />
-                        <span className="font-semibold text-sm capitalize">{currentMonth}</span>
-                    </Button>
+
+                    {/* ── Selector de mes ── */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="gap-2 bg-white dark:bg-slate-900 shadow-sm border-gray-200 dark:border-slate-800 capitalize min-w-[160px] justify-between"
+                                disabled={isPending}
+                            >
+                                <div className="flex items-center gap-2">
+                                    {isPending
+                                        ? <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                                        : <Calendar className="w-4 h-4 text-gray-400" />
+                                    }
+                                    <span className="font-semibold text-sm capitalize">
+                                        {selected.label}
+                                    </span>
+                                </div>
+                                <ChevronDown className="w-3.5 h-3.5 text-gray-400 ml-1" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 max-h-72 overflow-y-auto">
+                            {monthOptions.map((opt, i) => (
+                                <DropdownMenuItem
+                                    key={`${opt.year}-${opt.month}`}
+                                    onClick={() => handleMonthChange(opt)}
+                                    className={cn(
+                                        "capitalize cursor-pointer text-sm",
+                                        opt.year === selected.year && opt.month === selected.month
+                                            ? "font-bold text-[#091226] bg-[#091226]/5"
+                                            : "text-gray-700"
+                                    )}
+                                >
+                                    {i === 0 ? `${opt.label} (actual)` : opt.label}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <Link href="/dashboard/quotes">
                         <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 h-10 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 gap-2">
                             <Plus className="w-4 h-4" />
@@ -112,7 +183,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
             </div>
 
             {/* ── KPI Cards ──────────────────────────────────────────────── */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className={cn("grid gap-6 md:grid-cols-2 lg:grid-cols-4 transition-opacity duration-200", isPending && "opacity-50")}>
 
                 {/* Pipeline activo */}
                 <Card className="relative overflow-hidden group card-hover border-none premium-shadow bg-white dark:bg-slate-900">
@@ -139,7 +210,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                     </CardContent>
                 </Card>
 
-                {/* Aprobadas este mes */}
+                {/* Aprobadas ese mes */}
                 <Card className="relative overflow-hidden group card-hover border-none premium-shadow bg-white dark:bg-slate-900">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <CheckCircle2 className="w-24 h-24 text-green-600" />
@@ -147,7 +218,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                     <CardContent className="pt-8">
                         <div className="flex flex-col gap-1">
                             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                Aprobadas este mes
+                                Aprobadas · {selected.label.split(" ")[0]}
                             </span>
                             <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-none">
                                 {kpis.approvedThisMonth}
@@ -192,7 +263,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                     </CardContent>
                 </Card>
 
-                {/* Por vencer en 7 días */}
+                {/* Por vencer en 7 días — no cambia con el filtro */}
                 <Card className="relative overflow-hidden group card-hover border-none premium-shadow bg-white dark:bg-slate-900">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Clock className="w-24 h-24 text-orange-500" />
@@ -224,7 +295,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
             </div>
 
             {/* ── Main Grid ──────────────────────────────────────────────── */}
-            <div className="grid gap-8 lg:grid-cols-3">
+            <div className={cn("grid gap-8 lg:grid-cols-3 transition-opacity duration-200", isPending && "opacity-50")}>
 
                 {/* ── Columna izquierda (2/3) ──────────────────────────── */}
                 <div className="lg:col-span-2 space-y-8">
@@ -235,7 +306,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="text-xl font-bold tracking-tight">
-                                        Conversión del Mes
+                                        Conversión · <span className="capitalize">{selected.label}</span>
                                     </CardTitle>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                         De cotizadas a aprobadas
@@ -256,7 +327,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider italic">
-                                        EMITIDAS ESTE MES
+                                        EMITIDAS
                                     </span>
                                     <span className="text-sm font-black italic">{kpis.quotesThisMonth}</span>
                                 </div>
@@ -291,7 +362,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                         </CardContent>
                     </Card>
 
-                    {/* Últimas cotizaciones */}
+                    {/* Últimas cotizaciones — siempre las 5 más recientes */}
                     <Card className="border-none premium-shadow bg-white dark:bg-slate-900">
                         <CardHeader className="p-8 pb-2">
                             <div className="flex items-center justify-between">
@@ -425,7 +496,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                             {/* Resumen del mes */}
                             <div className="mt-8 pt-6 border-t border-white/10">
                                 <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">
-                                    RESUMEN DEL MES
+                                    RESUMEN · <span className="capitalize">{selected.label.split(" ")[0]}</span>
                                 </span>
                                 <div className="mt-4 space-y-3">
                                     <div className="flex justify-between items-center">

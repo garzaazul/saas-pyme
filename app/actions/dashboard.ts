@@ -293,9 +293,14 @@ const EMPTY_QUOTE_KPIS: QuoteDashboardKPIs = {
 
 /**
  * KPIs orientados a cotizaciones para el plan de entrada.
+ * Acepta year/month opcionales (0-indexed) para filtrar por mes específico.
+ * Por defecto usa el mes actual.
  * Corre todas las queries en paralelo con Promise.all.
  */
-export async function getQuoteDashboardKPIs(): Promise<QuoteDashboardKPIs> {
+export async function getQuoteDashboardKPIs(
+    year?: number,
+    month?: number,
+): Promise<QuoteDashboardKPIs> {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -312,9 +317,14 @@ export async function getQuoteDashboardKPIs(): Promise<QuoteDashboardKPIs> {
     const orgId = profile.organization_id;
 
     const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const targetYear  = year  ?? now.getFullYear();
+    const targetMonth = month ?? now.getMonth();   // 0-indexed
+    const firstDayOfMonth = new Date(targetYear, targetMonth, 1)
         .toISOString()
         .split("T")[0];
+    const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 1)
+        .toISOString()
+        .split("T")[0]; // primer día del mes siguiente = exclusivo upper bound
     const today = now.toISOString().split("T")[0];
     const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         .toISOString()
@@ -334,13 +344,14 @@ export async function getQuoteDashboardKPIs(): Promise<QuoteDashboardKPIs> {
             .eq("status", "pendiente")
             .eq("is_active", true),
 
-        // b. Mes actual: todas las cotizaciones activas creadas este mes
+        // b. Mes filtrado: todas las cotizaciones activas creadas en ese mes
         supabase
             .from("quotes")
             .select("status")
             .eq("organization_id", orgId)
             .eq("is_active", true)
-            .gte("created_at", firstDayOfMonth),
+            .gte("created_at", firstDayOfMonth)
+            .lt("created_at", lastDayOfMonth),
 
         // c. Clientes activos de la organización
         supabase
