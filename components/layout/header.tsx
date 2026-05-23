@@ -50,7 +50,7 @@ export function Header({
                 {/* Notifications */}
                 <Button variant="ghost" size="icon" className="relative hover:bg-gray-100 dark:hover:bg-slate-900 rounded-full transition-all">
                     <Bell className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:scale-110 transition-transform" />
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-blue-500 rounded-full border-2 border-white dark:border-slate-950" />
+                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#091226] rounded-full border-2 border-white dark:border-slate-950" />
                 </Button>
 
                 {/* User Menu */}
@@ -70,7 +70,7 @@ export function Header({
                             </div>
                             <Avatar className="w-9 h-9 border-2 border-white dark:border-slate-800 shadow-sm group-hover:border-primary/50 transition-all">
                                 <AvatarImage src={userAvatarUrl} alt={userName} />
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
+                                <AvatarFallback className="bg-[#091226] text-white text-xs font-bold">
                                     {initials}
                                 </AvatarFallback>
                             </Avatar>

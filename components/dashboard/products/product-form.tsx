@@ -291,7 +291,7 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1">Imágenes</label>
-                                <Badge variant="secondary" className="text-[9px] font-bold uppercase tracking-tight bg-blue-50 text-blue-700 border-blue-100">
+                                <Badge variant="secondary" className="text-[9px] font-bold uppercase tracking-tight bg-[#091226]/5 text-[#091226] border-[#091226]/10">
                                     Máximo 3 imágenes
                                 </Badge>
                             </div>

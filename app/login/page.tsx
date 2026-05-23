@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Loader2 } from "lucide-react";
+import { FluxuLogo } from "@/components/fluxu-logo";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -76,10 +77,9 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
-                    <div className="mx-auto w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center mb-4">
-                        <span className="text-white font-bold text-xl">F</span>
+                    <div className="flex justify-center mb-5">
+                        <FluxuLogo variant="dark" height={36} />
                     </div>
-                    <CardTitle className="text-2xl">FLUXU</CardTitle>
                     <CardDescription>
                         Inicia sesión en tu cuenta
                     </CardDescription>
@@ -122,7 +122,7 @@ export default function LoginPage() {
 
                         <Button
                             type="submit"
-                            className="w-full bg-blue-600 hover:bg-blue-700"
+                            className="w-full bg-[#091226] hover:bg-[#0d1a33] text-white"
                             disabled={loading}
                         >
                             {loading ? (
@@ -137,7 +137,7 @@ export default function LoginPage() {
                     <div className="text-center text-sm">
                         <button
                             type="button"
-                            className="text-blue-600 hover:underline"
+                            className="text-[#091226] hover:underline"
                             onClick={handleForgotPassword}
                         >
                             ¿Olvidaste tu contraseña?

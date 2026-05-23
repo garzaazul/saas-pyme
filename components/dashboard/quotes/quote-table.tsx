@@ -54,7 +54,7 @@ interface QuoteTableProps {
 const statusConfig = {
     pendiente: { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock },
     aprobada: { label: 'Aprobada', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle2 },
-    facturada: { label: 'Facturada', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: FileText },
+    facturada: { label: 'Facturada', color: 'bg-[#091226]/10 text-[#091226] dark:bg-white/10 dark:text-[#091226]/70', icon: FileText },
     rechazada: { label: 'Rechazada', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
     vencida: { label: 'Vencida', color: 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-400', icon: Clock },
 };
@@ -111,7 +111,7 @@ export function QuoteTable({
                             <TableCell className="pl-6 py-4">
                                 <span className="font-bold text-gray-900 dark:text-white tracking-tight">#{quote.folio}</span>
                                 {quote.version > 1 && (
-                                    <Badge variant="outline" className="ml-2 text-[9px] font-black border-blue-200 text-blue-600 px-1 py-0 h-4">
+                                    <Badge variant="outline" className="ml-2 text-[9px] font-black border-[#091226]/20 text-[#091226] px-1 py-0 h-4">
                                         V{quote.version}
                                     </Badge>
                                 )}
@@ -180,7 +180,7 @@ export function QuoteTable({
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-gray-50 dark:bg-slate-800" />
                                                 <DropdownMenuItem onClick={() => onEdit(quote)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">
-                                                    <Edit className="w-3.5 h-3.5 text-blue-500" />
+                                                    <Edit className="w-3.5 h-3.5 text-[#091226]" />
                                                     Editar Cotización
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => onDuplicate(quote.id)} className="rounded-lg font-bold text-xs py-2.5 cursor-pointer gap-2">

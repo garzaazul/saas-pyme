@@ -2,28 +2,13 @@
 import Link from "next/link";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ArrowLeft } from "lucide-react";
+import { FluxuLogo } from "@/components/fluxu-logo";
 
 const jakarta = Plus_Jakarta_Sans({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700", "800"],
     display: "swap",
 });
-
-// ---------------------------------------------------------------------------
-// Logo (replicado de landing — Server Component, no importable sin extraer)
-// ---------------------------------------------------------------------------
-function FluxuLogo() {
-    return (
-        <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center shadow-md shadow-blue-200">
-                <span className="text-white font-extrabold italic text-sm">F</span>
-            </div>
-            <span className="text-xl font-extrabold italic tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                FLUXU
-            </span>
-        </div>
-    );
-}
 
 // ---------------------------------------------------------------------------
 // Sección de artículo legal
@@ -36,7 +21,7 @@ function Article({ number, title, children }: {
     return (
         <section className="space-y-3">
             <h2 className="text-lg font-bold text-gray-900">
-                <span className="text-blue-600 mr-2">{number}.</span>
+                <span className="text-[#091226] mr-2">{number}.</span>
                 {title}
             </h2>
             <div className="text-gray-600 leading-relaxed space-y-2 pl-5 border-l-2 border-gray-100">
@@ -57,7 +42,7 @@ export default function TerminosPage() {
             <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <Link href="/">
-                        <FluxuLogo />
+                        <FluxuLogo variant="dark" height={28} />
                     </Link>
                     <Link
                         href="/"
@@ -74,7 +59,7 @@ export default function TerminosPage() {
 
                 {/* Encabezado del documento */}
                 <div className="mb-12 pb-8 border-b border-gray-100">
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-600 mb-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#091226] mb-3">
                         Documento legal
                     </p>
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight mb-3">
@@ -86,7 +71,7 @@ export default function TerminosPage() {
                 </div>
 
                 {/* Introducción */}
-                <div className="mb-10 p-5 bg-blue-50 rounded-2xl border border-blue-100">
+                <div className="mb-10 p-5 bg-[#091226]/5 rounded-2xl border border-[#091226]/10">
                     <p className="text-sm text-gray-700 leading-relaxed">
                         FLUXU es un servicio de gestión comercial operado por <strong>Carlos Garcés Aguilar</strong> (en adelante, "nosotros" o "FLUXU"). Al acceder y utilizar este servicio, el usuario (en adelante, "usuario" o "cliente") acepta íntegramente los presentes Términos y Condiciones. Si no estás de acuerdo con ellos, te pedimos que no uses el servicio.
                     </p>
@@ -196,7 +181,7 @@ export default function TerminosPage() {
                             Para consultas, reclamos o solicitudes relacionadas con estos términos, puedes escribirnos a:{" "}
                             <a
                                 href="mailto:carlosgarcesaguilar@gmail.com"
-                                className="text-blue-600 font-medium hover:underline"
+                                className="text-[#091226] font-medium hover:underline"
                             >
                                 carlosgarcesaguilar@gmail.com
                             </a>
@@ -212,7 +197,7 @@ export default function TerminosPage() {
                     </p>
                     <Link
                         href="/privacidad"
-                        className="text-sm text-blue-600 font-medium hover:underline"
+                        className="text-sm text-[#091226] font-medium hover:underline"
                     >
                         Política de Privacidad →
                     </Link>
@@ -220,7 +205,7 @@ export default function TerminosPage() {
             </main>
 
             {/* Footer */}
-            <footer className="bg-slate-950 text-slate-500">
+            <footer className="bg-[#091226] text-slate-400">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
                     <span>© 2026 FLUXU. Todos los derechos reservados.</span>
                     <div className="flex items-center gap-5">

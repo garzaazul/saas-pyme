@@ -165,7 +165,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
                         <div className="text-2xl font-black tracking-tight leading-none">
                             {categories.length}
                         </div>
-                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Listado maestro</p>
+                        <p className="text-xs font-bold text-[#091226] mt-2 italic shadow-sm bg-[#091226]/5 dark:bg-white/10 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Listado maestro</p>
                     </CardContent>
                 </Card>
 

@@ -107,20 +107,20 @@ export function ClientForm({ client, onSuccess, onCancel }: ClientFormProps) {
                         {formData.rut === "1-1" ? "Identificador Genérico" : "RUT Empresa"}
                     </label>
                     {errors.rut && <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">RUT Inválido</span>}
-                    {formData.rut === "1-1" && <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">Inscripción Rápida</span>}
+                    {formData.rut === "1-1" && <span className="text-[10px] text-[#091226] font-bold uppercase tracking-tighter">Inscripción Rápida</span>}
                 </div>
                 <Input
                     placeholder="76.000.000-0 o 1-1"
                     className={cn(
                         "rounded-xl border-none bg-gray-50 dark:bg-slate-800 h-11 font-mono transition-all",
                         errors.rut && "ring-2 ring-red-500/50 bg-red-50 dark:bg-red-900/10",
-                        formData.rut === "1-1" && "ring-2 ring-blue-500/50 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400"
+                        formData.rut === "1-1" && "ring-2 ring-[#091226]/30 bg-[#091226]/5 dark:bg-white/5 text-[#091226] dark:text-[#091226]/70"
                     )}
                     value={formData.rut}
                     onChange={handleRutChange}
                 />
                 {formData.rut === "1-1" && (
-                    <p className="text-[10px] text-blue-500 font-medium pl-1 mt-1">
+                    <p className="text-[10px] text-[#091226] font-medium pl-1 mt-1">
                         * Solo el nombre o razón social es obligatorio para clientes genéricos.
                     </p>
                 )}

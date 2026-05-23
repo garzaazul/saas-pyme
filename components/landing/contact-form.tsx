@@ -7,7 +7,7 @@ import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
 
 const inputClass =
-    "w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all";
+    "w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#091226] focus:border-transparent transition-all";
 
 const labelClass = "block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5";
 
@@ -127,10 +127,31 @@ export function ContactForm() {
                 </div>
             )}
 
+            {/* Checkbox legal — required */}
+            <div className="flex items-start gap-3">
+                <input
+                    type="checkbox"
+                    id="terms"
+                    name="terms"
+                    required
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-[#091226] focus:ring-[#091226] accent-[#091226] cursor-pointer"
+                />
+                <label htmlFor="terms" className="text-xs text-gray-500 leading-relaxed cursor-pointer">
+                    Acepto los{" "}
+                    <a href="/terminos" target="_blank" className="text-[#091226] hover:underline font-medium">
+                        Términos y Condiciones
+                    </a>{" "}
+                    y la{" "}
+                    <a href="/privacidad" target="_blank" className="text-[#091226] hover:underline font-medium">
+                        Política de Privacidad
+                    </a>
+                </label>
+            </div>
+
             <button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold text-sm rounded-full transition-all shadow-lg shadow-blue-100 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[#091226] hover:bg-[#0d1a33] disabled:opacity-60 text-white font-bold text-sm rounded-full transition-all shadow-lg shadow-slate-200 hover:scale-[1.02] active:scale-[0.98]"
             >
                 {status === "loading" ? (
                     <>

@@ -410,7 +410,7 @@ export function QuoteForm({
                                 >
                                     {isManualMode ? (
                                         <>
-                                            <Package className="w-3 h-3 text-blue-500" /> Usar Catálogo
+                                            <Package className="w-3 h-3 text-[#091226]" /> Usar Catálogo
                                         </>
                                     ) : (
                                         <>
@@ -646,8 +646,8 @@ export function QuoteForm({
 
                         {/* 5. Read-only Transfer Details */}
                         {organization?.transfer_details && (
-                            <div className="p-6 rounded-3xl bg-blue-50/30 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-3 flex items-center gap-2">
+                            <div className="p-6 rounded-3xl bg-[#091226]/5/30 dark:bg-white/5 border border-[#091226]/10/50 dark:border-white/10">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-[#091226] mb-3 flex items-center gap-2">
                                     <FileText className="w-3.5 h-3.5" /> Datos de Transferencia (Cierre de Venta)
                                 </h4>
                                 <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line font-medium leading-relaxed italic">

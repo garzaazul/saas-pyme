@@ -24,6 +24,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { FluxuLogo } from "@/components/fluxu-logo";
 
 interface SidebarProps {
     collapsed: boolean;
@@ -50,28 +51,24 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <TooltipProvider delayDuration={0}>
             <aside
                 className={cn(
-                    "flex flex-col h-screen bg-slate-950 border-r border-slate-800/60 transition-all duration-300 z-50 shadow-2xl",
+                    "flex flex-col h-screen bg-[#091226] border-r border-white/5 transition-all duration-300 z-50 shadow-2xl",
                     collapsed ? "w-16" : "w-64"
                 )}
             >
                 {/* Logo Section */}
-                <div className="flex items-center h-16 px-5 border-b border-slate-800/60 bg-slate-950/50 backdrop-blur-xl">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/40">
-                            <span className="text-white font-black text-lg tracking-tighter">F</span>
+                <div className="flex items-center h-16 px-5 border-b border-white/5 bg-[#091226]/80 backdrop-blur-xl">
+                    {collapsed ? (
+                        /* Modo colapsado: solo la "F" del logo (crop del logo) */
+                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                            <span className="text-white font-black text-lg italic">F</span>
                         </div>
-                        {!collapsed && (
-                            <div className="flex flex-col">
-                                <span className="font-black text-white tracking-tighter leading-none text-xl italic">FLUXU</span>
-                                {/* TODO: nombre del plan — actualizar cuando se defina */}
-                                <span className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400 mt-1.5 opacity-80">Pro</span>
-                            </div>
-                        )}
-                    </div>
+                    ) : (
+                        <FluxuLogo variant="white" height={28} className="max-w-[110px]" />
+                    )}
                 </div>
 
                 {/* Navigation Section */}
-                <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto custom-scrollbar bg-slate-950">
+                <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto custom-scrollbar bg-[#091226]">
                     {navItems.map((item) => {
                         const isActive =
                             pathname === item.href ||
@@ -83,13 +80,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                 className={cn(
                                     "group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 relative overflow-hidden",
                                     isActive
-                                        ? "bg-gradient-to-r from-blue-600/20 to-indigo-600/10 text-white shadow-inner"
+                                        ? "bg-white/10 text-white shadow-inner"
                                         : "text-slate-400 hover:text-white hover:bg-white/5"
                                 )}
                             >
                                 <item.icon className={cn(
                                     "w-5 h-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-110",
-                                    isActive ? "text-blue-400" : "text-slate-500 group-hover:text-slate-300"
+                                    isActive ? "text-white" : "text-slate-500 group-hover:text-slate-300"
                                 )} />
                                 {!collapsed && (
                                     <span className={cn(
@@ -98,7 +95,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                     )}>{item.label}</span>
                                 )}
                                 {isActive && (
-                                    <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                                    <div className="absolute left-0 w-1 h-6 bg-white/80 rounded-r-full shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                                 )}
                             </Link>
                         );
@@ -119,7 +116,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 </nav>
 
                 {/* Toggle & Footer Section */}
-                <div className="p-4 border-t border-slate-800/60 bg-slate-900/40">
+                <div className="p-4 border-t border-white/5 bg-black/20">
                     <Button
                         variant="ghost"
                         size="sm"

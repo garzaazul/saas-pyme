@@ -236,13 +236,13 @@ export function ClientsClient({
                         <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                             Total Clientes
                         </CardTitle>
-                        <Users className="h-4 w-4 text-blue-500" />
+                        <Users className="h-4 w-4 text-[#091226]" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-black tracking-tight leading-none">
                             {totalClients}
                         </div>
-                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Cartera activa</p>
+                        <p className="text-xs font-bold text-[#091226] mt-2 italic shadow-sm bg-[#091226]/5 dark:bg-white/10 inline-block px-2 py-0.5 rounded-full uppercase tracking-tighter">Cartera activa</p>
                     </CardContent>
                 </Card>
 
@@ -338,7 +338,7 @@ export function ClientsClient({
                                             <div className="flex items-center gap-3">
                                                 <div className="relative">
                                                     <Avatar className="w-11 h-11 border-2 border-white dark:border-slate-900 shadow-sm transition-transform group-hover:scale-110">
-                                                        <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-primary text-white font-black text-sm">
+                                                        <AvatarFallback className="bg-gradient-to-br from-[#091226] to-[#0d1a33] text-white font-black text-sm">
                                                             {getInitials(client.razon_social)}
                                                         </AvatarFallback>
                                                     </Avatar>

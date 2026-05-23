@@ -10,6 +10,11 @@ const config: Config = {
     theme: {
     	extend: {
     		colors: {
+    			brand: {
+    				DEFAULT: '#091226',
+    				hover: '#0d1a33',
+    				light: '#e8eaf0',
+    			},
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			card: {

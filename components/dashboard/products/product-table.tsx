@@ -117,7 +117,7 @@ export function ProductTable({ products, activeTab, onEdit, onRefresh }: Product
                                         {product.name}
                                     </span>
                                     {product.image_urls.length > 1 && (
-                                        <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter">
+                                        <span className="text-[9px] font-black text-[#091226] uppercase tracking-tighter">
                                             +{product.image_urls.length - 1} fotos
                                         </span>
                                     )}
@@ -150,7 +150,7 @@ export function ProductTable({ products, activeTab, onEdit, onRefresh }: Product
                                     "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black tracking-tight w-fit",
                                     product.type === "service"
                                         ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                                        : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                                        : "bg-[#091226]/10 text-[#091226] dark:bg-white/10 dark:text-[#091226]/70"
                                 )}>
                                     {product.type === "service" ? <Wrench className="w-3 h-3" /> : <Package className="w-3 h-3" />}
                                     {product.type.toUpperCase()}

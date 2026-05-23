@@ -2,28 +2,13 @@
 import Link from "next/link";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ArrowLeft } from "lucide-react";
+import { FluxuLogo } from "@/components/fluxu-logo";
 
 const jakarta = Plus_Jakarta_Sans({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700", "800"],
     display: "swap",
 });
-
-// ---------------------------------------------------------------------------
-// Logo (replicado — misma estructura que landing y términos)
-// ---------------------------------------------------------------------------
-function FluxuLogo() {
-    return (
-        <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center shadow-md shadow-blue-200">
-                <span className="text-white font-extrabold italic text-sm">F</span>
-            </div>
-            <span className="text-xl font-extrabold italic tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                FLUXU
-            </span>
-        </div>
-    );
-}
 
 // ---------------------------------------------------------------------------
 // Sección de artículo legal
@@ -36,7 +21,7 @@ function Article({ number, title, children }: {
     return (
         <section className="space-y-3">
             <h2 className="text-lg font-bold text-gray-900">
-                <span className="text-blue-600 mr-2">{number}.</span>
+                <span className="text-[#091226] mr-2">{number}.</span>
                 {title}
             </h2>
             <div className="text-gray-600 leading-relaxed space-y-2 pl-5 border-l-2 border-gray-100">
@@ -49,9 +34,9 @@ function Article({ number, title, children }: {
 // ---------------------------------------------------------------------------
 // Badge de categoría de dato
 // ---------------------------------------------------------------------------
-function DataBadge({ label, color = "blue" }: { label: string; color?: "blue" | "amber" | "slate" }) {
+function DataBadge({ label, color = "navy" }: { label: string; color?: "navy" | "amber" | "slate" }) {
     const colors = {
-        blue: "bg-blue-50 text-blue-700 border-blue-100",
+        navy: "bg-[#091226]/5 text-[#091226] border-[#091226]/10",
         amber: "bg-amber-50 text-amber-700 border-amber-100",
         slate: "bg-slate-50 text-slate-600 border-slate-200",
     };
@@ -73,7 +58,7 @@ export default function PrivacidadPage() {
             <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <Link href="/">
-                        <FluxuLogo />
+                        <FluxuLogo variant="dark" height={28} />
                     </Link>
                     <Link
                         href="/"
@@ -90,7 +75,7 @@ export default function PrivacidadPage() {
 
                 {/* Encabezado del documento */}
                 <div className="mb-12 pb-8 border-b border-gray-100">
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-600 mb-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#091226] mb-3">
                         Documento legal
                     </p>
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight mb-3">
@@ -102,7 +87,7 @@ export default function PrivacidadPage() {
                 </div>
 
                 {/* Introducción */}
-                <div className="mb-10 p-5 bg-blue-50 rounded-2xl border border-blue-100">
+                <div className="mb-10 p-5 bg-[#091226]/5 rounded-2xl border border-[#091226]/10">
                     <p className="text-sm text-gray-700 leading-relaxed">
                         En FLUXU nos tomamos en serio la privacidad de las personas. Esta Política de Privacidad describe de manera transparente cómo recopilamos, utilizamos, almacenamos y protegemos los datos personales de quienes utilizan nuestra plataforma, en cumplimiento de la <strong>Ley 19.628 sobre Protección de la Vida Privada</strong> de la República de Chile y sus modificaciones.
                     </p>
@@ -120,7 +105,7 @@ export default function PrivacidadPage() {
                             <p><strong className="text-gray-800">Rol:</strong> Operador del servicio FLUXU</p>
                             <p>
                                 <strong className="text-gray-800">Contacto:</strong>{" "}
-                                <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-blue-600 hover:underline">
+                                <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-[#091226] hover:underline">
                                     carlosgarcesaguilar@gmail.com
                                 </a>
                             </p>
@@ -134,7 +119,7 @@ export default function PrivacidadPage() {
                             {/* Bloque 1 */}
                             <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm space-y-2">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <DataBadge label="Del usuario de FLUXU" color="blue" />
+                                    <DataBadge label="Del usuario de FLUXU" color="navy" />
                                 </div>
                                 <ul className="list-disc list-outside pl-5 space-y-1 text-sm text-gray-600">
                                     <li>Nombre completo y correo electrónico de acceso.</li>
@@ -227,7 +212,7 @@ export default function PrivacidadPage() {
                         </p>
                         <p>
                             El usuario puede solicitar la eliminación anticipada de sus datos enviando un correo a{" "}
-                            <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-blue-600 hover:underline">
+                            <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-[#091226] hover:underline">
                                 carlosgarcesaguilar@gmail.com
                             </a>
                             . La eliminación se ejecuta en un plazo máximo de <strong>30 días</strong> desde la recepción de la solicitud.
@@ -247,7 +232,7 @@ export default function PrivacidadPage() {
                         </ul>
                         <p>
                             Para ejercer cualquiera de estos derechos, escríbenos a{" "}
-                            <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-blue-600 hover:underline">
+                            <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-[#091226] hover:underline">
                                 carlosgarcesaguilar@gmail.com
                             </a>
                             . Responderemos en un plazo máximo de <strong>15 días hábiles</strong>.
@@ -278,7 +263,7 @@ export default function PrivacidadPage() {
                         </p>
                         <p>
                             La versión vigente estará siempre disponible en{" "}
-                            <Link href="/privacidad" className="text-blue-600 hover:underline">
+                            <Link href="/privacidad" className="text-[#091226] hover:underline">
                                 fluxu.app/privacidad
                             </Link>
                             .
@@ -290,7 +275,7 @@ export default function PrivacidadPage() {
                             Para cualquier consulta, solicitud o reclamo relacionado con el tratamiento de tus datos personales, contáctanos en:
                         </p>
                         <div className="mt-2 p-4 bg-stone-50 rounded-xl border border-stone-200 text-sm">
-                            <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-blue-600 font-semibold hover:underline">
+                            <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-[#091226] font-semibold hover:underline">
                                 carlosgarcesaguilar@gmail.com
                             </a>
                             <p className="text-gray-500 mt-1 text-xs">Tiempo de respuesta: hasta 15 días hábiles.</p>
@@ -306,7 +291,7 @@ export default function PrivacidadPage() {
                     </p>
                     <Link
                         href="/terminos"
-                        className="text-sm text-blue-600 font-medium hover:underline"
+                        className="text-sm text-[#091226] font-medium hover:underline"
                     >
                         ← Términos y Condiciones
                     </Link>
@@ -314,7 +299,7 @@ export default function PrivacidadPage() {
             </main>
 
             {/* Footer */}
-            <footer className="bg-slate-950 text-slate-500">
+            <footer className="bg-[#091226] text-slate-400">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
                     <span>© 2026 FLUXU. Todos los derechos reservados.</span>
                     <div className="flex items-center gap-5">

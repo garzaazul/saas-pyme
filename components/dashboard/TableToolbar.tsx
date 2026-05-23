@@ -68,7 +68,7 @@ export function TableToolbar({
                                 <span className="font-bold text-xs">{tab.label}</span>
                                 <Badge
                                     variant="secondary"
-                                    className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-none font-bold text-[10px] py-0 px-1.5 h-4 min-w-[20px] justify-center"
+                                    className="bg-[#091226]/5 dark:bg-white/10 text-[#091226] dark:text-[#091226]/70 border-none font-bold text-[10px] py-0 px-1.5 h-4 min-w-[20px] justify-center"
                                 >
                                     {tab.count}
                                 </Badge>

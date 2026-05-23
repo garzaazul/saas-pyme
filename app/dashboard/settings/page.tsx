@@ -53,7 +53,7 @@ export default function SettingsPage() {
                 <Card className="premium-shadow border-none bg-white dark:bg-slate-900 overflow-hidden">
                     <CardHeader className="border-b border-gray-50 dark:border-slate-800 pb-6">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                            <div className="w-10 h-10 rounded-xl bg-[#091226]/10 dark:bg-white/10 flex items-center justify-center text-[#091226]">
                                 <Building2 className="w-5 h-5" />
                             </div>
                             <div>
@@ -149,7 +149,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Billing */}
-                <Card className="premium-shadow border-none bg-indigo-600 text-white overflow-hidden relative group">
+                <Card className="premium-shadow border-none bg-[#091226] text-white overflow-hidden relative group">
                     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                         <CreditCard className="w-32 h-32 rotate-12" />
                     </div>
@@ -171,7 +171,7 @@ export default function SettingsPage() {
                                 <p className="text-2xl font-black leading-none">$149.990 <span className="text-xs opacity-60">/mes</span></p>
                                 <p className="text-[10px] font-bold text-indigo-200 mt-2 uppercase tracking-tighter italic">Próxima renovación: 15 de Noviembre, 2024</p>
                             </div>
-                            <Button className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold rounded-xl px-8 h-11 shadow-xl">
+                            <Button className="bg-white text-[#091226] hover:bg-gray-100 font-bold rounded-xl px-8 h-11 shadow-xl">
                                 Gestionar Facturación
                             </Button>
                         </div>

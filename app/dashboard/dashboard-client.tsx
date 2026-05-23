@@ -53,7 +53,7 @@ const STATUS_STYLES: Record<string, string> = {
     pendiente:  "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
     aprobada:   "bg-green-100  text-green-700  dark:bg-green-900/30  dark:text-green-400",
     rechazada:  "bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400",
-    facturada:  "bg-blue-100   text-blue-700   dark:bg-blue-900/30   dark:text-blue-400",
+    facturada:  "bg-[#091226]/10 text-[#091226] dark:bg-white/10 dark:text-white/80",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -117,7 +117,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                 {/* Pipeline activo */}
                 <Card className="relative overflow-hidden group card-hover border-none premium-shadow bg-white dark:bg-slate-900">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <TrendingUp className="w-24 h-24 text-blue-600" />
+                        <TrendingUp className="w-24 h-24 text-[#091226]" />
                     </div>
                     <CardContent className="pt-8">
                         <div className="flex flex-col gap-1">
@@ -129,8 +129,8 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                             </h3>
                         </div>
                         <div className="mt-6 flex items-center justify-between">
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
-                                <TrendingUp className="w-5 h-5 text-blue-600" />
+                            <div className="w-10 h-10 rounded-xl bg-[#091226]/8 dark:bg-white/10 flex items-center justify-center">
+                                <TrendingUp className="w-5 h-5 text-[#091226]" />
                             </div>
                             <span className="text-xs font-semibold text-gray-400 italic">
                                 {kpis.pipelineCount} pendientes
@@ -262,7 +262,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                                 </div>
                                 <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-4 relative shadow-inner overflow-hidden">
                                     <div
-                                        className="bg-gradient-to-r from-blue-600 to-indigo-500 h-full rounded-full transition-all duration-1000 ease-out shadow-lg"
+                                        className="bg-[#091226] h-full rounded-full transition-all duration-1000 ease-out shadow-lg"
                                         style={{ width: kpis.quotesThisMonth > 0 ? "100%" : "0%" }}
                                     >
                                         <div className="absolute inset-0 bg-white/10 animate-pulse" />
@@ -424,7 +424,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
 
                             {/* Resumen del mes */}
                             <div className="mt-8 pt-6 border-t border-white/10">
-                                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                                <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">
                                     RESUMEN DEL MES
                                 </span>
                                 <div className="mt-4 space-y-3">
@@ -434,7 +434,7 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-slate-400">Cotizaciones emitidas</span>
-                                        <span className="font-black text-blue-400">{kpis.quotesThisMonth}</span>
+                                        <span className="font-black text-white/90">{kpis.quotesThisMonth}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-slate-400">Pipeline pendiente</span>
@@ -446,13 +446,13 @@ export function DashboardClient({ kpis, quotes }: DashboardClientProps) {
                     </Card>
 
                     {/* Clientes quick stat */}
-                    <Card className="border-none premium-shadow bg-blue-600 text-white overflow-hidden group relative">
+                    <Card className="border-none premium-shadow bg-[#091226] text-white overflow-hidden group relative">
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
                             <Users className="w-20 h-20" />
                         </div>
                         <CardContent className="p-8">
                             <h4 className="font-black text-lg">Clientes</h4>
-                            <p className="text-blue-100 text-xs font-medium mt-1">
+                            <p className="text-white/70 text-xs font-medium mt-1">
                                 {kpis.totalClients > 0
                                     ? `Tienes ${kpis.totalClients} cliente${kpis.totalClients > 1 ? "s" : ""} activo${kpis.totalClients > 1 ? "s" : ""}.`
                                     : "Aún no tienes clientes registrados."}

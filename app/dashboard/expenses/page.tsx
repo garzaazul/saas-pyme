@@ -145,7 +145,7 @@ export default function ExpensesPage() {
                             {/* UF Toggle */}
                             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                                    <div className="w-8 h-8 rounded-lg bg-[#091226]/10 dark:bg-white/10 flex items-center justify-center text-[#091226]">
                                         <Receipt className="w-4 h-4" />
                                     </div>
                                     <span className="text-sm font-bold">Ingresar en UF</span>
@@ -239,7 +239,7 @@ export default function ExpensesPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="premium-shadow border-none bg-indigo-600 text-white overflow-hidden group">
+                <Card className="premium-shadow border-none bg-[#091226] text-white overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-[10px] font-black uppercase tracking-widest text-indigo-100">
                             Valor UF Actual

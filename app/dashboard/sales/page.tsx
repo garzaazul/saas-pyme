@@ -191,11 +191,11 @@ export default function SalesPage() {
                         <CardTitle className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                             Facturas Emitidas
                         </CardTitle>
-                        <FileText className="h-4 w-4 text-blue-500" />
+                        <FileText className="h-4 w-4 text-[#091226]" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-black tracking-tight leading-none">12</div>
-                        <p className="text-xs font-bold text-blue-600 mt-2 italic shadow-sm bg-blue-50 dark:bg-blue-900/20 inline-block px-2 py-0.5 rounded-full">Formalidad: 85%</p>
+                        <p className="text-xs font-bold text-[#091226] mt-2 italic shadow-sm bg-[#091226]/5 dark:bg-white/10 inline-block px-2 py-0.5 rounded-full">Formalidad: 85%</p>
                     </CardContent>
                 </Card>
 

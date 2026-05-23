@@ -46,7 +46,7 @@ export function MobileMenu() {
                         <Link
                             href="/login"
                             onClick={handleNavClick}
-                            className="block w-full text-center py-3 px-5 text-sm font-bold text-blue-600 border border-blue-200 rounded-full hover:bg-blue-50 transition-colors"
+                            className="block w-full text-center py-3 px-5 text-sm font-bold text-[#091226] border border-[#091226]/20 rounded-full hover:bg-[#091226]/5 transition-colors"
                         >
                             Iniciar sesión
                         </Link>

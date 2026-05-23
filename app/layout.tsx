@@ -5,8 +5,8 @@ import { Toaster } from "sonner";
 import { getProfile } from "@/app/actions/auth";
 
 export const metadata: Metadata = {
-    title: "FLUXU - Gestión Operativa",
-    description: "Sistema de gestión operativa para Pymes",
+    title: "FLUXU — Gestión comercial para PyMEs chilenas",
+    description: "El sistema de gestión comercial para PyMEs y emprendimientos en Chile. Cotizaciones, catálogo, clientes — todo en un solo lugar.",
 };
 
 export default async function RootLayout({

@@ -15,8 +15,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Brand: Modern Indigo-Blue */
-    --primary: 221 83% 53%;
+    /* Brand: FLUXU Navy #091226 */
+    --primary: 221 62% 9%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -33,7 +33,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    --ring: 221 62% 9%;
 
     --radius: 0.75rem;
     /* More modern rounded corners */
