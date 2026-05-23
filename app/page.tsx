@@ -16,6 +16,7 @@ import {
 import { MobileMenu } from "@/components/landing/mobile-menu";
 import { ContactForm } from "@/components/landing/contact-form";
 import { FluxuLogo } from "@/components/fluxu-logo";
+import { HeroCarousel } from "@/components/landing/hero-carousel";
 
 // ── Fuente display — carácter sin instalación adicional ─────────────────────
 const jakarta = Plus_Jakarta_Sans({
@@ -195,21 +196,13 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        {/* ─ Columna derecha — mockup ─ */}
+                        {/* ─ Columna derecha — carrusel ─ */}
                         <div className="order-first lg:order-last">
                             <div className="relative">
                                 {/* Blob decorativo detrás */}
                                 <div className="absolute -inset-4 bg-gradient-to-br from-[#091226]/10 via-[#091226]/5 to-[#091226]/10 rounded-3xl blur-2xl opacity-60 pointer-events-none" />
-                                <div className="relative aspect-[4/3] w-full rounded-2xl bg-white border border-gray-200 shadow-2xl shadow-slate-200/60 flex flex-col items-center justify-center gap-3 overflow-hidden">
-                                    {/* Mini header bar simulado */}
-                                    <div className="absolute top-0 left-0 right-0 h-8 bg-gray-50 border-b border-gray-100 flex items-center px-4 gap-1.5">
-                                        <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                                        <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                                        <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                                    </div>
-                                    <LayoutDashboard className="w-10 h-10 text-[#091226]/20 mt-6" />
-                                    <p className="text-sm font-medium text-gray-400">Captura del dashboard</p>
-                                    <p className="text-xs text-gray-300">Próximamente</p>
+                                <div className="relative">
+                                    <HeroCarousel />
                                 </div>
                             </div>
                         </div>
@@ -274,9 +267,13 @@ export default function LandingPage() {
                                 <p className="text-slate-400 text-sm leading-relaxed mb-5 max-w-sm">
                                     Crea, envía y haz seguimiento. PDF con tu marca y folio automático. Tus clientes te ven serio.
                                 </p>
-                                {/* Mini preview placeholder */}
-                                <div className="w-full h-20 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                                    <span className="text-xs text-slate-600 font-medium">Preview PDF · Próximamente</span>
+                                {/* Preview cotizaciones */}
+                                <div className="w-full rounded-xl overflow-hidden border border-white/10 shadow-lg">
+                                    <img
+                                        src="/brand/fluxu-cotizaciones.png"
+                                        alt="Vista del módulo de cotizaciones FLUXU"
+                                        className="w-full h-auto object-cover object-top"
+                                    />
                                 </div>
                             </div>
                         </div>
