@@ -169,8 +169,8 @@ export default function LandingPage() {
 
                             {/* Precio inline */}
                             <div className="flex flex-wrap items-center gap-2.5 mb-8">
-                                <span className="text-gray-400 line-through text-sm font-medium">$15.000/mes</span>
-                                <span className="text-2xl font-extrabold text-[#091226]">$10.000/mes</span>
+                                <span className="text-gray-400 line-through text-sm font-medium">$14.900/mes</span>
+                                <span className="text-2xl font-extrabold text-[#091226]">$9.900/mes</span>
                                 <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200 uppercase tracking-wide">
                                     Primer mes gratis
                                 </span>
@@ -384,8 +384,8 @@ export default function LandingPage() {
                                 Lanzamiento — primeros 100 inscritos
                             </span>
                             <div className="flex items-baseline justify-center gap-3 mb-3">
-                                <span className="text-white/50 line-through text-base font-medium">$15.000/mes</span>
-                                <span className="text-4xl font-extrabold text-white">$10.000</span>
+                                <span className="text-white/50 line-through text-base font-medium">$14.900/mes</span>
+                                <span className="text-4xl font-extrabold text-white">$9.900</span>
                                 <span className="text-white/70 text-sm font-medium">/mes</span>
                             </div>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-400/20 border border-green-300/30 rounded-full">

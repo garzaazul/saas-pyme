@@ -102,7 +102,8 @@ export default function PrivacidadPage() {
                         </p>
                         <div className="mt-2 p-4 bg-stone-50 rounded-xl border border-stone-200 text-sm space-y-1">
                             <p><strong className="text-gray-800">Nombre:</strong> Carlos Garcés Aguilar</p>
-                            <p><strong className="text-gray-800">Rol:</strong> Operador del servicio FLUXU</p>
+                            <p><strong className="text-gray-800">Marca comercial:</strong> Agencia bestIA</p>
+                            <p><strong className="text-gray-800">Rol:</strong> Desarrollador y operador del servicio FLUXU</p>
                             <p>
                                 <strong className="text-gray-800">Contacto:</strong>{" "}
                                 <a href="mailto:carlosgarcesaguilar@gmail.com" className="text-[#091226] hover:underline">
@@ -301,7 +302,16 @@ export default function PrivacidadPage() {
             {/* Footer */}
             <footer className="bg-[#091226] text-slate-400">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-                    <span>© 2026 FLUXU. Todos los derechos reservados.</span>
+                    <div className="flex flex-col items-center sm:items-start gap-1">
+                        <span>© 2026 FLUXU. Todos los derechos reservados.</span>
+                        <span>
+                            Desarrollado por{" "}
+                            <a href="https://www.agenciabestia.cl" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-white transition-colors font-medium">
+                                Agencia bestIA
+                            </a>
+                            {" "}· Carlos Garcés Aguilar
+                        </span>
+                    </div>
                     <div className="flex items-center gap-5">
                         <Link href="/terminos" className="hover:text-white transition-colors">
                             Términos

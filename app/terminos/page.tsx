@@ -73,7 +73,7 @@ export default function TerminosPage() {
                 {/* Introducción */}
                 <div className="mb-10 p-5 bg-[#091226]/5 rounded-2xl border border-[#091226]/10">
                     <p className="text-sm text-gray-700 leading-relaxed">
-                        FLUXU es un servicio de gestión comercial operado por <strong>Carlos Garcés Aguilar</strong> (en adelante, "nosotros" o "FLUXU"). Al acceder y utilizar este servicio, el usuario (en adelante, "usuario" o "cliente") acepta íntegramente los presentes Términos y Condiciones. Si no estás de acuerdo con ellos, te pedimos que no uses el servicio.
+                        FLUXU es un servicio de gestión comercial desarrollado y operado por <strong>Carlos Garcés Aguilar</strong>, bajo la marca comercial <strong>Agencia bestIA</strong> (en adelante, "nosotros" o "FLUXU"). Al acceder y utilizar este servicio, el usuario (en adelante, "usuario" o "cliente") acepta íntegramente los presentes Términos y Condiciones. Si no estás de acuerdo con ellos, te pedimos que no uses el servicio.
                     </p>
                 </div>
 
@@ -100,7 +100,7 @@ export default function TerminosPage() {
 
                     <Article number={3} title="Plan y condiciones de pago">
                         <p>
-                            FLUXU ofrece un <strong>plan único mensual de $10.000 CLP</strong> (pesos chilenos) al mes. Este precio puede ser modificado con un aviso previo de al menos 30 días por correo electrónico.
+                            FLUXU ofrece un <strong>plan único mensual de $9.900 CLP</strong> (pesos chilenos) al mes. Este precio puede ser modificado con un aviso previo de al menos 30 días por correo electrónico.
                         </p>
                         <p>
                             Al activar la cuenta, el usuario accede a un <strong>primer mes gratuito</strong> sin cargo. Finalizado el período de prueba, el cobro se realiza de forma automática y mensual mediante la pasarela de pago habilitada, con cargo a la tarjeta de crédito o débito registrada.
@@ -160,7 +160,7 @@ export default function TerminosPage() {
 
                     <Article number={8} title="Propiedad intelectual">
                         <p>
-                            El software, diseño, marca, textos y demás elementos de FLUXU son propiedad de Carlos Garcés Aguilar y están protegidos por las leyes de propiedad intelectual aplicables. El usuario no adquiere ningún derecho sobre ellos más allá del uso del servicio conforme a estos términos.
+                            El software, diseño, marca, textos y demás elementos de FLUXU son propiedad de <strong>Carlos Garcés Aguilar</strong>, desarrollados bajo la marca comercial <strong>Agencia bestIA</strong>, y están protegidos por las leyes de propiedad intelectual aplicables. El usuario no adquiere ningún derecho sobre ellos más allá del uso del servicio conforme a estos términos.
                         </p>
                     </Article>
 
@@ -207,7 +207,16 @@ export default function TerminosPage() {
             {/* Footer */}
             <footer className="bg-[#091226] text-slate-400">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-                    <span>© 2026 FLUXU. Todos los derechos reservados.</span>
+                    <div className="flex flex-col items-center sm:items-start gap-1">
+                        <span>© 2026 FLUXU. Todos los derechos reservados.</span>
+                        <span>
+                            Desarrollado por{" "}
+                            <a href="https://www.agenciabestia.cl" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-white transition-colors font-medium">
+                                Agencia bestIA
+                            </a>
+                            {" "}· Carlos Garcés Aguilar
+                        </span>
+                    </div>
                     <div className="flex items-center gap-5">
                         <Link href="/terminos" className="hover:text-white transition-colors font-medium text-white">
                             Términos
