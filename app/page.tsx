@@ -380,7 +380,7 @@ export default function LandingPage() {
                         Te lo configuramos en 15 minutos
                     </h2>
                     <p className="text-gray-500 text-base leading-relaxed max-w-lg mx-auto mb-3">
-                        Al activar tu cuenta, agendas una videollamada donde te dejamos todo listo: tu logo, tus productos, tu primera cotización. Sin costo adicional, sin complicaciones.
+                        Al activar tu cuenta, agendas una videollamada donde te dejamos todo listo: datos de tu empresa, tus productos, tu primera cotización. Sin costo adicional, sin complicaciones.
                     </p>
                     <p className="text-xs text-blue-600 font-semibold uppercase tracking-wider">
                         Disponible para los primeros 100 inscritos
