@@ -10,7 +10,6 @@ import { StoreCartSummary } from "@/components/store/store-cart-summary";
 import { StoreFooter } from "@/components/store/store-footer";
 import { ShoppingBag, Search, Filter, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 interface StoreViewProps {
     organization: Organization;
@@ -68,7 +67,7 @@ export function StoreView({ organization, products, categories }: StoreViewProps
     }, [products, searchTerm, selectedCategory]);
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-slate-950 flex flex-col font-sans">
+        <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col font-sans">
             <StoreHeader
                 organization={organization}
                 cartCount={cartCount}
@@ -76,51 +75,69 @@ export function StoreView({ organization, products, categories }: StoreViewProps
             />
 
             <main className="flex-1">
-                {/* Hero / Banner - Compacted */}
-                <section className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 md:py-10">
-                        <div className="max-w-3xl">
-                            <h2 className="text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-white leading-tight mb-2">
-                                Explora nuestro catálogo digital
+                {/* Hero / Banner */}
+                <section
+                    className="border-b border-gray-100 dark:border-slate-800"
+                    style={{
+                        backgroundImage: "radial-gradient(#e5e7eb 1px, transparent 1px)",
+                        backgroundSize: "24px 24px",
+                        backgroundColor: "#ffffff",
+                    }}
+                >
+                    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 md:py-14">
+                        <div className="max-w-2xl">
+                            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-gray-900 dark:text-white leading-tight mb-3">
+                                Explora nuestro{" "}
+                                <span className="text-blue-600">catálogo</span>{" "}
+                                digital
                             </h2>
-                            <p className="text-sm md:text-base text-muted-foreground font-medium italic">
+                            <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 leading-relaxed mb-3">
                                 {organization.description || "Encuentra lo que necesitas y cotiza directamente por WhatsApp."}
+                            </p>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                {filteredProducts.length} {filteredProducts.length === 1 ? "producto disponible" : "productos disponibles"}
                             </p>
                         </div>
                     </div>
                 </section>
 
                 {/* Filters & Search */}
-                <section className="sticky top-20 z-40 bg-neutral-50/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-gray-100 dark:border-slate-800">
+                <section className="sticky top-16 md:top-20 z-40 bg-white dark:bg-slate-950 py-3 border-b border-gray-100 dark:border-slate-800">
                     <div className="max-w-7xl mx-auto px-4 sm:px-8">
-                        <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex flex-col md:flex-row gap-3">
                             <div className="relative flex-1 group">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
                                 <Input
                                     placeholder="¿Qué estás buscando?..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-12 h-12 rounded-xl border-gray-200 bg-white dark:bg-slate-800 focus:ring-primary/20 shadow-sm"
+                                    className="pl-12 h-11 rounded-full border-gray-300 bg-white dark:bg-slate-800 focus:border-blue-400 focus:ring-blue-100 shadow-none"
                                 />
                             </div>
 
-                            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                                <Button
-                                    variant={selectedCategory === null ? "default" : "outline"}
+                            <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
+                                <button
                                     onClick={() => setSelectedCategory(null)}
-                                    className="rounded-xl h-12 px-6 font-bold"
+                                    className={`h-11 px-5 rounded-full font-bold text-sm whitespace-nowrap transition-all flex-shrink-0 ${
+                                        selectedCategory === null
+                                            ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                                            : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                                    }`}
                                 >
                                     Todos
-                                </Button>
+                                </button>
                                 {categories.map(cat => (
-                                    <Button
+                                    <button
                                         key={cat.id}
-                                        variant={selectedCategory === cat.id ? "default" : "outline"}
                                         onClick={() => setSelectedCategory(cat.id)}
-                                        className="rounded-xl h-12 px-6 font-bold whitespace-nowrap"
+                                        className={`h-11 px-5 rounded-full font-bold text-sm whitespace-nowrap transition-all flex-shrink-0 ${
+                                            selectedCategory === cat.id
+                                                ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                                                : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                                        }`}
                                     >
                                         {cat.name}
-                                    </Button>
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -128,7 +145,7 @@ export function StoreView({ organization, products, categories }: StoreViewProps
                 </section>
 
                 {/* Grid */}
-                <section className="py-10">
+                <section className="py-8 md:py-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-8">
                         {filteredProducts.length === 0 ? (
                             <div className="py-24 flex flex-col items-center justify-center opacity-20 text-center">
@@ -136,17 +153,22 @@ export function StoreView({ organization, products, categories }: StoreViewProps
                                 <p className="text-lg font-black uppercase tracking-widest">No hay productos que coincidan</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {filteredProducts.map(product => (
-                                    <StoreProductCard
-                                        key={product.id}
-                                        product={product}
-                                        quantity={cart[product.id] || 0}
-                                        onUpdateQuantity={updateQuantity}
-                                        showIva={showIva}
-                                    />
-                                ))}
-                            </div>
+                            <>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-5">
+                                    {filteredProducts.length} {filteredProducts.length === 1 ? "resultado" : "resultados"}
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                    {filteredProducts.map(product => (
+                                        <StoreProductCard
+                                            key={product.id}
+                                            product={product}
+                                            quantity={cart[product.id] || 0}
+                                            onUpdateQuantity={updateQuantity}
+                                            showIva={showIva}
+                                        />
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </div>
                 </section>
