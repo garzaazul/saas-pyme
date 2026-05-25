@@ -100,7 +100,7 @@ export default function TerminosPage() {
 
                     <Article number={3} title="Plan y condiciones de pago">
                         <p>
-                            FLUXU ofrece un <strong>plan único mensual de $9.900 CLP</strong> (pesos chilenos) al mes. Este precio puede ser modificado con un aviso previo de al menos 30 días por correo electrónico.
+                            FLUXU ofrece un <strong>plan único mensual de $9.900 + IVA CLP al mes</strong> (IVA según legislación vigente). Este precio puede ser modificado con un aviso previo de al menos 30 días por correo electrónico.
                         </p>
                         <p>
                             Al activar la cuenta, el usuario accede a un <strong>primer mes gratuito</strong> sin cargo. Finalizado el período de prueba, el cobro se realiza de forma automática y mensual mediante la pasarela de pago habilitada, con cargo a la tarjeta de crédito o débito registrada.

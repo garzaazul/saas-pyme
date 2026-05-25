@@ -12,6 +12,7 @@ import {
     CheckCircle2,
     ArrowRight,
     Phone,
+    Video,
 } from "lucide-react";
 import { MobileMenu } from "@/components/landing/mobile-menu";
 import { ContactForm } from "@/components/landing/contact-form";
@@ -164,16 +165,20 @@ export default function LandingPage() {
                             <p className="text-base sm:text-lg text-gray-500 mb-6 leading-relaxed max-w-md">
                                 El sistema de gestión comercial para PyMEs y emprendimientos
                                 en Chile. Cotizaciones, catálogo de productos y clientes — todo en un
-                                solo lugar.
+                                solo lugar.{" "}
+                                <span className="font-semibold text-gray-700">Te lo configuramos en una videollamada de 15 minutos.</span>
                             </p>
 
                             {/* Precio inline */}
-                            <div className="flex flex-wrap items-center gap-2.5 mb-8">
-                                <span className="text-gray-400 line-through text-sm font-medium">$14.900/mes</span>
-                                <span className="text-2xl font-extrabold text-[#091226]">$9.900/mes</span>
-                                <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200 uppercase tracking-wide">
-                                    Primer mes gratis
-                                </span>
+                            <div className="mb-8">
+                                <div className="flex flex-wrap items-center gap-2.5 mb-1">
+                                    <span className="text-gray-400 line-through text-sm font-medium">$14.900 + IVA</span>
+                                    <span className="text-2xl font-extrabold text-[#091226]">$9.900 + IVA/mes</span>
+                                    <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200 uppercase tracking-wide">
+                                        Primer mes gratis
+                                    </span>
+                                </div>
+                                <p className="text-xs text-gray-400">IVA no incluido</p>
                             </div>
 
                             {/* CTAs — formulario primario, WhatsApp secundario */}
@@ -227,7 +232,7 @@ export default function LandingPage() {
 
                         {/* Lista de dolores con dividers */}
                         <div className="divide-y divide-stone-200">
-                            <PainRow icon={MessageSquare} text="Cotizas por WhatsApp o Word y se te pierden los números" />
+                            <PainRow icon={MessageSquare} text="Cotizas por WhatsApp, Excel o correo y se te pierden los números" />
                             <PainRow icon={Globe} text="No tienes un catálogo online para mostrar tus productos" />
                             <PainRow icon={Building2} text="Quieres verte profesional pero un ERP es caro y complicado" />
                             <PainRow icon={FileCheck} text="No necesitas facturar, pero sí necesitas orden" />
@@ -365,6 +370,24 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* ── VIDEOLLAMADA — refuerzo de valor ────────────────────────── */}
+            <section className="py-16 bg-blue-50">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-100 mb-5">
+                        <Video className="w-7 h-7 text-blue-600" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3 leading-tight">
+                        Te lo configuramos en 15 minutos
+                    </h2>
+                    <p className="text-gray-500 text-base leading-relaxed max-w-lg mx-auto mb-3">
+                        Al activar tu cuenta, agendas una videollamada donde te dejamos todo listo: tu logo, tus productos, tu primera cotización. Sin costo adicional, sin complicaciones.
+                    </p>
+                    <p className="text-xs text-blue-600 font-semibold uppercase tracking-wider">
+                        Disponible para los primeros 100 inscritos
+                    </p>
+                </div>
+            </section>
+
             {/* ── PRECIO — cierre/refuerzo ────────────────────────────────── */}
             <section id="precio" className="py-20 bg-white">
                 <div className="max-w-lg mx-auto px-4 sm:px-6">
@@ -384,10 +407,11 @@ export default function LandingPage() {
                                 Lanzamiento — primeros 100 inscritos
                             </span>
                             <div className="flex items-baseline justify-center gap-3 mb-3">
-                                <span className="text-white/50 line-through text-base font-medium">$14.900/mes</span>
+                                <span className="text-white/50 line-through text-base font-medium">$14.900 + IVA</span>
                                 <span className="text-4xl font-extrabold text-white">$9.900</span>
-                                <span className="text-white/70 text-sm font-medium">/mes</span>
+                                <span className="text-white/70 text-sm font-medium">+ IVA/mes</span>
                             </div>
+                            <p className="text-white/40 text-xs mb-3">IVA no incluido</p>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-400/20 border border-green-300/30 rounded-full">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-300" />
                                 <span className="text-green-100 text-xs font-bold uppercase tracking-wide">Primer mes gratis</span>
@@ -397,6 +421,7 @@ export default function LandingPage() {
                         {/* Body */}
                         <div className="px-8 py-8">
                             <ul className="space-y-3 mb-8">
+                                <CheckItem text="Videollamada de configuración personalizada (15 min)" />
                                 <CheckItem text="Cotizaciones ilimitadas con PDF" />
                                 <CheckItem text="Catálogo público online" />
                                 <CheckItem text="Gestión de clientes" />
