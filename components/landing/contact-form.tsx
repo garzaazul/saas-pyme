@@ -3,9 +3,6 @@
 import { useState } from "react";
 import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
-// Reemplaza este endpoint con el tuyo en https://formspree.io
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
-
 const inputClass =
     "w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#091226] focus:border-transparent transition-all";
 
@@ -23,19 +20,27 @@ export function ContactForm() {
         const form = e.currentTarget;
         const data = new FormData(form);
 
+        const payload = {
+            name:     (data.get("name")     as string)?.trim() ?? "",
+            email:    (data.get("email")    as string)?.trim() ?? "",
+            phone:    (data.get("phone")    as string)?.trim() ?? "",
+            business: (data.get("business") as string)?.trim() ?? "",
+        };
+
         try {
-            const res = await fetch(FORMSPREE_ENDPOINT, {
+            const res = await fetch("/api/contact", {
                 method: "POST",
-                body: data,
-                headers: { Accept: "application/json" },
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
             });
 
-            if (res.ok) {
+            const json = await res.json().catch(() => ({}));
+
+            if (json.success) {
                 setStatus("success");
                 form.reset();
             } else {
-                const json = await res.json().catch(() => ({}));
-                setErrorMsg(json?.errors?.[0]?.message || "Error al enviar. Intenta de nuevo.");
+                setErrorMsg(json.error || "Error al enviar. Intenta de nuevo.");
                 setStatus("error");
             }
         } catch {
